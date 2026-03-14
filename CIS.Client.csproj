@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -7,6 +7,17 @@
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
     <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="CIS.API\**" />
+    <Compile Remove="CIS.Assets\**" />
+    <Content Remove="CIS.API\**" />
+    <Content Remove="CIS.Assets\**" />
+    <EmbeddedResource Remove="CIS.API\**" />
+    <EmbeddedResource Remove="CIS.Assets\**" />
+    <None Remove="CIS.API\**" />
+    <None Remove="CIS.Assets\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.3" />
@@ -19,7 +30,12 @@
 
   <ItemGroup>
     <Folder Include="Components\" />
-    <Folder Include="Services\" />
+    <Folder Include="Pages\Individual\" />
+    <Folder Include="Pages\Business\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CIS.Assets\CIS.Assets.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 {
-  "name": "PoracBank.CIS",
-  "short_name": "PoracBank.CIS",
+  "name": "CIS",
+  "short_name": "CIS",
   "id": "./",
   "start_url": "./",
   "display": "standalone",
