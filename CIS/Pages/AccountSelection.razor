@@ -1,0 +1,56 @@
+﻿@page "/"
+@namespace CIS.Client.Pages.AccountSelection
+
+<div class="container text-center mt-5">
+    <div class="mb-5">
+        <h1 class="display-4 fw-bold text-primary">Porac Bank</h1>
+        <p class="lead">Customer Information System</p>
+    </div>
+
+    <div class="row justify-content-center g-4">
+        <div class="col-md-5">
+            <div class="card h-100 shadow-sm border-primary selection-card" @onclick='() => NavigateTo("individual")'>
+                <div class="card-body p-5">
+                    <i class="bi bi-person-circle display-1 text-primary mb-3"></i>
+                    <h2 class="h4">Individual Account</h2>
+                    <p class="text-muted">Register personal, joint, or single proprietorship accounts.</p>
+                    <button class="btn btn-primary mt-3">Start Individual Flow</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card h-100 shadow-sm border-success selection-card" @onclick='() => NavigateTo("business")'>
+                <div class="card-body p-5">
+                    <i class="bi bi-building display-1 text-success mb-3"></i>
+                    <h2 class="h4">Business Account</h2>
+                    <p class="text-muted">Register corporations, partnerships, or organizations.</p>
+                    <button class="btn btn-success mt-3">Start Business Flow</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    private void NavigateTo(string path)
+    {
+        // Navigates to the respective stepper paths
+        Nav.NavigateTo($"/cis/{path}");
+    }
+}
+
+<style>
+    .selection-card {
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-width: 2px;
+    }
+
+        .selection-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+        }
+</style>

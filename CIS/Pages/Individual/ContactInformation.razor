@@ -1,0 +1,55 @@
+﻿@using CIS.Client.Services
+@inject ProfileService ProfileService
+
+<EditForm Model="ContactModel" OnValidSubmit="HandleNext">
+    <div class="card shadow-sm p-4">
+        <h5>Step 3: Contact & Address Information</h5>
+
+        <h6 class="mt-3">Permanent Address</h6>
+        <div class="row g-3">
+            <div class="col-md-12">
+                <InputText @bind-Value="AddressModel.PermanentAddress" class="form-control" placeholder="Full Address" />
+            </div>
+            <div class="col-md-4">
+                <InputText @bind-Value="AddressModel.PermanentZipCode" class="form-control" placeholder="Zip Code" />
+            </div>
+        </div>
+
+        <h6 class="mt-4">Contact Details</h6>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label>Mobile Number</label>
+                <InputText @bind-Value="ContactModel.MobilePhoneNumber" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label>Email Address</label>
+                <InputText @bind-Value="ContactModel.EmailAddress" class="form-control" />
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-5">
+            <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
+            <button type="submit" class="btn btn-primary px-5">Save & Next</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public AddressDTO.PageModel AddressModel { get; set; } = new();
+    [Parameter] public ContactDTO.PageModel ContactModel { get; set; } = new();
+    [Parameter] public long CustomerId { get; set; }
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+
+    private async Task HandleNext()
+    {
+        AddressModel.EntityID = CustomerId;
+        ContactModel.EntityID = CustomerId;
+
+        // Save both models
+        await ProfileService.UpsertAddressAsync(AddressModel);
+        await ProfileService.UpsertContactAsync(ContactModel);
+
+        await OnNext.InvokeAsync();
+    }
+}

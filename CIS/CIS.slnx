@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="../CIS.API/CIS.API.csproj" />
+  <Project Path="../CIS.Assets/CIS.Assets.csproj" />
+  <Project Path="CIS.Client.csproj" />
+</Solution>
