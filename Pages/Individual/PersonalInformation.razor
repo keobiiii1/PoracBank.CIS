@@ -1,0 +1,115 @@
+﻿@using CIS.Client.Services
+@inject IndividualService IndividualService
+
+<EditForm Model="Model" OnValidSubmit="HandleNext">
+    <DataAnnotationsValidator />
+
+    <div class="card shadow-sm p-4">
+        <h5>Step 2: Personal Information</h5>
+        <div class="row g-3 mt-2">
+            <div class="col-md-4">
+                <label>First Name</label>
+                <InputText @bind-Value="Model.FirstName" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label>Middle Name</label>
+                <InputText @bind-Value="Model.MiddleName" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label>Last Name</label>
+                <InputText @bind-Value="Model.LastName" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+                <label>Resident</label>
+                <InputSelect @bind-Value="Model.IsResident" class="form-select">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </InputSelect>
+            </div>
+            <div class="col-md-3">
+                <label>Gender</label>
+                <InputSelect @bind-Value="Model.Gender" class="form-select">
+                    @foreach (var g in Enum.GetValues<Gender>())
+                    {
+                        <option value="@g">@g</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Citizenship</label>
+                <InputSelect @bind-Value="Model.Citizenship" class="form-select">
+                    @foreach (var c in Enum.GetValues<Citizenship>())
+                    {
+                        <option value="@c">@c</option>
+                    }
+                </InputSelect>
+            </div>
+        </div>
+
+        @if (Model.Gender == Gender.Female)
+        {
+            <div class="row g-3 mt-3 p-3 bg-light rounded border">
+                <h6>Maiden Name Details</h6>
+                <div class="col-md-4">
+                    <InputText @bind-Value="Model.MaidenFirstName" class="form-control" placeholder="First Name" />
+                </div>
+                <div class="col-md-4">
+                    <InputText @bind-Value="Model.MaidenMiddleName" class="form-control" placeholder="Middle Name" />
+                </div>
+                <div class="col-md-4">
+                    <InputText @bind-Value="Model.MaidenLastName" class="form-control" placeholder="Maiden Last Name" />
+                </div>
+            </div>
+        }
+
+        <div class="form-check mt-4">
+            <InputCheckbox @bind-Value="Model.IsForeigner" class="form-check-input" id="chkForeigner" />
+            <label class="form-check-label" for="chkForeigner">Is Foreigner?</label>
+        </div>
+
+        @if (Model.IsForeigner)
+        {
+            <div class="row g-3 mt-2 p-3 bg-light rounded border border-warning">
+                <div class="col-md-6">
+                    <label>Passport ID Number</label>
+                    <InputText @bind-Value="Model.PassportIDNumber" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label>Passport Expiry</label>
+                    <InputDate @bind-Value="Model.PassportExpiry" class="form-control" />
+                </div>
+                <div class="col-md-12 d-flex gap-4">
+                    <div class="form-check">
+                        <InputCheckbox @bind-Value="Model.IsACR" class="form-check-input" /> <label>Is ACR</label>
+                    </div>
+                    <div class="form-check">
+                        <InputCheckbox @bind-Value="Model.IsSIRV" class="form-check-input" /> <label>Is SIRV</label>
+                    </div>
+                    <div class="form-check">
+                        <InputCheckbox @bind-Value="Model.IsSRRV" class="form-check-input" /> <label>Is SRRV</label>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="d-flex justify-content-between mt-5">
+            <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
+            <button type="submit" class="btn btn-primary px-5">Save & Next</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public IndividualInfoDTO.PageModel Model { get; set; } = new();
+    [Parameter] public EventCallback<IndividualInfoDTO.PageModel> ModelChanged { get; set; }
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+
+    private async Task HandleNext()
+    {
+        // This calls IndividualService -> IndividualController -> IndividualRepository
+        await IndividualService.UpsertInfoAsync(Model);
+        await OnNext.InvokeAsync();
+    }
+}

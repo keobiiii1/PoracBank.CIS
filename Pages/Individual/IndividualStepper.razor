@@ -1,0 +1,76 @@
+﻿@page "/cis/individual"
+@namespace CIS.Client.Pages.Individual
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Individual Account Registration</h2>
+        <span class="badge bg-primary">Step @CurrentStep of 7</span>
+    </div>
+
+    <div class="progress mb-4" style="height: 10px;">
+        <div class="progress-bar" style="width: @(CurrentStep * 14.28)%"></div>
+    </div>
+
+    @if (CurrentStep == 1)
+    {
+        <BasicInformation @bind-Customer="customerModel" OnNext="HandleNext" />
+    }
+    else if (CurrentStep == 2)
+    {
+        <PersonalInformation @bind-Model="personalModel" OnNext="HandleNext" OnBack="PrevStep" />
+    }
+    else if (CurrentStep == 3)
+    {
+        <ContactInformation AddressModel="addressModel"
+                            ContactModel="contactModel"
+                            CustomerId="customerModel.CustomerID"
+                            OnNext="HandleNext"
+                            OnBack="PrevStep" />
+    }
+    else if (CurrentStep == 4)
+    {
+        <EmploymentInformation Model="employmentModel"
+                               CustomerId="customerModel.CustomerID"
+                               OnNext="HandleNext"
+                               OnBack="PrevStep" />
+    }
+    else if (CurrentStep == 5)
+    {
+        <FamilyBackground Model="familyModel"
+                          CustomerId="customerModel.CustomerID"
+                          OnNext="HandleNext"
+                          OnBack="PrevStep" />
+    }
+    else if (CurrentStep == 6)
+    {
+        <BankReview Model="reviewModel"
+                    CustomerId="customerModel.CustomerID"
+                    OnNext="HandleNext"
+                    OnBack="PrevStep" />
+    }
+    else if (CurrentStep == 7)
+    {
+        <RegistrationComplete />
+    }
+</div>
+
+@code {
+    private int CurrentStep = 1;
+
+    private CustomerDTO.PageModel customerModel = new();
+    private IndividualInfoDTO.PageModel personalModel = new();
+    private AddressDTO.PageModel addressModel = new();
+    private ContactDTO.PageModel contactModel = new();
+    private IndividualEmploymentDTO.PageModel employmentModel = new();
+    private IndividualFamilyDTO.PageModel familyModel = new();
+    private BankReviewDTO.PageModel reviewModel = new();
+
+    private void HandleNext()
+    {
+        if (CurrentStep == 1) personalModel.CustomerID = customerModel.CustomerID;
+
+        CurrentStep++;
+    }
+
+    private void PrevStep() => CurrentStep--;
+}

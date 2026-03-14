@@ -1,0 +1,44 @@
+﻿@using CIS.Client.Services
+@inject BankReviewService ReviewService
+
+<EditForm Model="Model" OnValidSubmit="HandleNext">
+    <div class="card shadow-sm p-4 border-danger">
+        <h5>Step 6: Bank Review & Compliance</h5>
+        <div class="row g-3 mt-2">
+            <div class="col-md-6">
+                <div class="form-check form-switch">
+                    <InputCheckbox @bind-Value="Model.IsNegativeListed" class="form-check-input" />
+                    <label class="form-check-label">Negative Listed?</label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check form-switch">
+                    <InputCheckbox @bind-Value="Model.IsPEPListed" class="form-check-input" />
+                    <label class="form-check-label">PEP Listed?</label>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label>Remarks</label>
+                <InputTextArea @bind-Value="Model.Remarks" class="form-control" rows="3" />
+            </div>
+        </div>
+        <div class="d-flex justify-content-between mt-5">
+            <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
+            <button type="submit" class="btn btn-danger px-5">Submit Review</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public BankReviewDTO.PageModel Model { get; set; } = new();
+    [Parameter] public long CustomerId { get; set; }
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+
+    private async Task HandleNext()
+    {
+        Model.CustomerID = CustomerId;
+        await ReviewService.UpsertReviewAsync(Model);
+        await OnNext.InvokeAsync();
+    }
+}
