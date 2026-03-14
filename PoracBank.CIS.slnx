@@ -1,5 +1,0 @@
-<Solution>
-  <Project Path="../PoracBank.CIS.API/PoracBank.CIS.API.csproj" />
-  <Project Path="../PoracBank.CIS.Assets/PoracBank.CIS.Assets.csproj" />
-  <Project Path="PoracBank.CIS.Client.csproj" />
-</Solution>
