@@ -1,60 +1,55 @@
 ﻿@using CIS.Client.Services
-@inject CustomerService CustomerService
+@inject ProfileService ProfileService
 
-<EditForm Model="Customer" OnValidSubmit="SaveAndNext">
-    <DataAnnotationsValidator />
+<EditForm Model="ContactModel" OnValidSubmit="HandleNext">
+    <div class="card shadow-sm p-4">
+        <h5>Step 3: Contact & Address Information</h5>
 
-    <div class="card p-4 shadow-sm">
-        <h4 class="mb-3">Step 1: Basic Information</h4>
-
+        <h6 class="mt-3">Permanent Address</h6>
         <div class="row g-3">
             <div class="col-md-12">
-                <label class="form-label">CID Number</label>
-                <InputText @bind-Value="Customer.CIDNumber" class="form-control" maxlength="10" placeholder="Enter 10-digit CID" />
-                <ValidationMessage For="@(() => Customer.CIDNumber)" />
+                <InputText @bind-Value="AddressModel.PermanentAddress" class="form-control" placeholder="Full Address" />
             </div>
-
-            <div class="col-md-6">
-                <label class="form-label">Customer Category</label>
-                <InputSelect @bind-Value="Customer.CustomerCategory" class="form-select">
-                    <option value="">-- Select Category --</option>
-                    @foreach (var val in Enum.GetValues<CustomerCategory>())
-                    {
-                        <option value="@val">@val</option>
-                    }
-                </InputSelect>
-            </div>
-
-            <div class="col-md-6">
-                <label class="form-label">Customer Type</label>
-                <InputSelect @bind-Value="Customer.CustomerType" class="form-select">
-                    <option value="">-- Select Type --</option>
-                    @foreach (var val in Enum.GetValues<CustomerType>())
-                    {
-                        <option value="@val">@val</option>
-                    }
-                </InputSelect>
+            <div class="col-md-4">
+                <InputText @bind-Value="AddressModel.PermanentZipCode" class="form-control" placeholder="Zip Code" />
             </div>
         </div>
 
-        <div class="mt-4 d-flex justify-content-end">
-            <button type="submit" class="btn btn-success px-5">Save and Next</button>
+        <h6 class="mt-4">Contact Details</h6>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label>Mobile Number</label>
+                <InputText @bind-Value="ContactModel.MobilePhoneNumber" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label>Email Address</label>
+                <InputText @bind-Value="ContactModel.EmailAddress" class="form-control" />
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-5">
+            <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
+            <button type="submit" class="btn btn-primary px-5">Save & Next</button>
         </div>
     </div>
 </EditForm>
 
 @code {
-    [Parameter] public CustomerDTO.PageModel Customer { get; set; } = new();
-    [Parameter] public EventCallback<CustomerDTO.PageModel> CustomerChanged { get; set; }
+    [Parameter] public AddressDTO.PageModel AddressModel { get; set; } = new();
+    [Parameter] public ContactDTO.PageModel ContactModel { get; set; } = new();
+    [Parameter] public long CustomerId { get; set; }
     [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
 
-    private async Task SaveAndNext()
+    private async Task HandleNext()
     {
-        // 1. Call the Service to INSERT into Database
-        await CustomerService.UpsertAsync(Customer);
+        AddressModel.EntityID = CustomerId;
+        ContactModel.EntityID = CustomerId;
 
-        // 2. Notify Parent to move to Step 2
-        await CustomerChanged.InvokeAsync(Customer);
+        // Save both models
+        await ProfileService.UpsertAddressAsync(AddressModel);
+        await ProfileService.UpsertContactAsync(ContactModel);
+
         await OnNext.InvokeAsync();
     }
 }

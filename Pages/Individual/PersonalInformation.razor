@@ -7,6 +7,7 @@
     <div class="card shadow-sm p-4">
         <h5>Step 2: Personal Information</h5>
         <div class="row g-3 mt-2">
+            @* --- Primary Names --- *@
             <div class="col-md-4">
                 <label>First Name</label>
                 <InputText @bind-Value="Model.FirstName" class="form-control" />
@@ -20,6 +21,7 @@
                 <InputText @bind-Value="Model.LastName" class="form-control" />
             </div>
 
+            @* --- Residence and Gender --- *@
             <div class="col-md-3">
                 <label>Resident</label>
                 <InputSelect @bind-Value="Model.IsResident" class="form-select">
@@ -36,7 +38,9 @@
                     }
                 </InputSelect>
             </div>
-            <div class="col-md-6">
+
+            @* --- Citizenship & Citizenship Other --- *@
+            <div class="col-md-3">
                 <label class="form-label">Citizenship</label>
                 <InputSelect @bind-Value="Model.Citizenship" class="form-select">
                     @foreach (var c in Enum.GetValues<Citizenship>())
@@ -45,8 +49,58 @@
                     }
                 </InputSelect>
             </div>
+            @if (Model.Citizenship == Citizenship.Others)
+            {
+                <div class="col-md-3">
+                    <label>Specify Citizenship</label>
+                    <InputText @bind-Value="Model.CitizenshipOther" class="form-control" />
+                </div>
+            }
+
+            @* --- Birth Details --- *@
+            <div class="col-md-4">
+                <label>Date of Birth</label>
+                <InputDate @bind-Value="Model.DateOfBirth" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label>Place of Birth</label>
+                <InputText @bind-Value="Model.PlaceOfBirth" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label>Country of Origin</label>
+                <InputText @bind-Value="Model.CountryOfOrigin" class="form-control" />
+            </div>
+
+            @* --- Marital Status & Spouse --- *@
+            <div class="col-md-6">
+                <label>Marital Status</label>
+                <InputSelect @bind-Value="Model.MaritalStatus" class="form-select">
+                    @foreach (var m in Enum.GetValues<MaritalStatus>())
+                    {
+                        <option value="@m">@m</option>
+                    }
+                </InputSelect>
+            </div>
+            @if (Model.MaritalStatus == MaritalStatus.Married || Model.MaritalStatus == MaritalStatus.Widowed)
+            {
+                <div class="row g-2 mt-2 border-start ps-3">
+                    <h6>Spouse Full Name</h6>
+                    <div class="col-md-4"><InputText @bind-Value="Model.SpouseGivenName" class="form-control" placeholder="Given Name" /></div>
+                    <div class="col-md-4"><InputText @bind-Value="Model.SpouseMiddleName" class="form-control" placeholder="Middle Name" /></div>
+                    <div class="col-md-4"><InputText @bind-Value="Model.SpouseLastName" class="form-control" placeholder="Last Name" /></div>
+                </div>
+            }
+
+            @* --- Mother's Maiden Name --- *@
+            <div class="row g-2 mt-4 border-start ps-3">
+                <h6>Mother's Maiden Name</h6>
+                <div class="col-md-4"><InputText @bind-Value="Model.MotherMaidenGivenName" class="form-control" placeholder="Given Name" /></div>
+                <div class="col-md-4"><InputText @bind-Value="Model.MotherMaidenMiddleName" class="form-control" placeholder="Middle Name" /></div>
+                <div class="col-md-4"><InputText @bind-Value="Model.MotherMaidenLastName" class="form-control" placeholder="Last Name" /></div>
+            </div>
         </div>
 
+        @* --- Conditional: Female Maiden Name Details --- *@
         @if (Model.Gender == Gender.Female)
         {
             <div class="row g-3 mt-3 p-3 bg-light rounded border">
@@ -63,6 +117,7 @@
             </div>
         }
 
+        @* --- Foreigner Section --- *@
         <div class="form-check mt-4">
             <InputCheckbox @bind-Value="Model.IsForeigner" class="form-check-input" id="chkForeigner" />
             <label class="form-check-label" for="chkForeigner">Is Foreigner?</label>
@@ -108,7 +163,12 @@
 
     private async Task HandleNext()
     {
-        // This calls IndividualService -> IndividualController -> IndividualRepository
+        if (Model.CustomerID == 0)
+        {
+            Console.WriteLine("Error: CustomerID is missing for Personal Information");
+            return;
+        }
+
         await IndividualService.UpsertInfoAsync(Model);
         await OnNext.InvokeAsync();
     }

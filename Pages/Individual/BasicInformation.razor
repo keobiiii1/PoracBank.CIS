@@ -48,13 +48,16 @@
     [Parameter] public EventCallback<CustomerDTO.PageModel> CustomerChanged { get; set; }
     [Parameter] public EventCallback OnNext { get; set; }
 
+
     private async Task SaveAndNext()
     {
-        // 1. Call the Service to INSERT into Database
-        await CustomerService.UpsertAsync(Customer);
+        var generatedId = await CustomerService.UpsertAsync(Customer);
 
-        // 2. Notify Parent to move to Step 2
-        await CustomerChanged.InvokeAsync(Customer);
-        await OnNext.InvokeAsync();
+        if (generatedId > 0)
+        {
+            Customer.CustomerID = generatedId;
+            await CustomerChanged.InvokeAsync(Customer);
+            await OnNext.InvokeAsync();
+        }
     }
 }

@@ -67,9 +67,16 @@
 
     private void HandleNext()
     {
-        if (CurrentStep == 1) personalModel.CustomerID = customerModel.CustomerID;
+        // Ensure the ID is passed to every model as we progress
+        personalModel.CustomerID = customerModel.CustomerID;
+        addressModel.EntityID = customerModel.CustomerID;
+        contactModel.EntityID = customerModel.CustomerID;
+        employmentModel.CustomerID = customerModel.CustomerID;
+        familyModel.CustomerID = customerModel.CustomerID;
+        reviewModel.CustomerID = customerModel.CustomerID;
 
         CurrentStep++;
+        StateHasChanged(); // Force Blazor to refresh the UI
     }
 
     private void PrevStep() => CurrentStep--;

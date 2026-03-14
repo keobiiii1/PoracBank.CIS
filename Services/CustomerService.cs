@@ -18,9 +18,17 @@ public class CustomerService
                ?? new CollectionDataSet<CustomerDTO.Browse>();
     }
 
-    public async Task UpsertAsync(CustomerDTO.PageModel request)
+    public async Task<long> UpsertAsync(CustomerDTO.PageModel request)
     {
-        await _http.PostAsJsonAsync($"{BaseUrl}/upsert", request);
+        var response = await _http.PostAsJsonAsync($"{BaseUrl}/upsert", request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Read the long value returned by the Controller
+            return await response.Content.ReadFromJsonAsync<long>();
+        }
+
+        return 0;
     }
 
     public async Task DeleteAsync(long id)
