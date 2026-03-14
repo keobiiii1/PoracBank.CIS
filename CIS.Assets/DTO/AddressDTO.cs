@@ -18,10 +18,18 @@ public class AddressDTO
         public long AddressID { get; set; }
         public long EntityID { get; set; }
         public EntityType EntityType { get; set; }
+
+        // Permanent Address Fields
         public string? PermanentAddress { get; set; }
         public string? PermanentZipCode { get; set; }
+        public string? PermanentCountry { get; set; } // Added
+
+        // Present Address Fields
         public string? PresentAddress { get; set; }
         public string? PresentZipCode { get; set; }
+        public string? PresentCountry { get; set; } // Added
+
+        public bool IsPresentSameAsPermanent { get; set; } // For the checkbox logic
 
         public class Validator : AbstractValidator<PageModel>
         {

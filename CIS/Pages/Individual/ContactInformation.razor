@@ -1,54 +1,121 @@
 ﻿@using CIS.Client.Services
+@using CIS.Assets.DTO
+@using CIS.Assets.Enum
+@inject IndividualService IndividualService
 @inject ProfileService ProfileService
 
-<EditForm Model="ContactModel" OnValidSubmit="HandleNext">
-    <div class="card shadow-sm p-4">
-        <h5>Step 3: Contact & Address Information</h5>
+<div class="card shadow-sm p-4 mb-4">
+    <h5>Step 3: Contact & Address Information</h5>
 
-        <h6 class="mt-3">Permanent Address</h6>
-        <div class="row g-3">
-            <div class="col-md-12">
-                <InputText @bind-Value="AddressModel.PermanentAddress" class="form-control" placeholder="Full Address" />
-            </div>
-            <div class="col-md-4">
-                <InputText @bind-Value="AddressModel.PermanentZipCode" class="form-control" placeholder="Zip Code" />
-            </div>
+    <h6 class="mt-3">Permanent Address</h6>
+    <div class="row g-3">
+        <div class="col-md-12">
+            <InputTextArea @bind-Value="AddressModel.PermanentAddress" class="form-control" placeholder="House No., Street, Brgy, City, Province" />
         </div>
-
-        <h6 class="mt-4">Contact Details</h6>
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label>Mobile Number</label>
-                <InputText @bind-Value="ContactModel.MobilePhoneNumber" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label>Email Address</label>
-                <InputText @bind-Value="ContactModel.EmailAddress" class="form-control" />
-            </div>
+        <div class="col-md-6">
+            <InputText @bind-Value="AddressModel.PermanentZipCode" class="form-control" placeholder="Zip Code" />
         </div>
-
-        <div class="d-flex justify-content-between mt-5">
-            <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
-            <button type="submit" class="btn btn-primary px-5">Save & Next</button>
+        <div class="col-md-6">
+            <InputText @bind-Value="AddressModel.PermanentCountry" class="form-control" placeholder="Country" />
         </div>
     </div>
-</EditForm>
+
+    <div class="form-check my-3">
+        <input type="checkbox" class="form-check-input" id="chkSame"
+               @onchange="HandleAddressSync"
+               checked="@AddressModel.IsPresentSameAsPermanent" />
+        <label class="form-check-label" for="chkSame">Present Address is same as Permanent</label>
+    </div>
+
+    @if (!AddressModel.IsPresentSameAsPermanent)
+    {
+        <h6>Present Address</h6>
+        <div class="row g-3">
+            <div class="col-md-12">
+                <InputTextArea @bind-Value="AddressModel.PresentAddress" class="form-control" placeholder="House No., Street, Brgy, City, Province" />
+            </div>
+            <div class="col-md-6">
+                <InputText @bind-Value="AddressModel.PresentZipCode" class="form-control" placeholder="Zip Code" />
+            </div>
+            <div class="col-md-6">
+                <InputText @bind-Value="AddressModel.PresentCountry" class="form-control" placeholder="Country" />
+            </div>
+        </div>
+    }
+</div>
+
+<div class="card shadow-sm p-4">
+    <h6>Contact Details</h6>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label>Home Phone No.</label>
+            <InputText @bind-Value="InfoModel.HomePhoneNo" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label>Mobile Phone No.</label>
+            <InputText @bind-Value="InfoModel.MobilePhoneNo" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label>Email Address</label>
+            <InputText @bind-Value="InfoModel.EmailAddress" class="form-control" />
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <label>Mailing Preference</label>
+        <InputSelect @bind-Value="InfoModel.MailingPreference" class="form-select">
+            @foreach (var pref in Enum.GetValues<MailingPreference>())
+            {
+                <option value="@pref">@pref Address</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="d-flex justify-content-between mt-5">
+        <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
+        <button type="button" class="btn btn-primary px-5" @onclick="HandleNext">Save & Next</button>
+    </div>
+</div>
 
 @code {
     [Parameter] public AddressDTO.PageModel AddressModel { get; set; } = new();
-    [Parameter] public ContactDTO.PageModel ContactModel { get; set; } = new();
+    [Parameter] public IndividualInfoDTO.PageModel InfoModel { get; set; } = new();
     [Parameter] public long CustomerId { get; set; }
     [Parameter] public EventCallback OnNext { get; set; }
     [Parameter] public EventCallback OnBack { get; set; }
 
+    // FIX CS0103: Added missing method
+    private void HandleAddressSync(ChangeEventArgs e)
+    {
+        AddressModel.IsPresentSameAsPermanent = (bool)(e.Value ?? false);
+        if (AddressModel.IsPresentSameAsPermanent)
+        {
+            AddressModel.PresentAddress = AddressModel.PermanentAddress;
+            AddressModel.PresentZipCode = AddressModel.PermanentZipCode;
+            AddressModel.PresentCountry = AddressModel.PermanentCountry;
+        }
+    }
+
     private async Task HandleNext()
     {
+        // 1. Prepare Address
         AddressModel.EntityID = CustomerId;
-        ContactModel.EntityID = CustomerId;
-
-        // Save both models
+        AddressModel.EntityType = EntityType.Individual;
         await ProfileService.UpsertAddressAsync(AddressModel);
-        await ProfileService.UpsertContactAsync(ContactModel);
+
+        // 2. Prepare and Save specifically to the Contact table
+        var contactData = new ContactDTO.PageModel
+        {
+            EntityID = CustomerId,
+            EntityType = EntityType.Individual,
+            HomePhoneNumber = InfoModel.HomePhoneNo,
+            MobilePhoneNumber = InfoModel.MobilePhoneNo,
+            EmailAddress = InfoModel.EmailAddress
+        };
+        await ProfileService.UpsertContactAsync(contactData);
+
+        // 3. Update IndividualInfo (for Mailing Preference)
+        await IndividualService.UpsertInfoAsync(InfoModel);
 
         await OnNext.InvokeAsync();
     }

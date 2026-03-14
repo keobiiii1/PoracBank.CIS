@@ -1,0 +1,92 @@
+﻿@using CIS.Client.Services
+@using CIS.Assets.DTO
+@inject IndividualService IndividualService
+
+<div class="card shadow-sm p-4 mb-4">
+    <h5>Step 4: Personal Identification</h5>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label>TIN No.</label>
+            <InputText @bind-Value="IdModel.TINNumber" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label>SSS No.</label>
+            <InputText @bind-Value="IdModel.SSSNumber" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label>GSIS No.</label>
+            <InputText @bind-Value="IdModel.GSISNumber" class="form-control" />
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm p-4">
+    <h5>IDs Presented</h5>
+
+    @* Driver's License Checkbox *@
+    <div class="form-check mb-2">
+        <input type="checkbox" @bind="ShowDL" class="form-check-input" id="dlCheck" />
+        <label class="form-check-label" for="dlCheck">Driver's License</label>
+    </div>
+    @if (ShowDL)
+    {
+        <div class="row g-2 mb-3">
+            <div class="col-md-6"><InputText @bind-Value="IdModel.DriversLicenseIDNo" class="form-control" placeholder="License No." /></div>
+            <div class="col-md-6"><InputDate @bind-Value="IdModel.DriversLicenseExpiry" class="form-control" /></div>
+        </div>
+    }
+
+    @* Passport Checkbox *@
+    <div class="form-check mb-2">
+        <input type="checkbox" @bind="ShowPassport" class="form-check-input" id="passCheck" />
+        <label class="form-check-label" for="passCheck">Passport</label>
+    </div>
+    @if (ShowPassport)
+    {
+        <div class="row g-2 mb-3">
+            <div class="col-md-6"><InputText @bind-Value="IdModel.PassportIDNo" class="form-control" placeholder="Passport No." /></div>
+            <div class="col-md-6"><InputDate @bind-Value="IdModel.PassportExpiry" class="form-control" /></div>
+        </div>
+    }
+
+    @* Others Checkbox *@
+    <div class="form-check mb-2">
+        <input type="checkbox" @bind="ShowOthers" class="form-check-input" id="otherCheck" />
+        <label class="form-check-label" for="otherCheck">Others</label>
+    </div>
+    @if (ShowOthers)
+    {
+        <div class="row g-2 mb-3">
+            <div class="col-md-4"><InputText @bind-Value="IdModel.OtherIDType" class="form-control" placeholder="ID Type" /></div>
+            <div class="col-md-4"><InputText @bind-Value="IdModel.OtherIDNumber" class="form-control" placeholder="ID Number" /></div>
+            <div class="col-md-4"><InputDate @bind-Value="IdModel.OtherIDExpiry" class="form-control" /></div>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between mt-5">
+        <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
+        <button type="button" class="btn btn-primary px-5" @onclick="HandleNext">Save & Next</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public IndividualIdentificationDTO.PageModel IdModel { get; set; } = new();
+    [Parameter] public long CustomerId { get; set; }
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+
+    private bool ShowDL, ShowPassport, ShowOthers;
+
+    private async Task HandleNext()
+    {
+        IdModel.CustomerID = CustomerId;
+
+        // Nullify fields if checkbox is unchecked before saving
+        if (!ShowDL) { IdModel.DriversLicenseIDNo = null; IdModel.DriversLicenseExpiry = null; }
+        if (!ShowPassport) { IdModel.PassportIDNo = null; IdModel.PassportExpiry = null; }
+        if (!ShowOthers) { IdModel.OtherIDType = null; IdModel.OtherIDNumber = null; IdModel.OtherIDExpiry = null; }
+
+        await IndividualService.UpsertIdentificationAsync(IdModel);
+        await OnNext.InvokeAsync();
+    }
+}

@@ -1,53 +1,116 @@
 ﻿@using CIS.Client.Services
 @inject IndividualService IndividualService
 
-<EditForm Model="Model" OnValidSubmit="HandleNext">
-    <DataAnnotationsValidator />
-    <div class="card shadow-sm p-4">
-        <h5>Step 4: Employment Details</h5>
-        <div class="row g-3 mt-2">
-            <div class="col-md-6">
-                <label>Employment Status</label>
-                <InputSelect @bind-Value="Model.EmploymentStatus" class="form-select">
-                    @foreach (var val in Enum.GetValues<EmploymentStatus>())
-                    {
-                        <option value="@val">@val</option>
-                    }
-                </InputSelect>
-            </div>
-            <div class="col-md-6">
-                <label>Type of Employment</label>
-                <InputSelect @bind-Value="Model.TypeOfEmployment" class="form-select">
-                    @foreach (var val in Enum.GetValues<TypeOfEmployment>())
-                    {
-                        <option value="@val">@val</option>
-                    }
-                </InputSelect>
-            </div>
-            <div class="col-md-12">
-                <label>Employer Name / Business Name</label>
-                <InputText @bind-Value="Model.NameOfEmployer" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label>Nature of Work</label>
-                <InputText @bind-Value="Model.NatureOfWork" class="form-control" />
-            </div>
-            <div class="col-md-6">
-                <label>Average Monthly Income</label>
-                <InputSelect @bind-Value="Model.AverageMonthlyIncome" class="form-select">
-                    @foreach (var val in Enum.GetValues<AverageMonthlyIncome>())
-                    {
-                        <option value="@val">@val</option>
-                    }
-                </InputSelect>
-            </div>
+<div class="card shadow-sm p-4 mb-4">
+    <h5>Step 5: Employment Information</h5>
+
+    <div class="row g-3">
+        @* Employment Status *@
+        <div class="col-md-6">
+            <label class="form-label">Employment Status</label>
+            <InputSelect @bind-Value="Model.EmploymentStatus" class="form-select">
+                <option value="">-- Select --</option>
+                <option value="Employed">Employed</option>
+                <option value="Self-Employed">Self-Employed</option>
+                <option value="Retired">Retired</option>
+                <option value="Others">Others</option>
+            </InputSelect>
+            @if (Model.EmploymentStatus == "Others")
+            {
+                <InputText @bind-Value="Model.EmploymentStatusOther" class="form-control mt-2" placeholder="Please specify status" />
+            }
         </div>
-        <div class="d-flex justify-content-between mt-5">
-            <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
-            <button type="submit" class="btn btn-primary px-5">Save & Next</button>
+
+        @* Type of Employment *@
+        <div class="col-md-6">
+            <label class="form-label">Type of Employment</label>
+            <InputSelect @bind-Value="Model.TypeOfEmployment" class="form-select">
+                <option value="">-- Select --</option>
+                <option value="Government">Government / Public</option>
+                <option value="Private">Private</option>
+                <option value="OFW">OFW</option>
+                <option value="Others">Others</option>
+            </InputSelect>
+            @if (Model.TypeOfEmployment == "Others")
+            {
+                <InputText @bind-Value="Model.TypeOfEmploymentOther" class="form-control mt-2" placeholder="Specify employment type" />
+            }
+            @if (Model.TypeOfEmployment == "OFW")
+            {
+                <InputText @bind-Value="Model.OFWCountry" class="form-control mt-2" placeholder="Country of Employment" />
+            }
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Educational Attainment</label>
+            <InputText @bind-Value="Model.EducationalAttainment" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Nature of Work</label>
+            <InputText @bind-Value="Model.NatureOfWork" class="form-control" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Average Monthly Income</label>
+            <InputSelect @bind-Value="Model.AverageMonthlyIncome" class="form-select">
+                <option value="@AverageMonthlyIncome.None">None</option>
+                <option value="@AverageMonthlyIncome.UnderP10000">Under P10,000.00</option>
+                <option value="@AverageMonthlyIncome.P10001ToP20000">P10,001.00 - P20,000.00</option>
+                <option value="@AverageMonthlyIncome.P20001ToP50000">P20,001.00 - P50,000.00</option>
+                <option value="@AverageMonthlyIncome.P50001ToP100000">P50,001.00 - P100,000.00</option>
+                <option value="@AverageMonthlyIncome.P100001ToP200000">P100,001.00 - P200,000.00</option>
+                <option value="@AverageMonthlyIncome.AboveP200001">Above P200,001.00</option>
+            </InputSelect>
         </div>
     </div>
-</EditForm>
+</div>
+
+<div class="card shadow-sm p-4">
+    <h6>Employer / Business Details</h6>
+    <div class="row g-3">
+        <div class="col-md-8">
+            <label class="form-label">Name of Employer</label>
+            <InputText @bind-Value="Model.NameOfEmployer" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Position / Rank</label>
+            <InputText @bind-Value="Model.PositionRank" class="form-control" />
+        </div>
+
+        @* Employer Address Breakdown *@
+        <div class="col-md-3">
+            <label class="form-label">Building No.</label>
+            <InputText @bind-Value="Model.EmployerBuildingNo" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Street</label>
+            <InputText @bind-Value="Model.EmployerStreet" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Brgy / District</label>
+            <InputText @bind-Value="Model.EmployerBrgyDistrict" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">City / Town</label>
+            <InputText @bind-Value="Model.EmployerCityTown" class="form-control" />
+        </div>
+
+        @* Contact Details *@
+        <div class="col-md-6">
+            <label class="form-label">Employer Phone No.</label>
+            <InputText @bind-Value="Model.EmployerPhoneNumber" class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Employer Email</label>
+            <InputText @bind-Value="Model.EmployerEmailAddress" class="form-control" />
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-5">
+        <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
+        <button type="button" class="btn btn-primary px-5" @onclick="HandleNext">Save & Next</button>
+    </div>
+</div>
 
 @code {
     [Parameter] public IndividualEmploymentDTO.PageModel Model { get; set; } = new();
@@ -58,6 +121,12 @@
     private async Task HandleNext()
     {
         Model.CustomerID = CustomerId;
+
+        // Logic to clear fields if selection changes
+        if (Model.EmploymentStatus != "Others") Model.EmploymentStatusOther = null;
+        if (Model.TypeOfEmployment != "Others") Model.TypeOfEmploymentOther = null;
+        if (Model.TypeOfEmployment != "OFW") Model.OFWCountry = null;
+
         await IndividualService.UpsertEmploymentAsync(Model);
         await OnNext.InvokeAsync();
     }

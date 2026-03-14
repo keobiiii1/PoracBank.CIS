@@ -28,10 +28,5 @@ public static class IndividualEmploymentConfig
         entity.IsNvarchar(e => e.EmployerPhoneNumber, 50);
         entity.IsNvarchar(e => e.EmployerEmailAddress, 255);
         entity.IsNvarchar(e => e.PositionRank, 255);
-        
-        
-        
-        
-        entity.HasOne(e => e.Customer).WithOne(e => e.IndividualEmployment).HasForeignKey<IndividualEmployment>(e => e.CustomerID).OnDelete(DeleteBehavior.Cascade);
     }
 }

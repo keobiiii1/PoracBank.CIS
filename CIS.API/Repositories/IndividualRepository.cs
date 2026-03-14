@@ -3,6 +3,7 @@ using CIS.API.Data;
 using CIS.Assets.Models;
 using CIS.Assets.DTO;
 using Microsoft.EntityFrameworkCore;
+using CIS.Assets.Enum;
 
 namespace CIS.API.Repositories;
 
@@ -12,17 +13,15 @@ public class IndividualRepository
     private readonly IDbContextFactory<CISDbContext> _dbContextFactory;
     private readonly ITransactionPolicy _transactionPolicy;
 
-    public IndividualRepository(IMapper mapper, IDbContextFactory<CISDbContext> dbContextFactory, ITransactionPolicy transactionPolicy)
+    public IndividualRepository(
+        IMapper mapper,
+        IDbContextFactory<CISDbContext> dbContextFactory,
+        ITransactionPolicy transactionPolicy)
     {
         _mapper = mapper;
         _dbContextFactory = dbContextFactory;
         _transactionPolicy = transactionPolicy;
     }
-
-    // --- Step 2: Personal Information & Foreigner Details ---
-    // CIS.API/Repositories/IndividualRepository.cs
-
-    // CIS.API/Repositories/IndividualRepository.cs
 
     public async Task UpsertInfoAsync(IndividualInfoDTO.PageModel request)
     {
@@ -30,10 +29,8 @@ public class IndividualRepository
         using var tx = await _transactionPolicy.BeginSqlTransaction(_db);
         try
         {
-            // 1. SAVE TO cis.IndividualInfo (Primary Data)
-            var info = await _db.IndividualInfos
-                .FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
-
+            // --- 1. Main Individual Info ---
+            var info = await _db.IndividualInfos.FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
             if (info == null)
             {
                 info = _mapper.Map<IndividualInfo>(request);
@@ -42,15 +39,15 @@ public class IndividualRepository
             else
             {
                 _mapper.Map(request, info);
+                // Prevents System.InvalidOperationException by protecting the PK
+                _db.Entry(info).Property(x => x.IndividualInfoID).IsModified = false;
                 _db.IndividualInfos.Update(info);
             }
 
-            // 2. SAVE TO cis.IndividualForeigner (Conditional)
-            if (request.IsForeigner)
+            // --- 2. Individual Foreigner (Step 2) ---
+            var foreigner = await _db.IndividualForeigners.FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
+            if (request.IsForeigner) // Check your DTO property name
             {
-                var foreigner = await _db.IndividualForeigners
-                    .FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
-
                 if (foreigner == null)
                 {
                     foreigner = _mapper.Map<IndividualForeigner>(request);
@@ -60,29 +57,81 @@ public class IndividualRepository
                 else
                 {
                     _mapper.Map(request, foreigner);
+                    _db.Entry(foreigner).Property(x => x.ForeignerID).IsModified = false;
                     _db.IndividualForeigners.Update(foreigner);
                 }
             }
-
-            // 3. SAVE TO cis.IndividualFamily (Spouse & Mother)
-            var family = await _db.IndividualFamilies
-                .FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
-
-            if (family == null)
+            else if (foreigner != null)
             {
-                family = new IndividualFamily { CustomerID = request.CustomerID };
-                _db.IndividualFamilies.Add(family);
+                _db.IndividualForeigners.Remove(foreigner);
             }
 
-            // Map the separated Spouse fields
-            family.SpouseGivenName = request.SpouseGivenName;
-            family.SpouseMiddleName = request.SpouseMiddleName;
-            family.SpouseLastName = request.SpouseLastName;
+            // --- 3. Individual Family (Step 5) ---
+            var family = await _db.IndividualFamilies.FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
+            if (family == null)
+            {
+                family = _mapper.Map<IndividualFamily>(request);
+                family.CustomerID = request.CustomerID;
+                _db.IndividualFamilies.Add(family);
+            }
+            else
+            {
+                _mapper.Map(request, family);
+                _db.Entry(family).Property(x => x.FamilyID).IsModified = false;
+                _db.IndividualFamilies.Update(family);
+            }
 
-            // Map the separated Mother fields
-            family.MotherMaidenGivenName = request.MotherMaidenGivenName;
-            family.MotherMaidenMiddleName = request.MotherMaidenMiddleName;
-            family.MotherMaidenLastName = request.MotherMaidenLastName;
+            // --- 4. Account Purpose (Step 6) ---
+            var acc = await _db.AccountPurposes.FirstOrDefaultAsync(e => e.EntityID == request.CustomerID);
+            if (acc == null)
+            {
+                acc = new AccountPurpose { EntityID = request.CustomerID, EntityType = EntityType.Individual };
+                _db.AccountPurposes.Add(acc);
+            }
+            acc.PurposeOfAccount = request.AccountPurpose;
+            acc.PurposeOfAccountOther = request.AccountPurposeOther;
+
+            // Map products based on your UI selection
+            acc.ProductSavings = request.ProductsAvailed == "Savings";
+            acc.ProductLoan = request.ProductsAvailed == "Loan";
+            acc.ProductCurrent = request.ProductsAvailed == "Checking";
+            acc.ProductOthers = request.ProductsAvailed == "Others";
+
+            // --- 5. Government Relations (Step 6 - Dynamic List) ---
+            var oldRels = await _db.GovernmentRelations.Where(x => x.CustomerID == request.CustomerID).ToListAsync();
+            _db.GovernmentRelations.RemoveRange(oldRels);
+
+            if (request.HasGovRelative && request.GovRelatives != null)
+            {
+                foreach (var relReq in request.GovRelatives)
+                {
+                    _db.GovernmentRelations.Add(new GovernmentRelation
+                    {
+                        CustomerID = request.CustomerID,
+                        Name = relReq.Name,
+                        Relationship = relReq.Relationship,
+                        HighestPositionOccupied = relReq.Position,
+                        PeriodCovered = relReq.PeriodCovered
+                    });
+                }
+            }
+
+            // --- 6. Business Interests (Step 6 - Dynamic List) ---
+            var oldBiz = await _db.BusinessInterests.Where(x => x.CustomerID == request.CustomerID).ToListAsync();
+            _db.BusinessInterests.RemoveRange(oldBiz);
+
+            if (request.BusinessInterests != null)
+            {
+                foreach (var bizReq in request.BusinessInterests)
+                {
+                    _db.BusinessInterests.Add(new BusinessInterest
+                    {
+                        CustomerID = request.CustomerID,
+                        BusinessName = bizReq.BusinessName,
+                        OwnershipPercentage = bizReq.OwnershipPercentage
+                    });
+                }
+            }
 
             await _db.SaveChangesAsync();
             if (tx != null) await tx.CommitAsync();
@@ -90,35 +139,51 @@ public class IndividualRepository
         catch (Exception ex)
         {
             if (tx != null) await tx.RollbackAsync();
-            throw;
+            throw; // Consider logging ex here
         }
+    }
+
+    // --- Step 3: Identification ---
+    public async Task UpsertIdentificationAsync(IndividualIdentificationDTO.PageModel request)
+    {
+        using var _db = _dbContextFactory.CreateDbContext();
+        var old = await _db.IndividualIdentifications
+            .FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
+
+        if (old == null)
+        {
+            _db.IndividualIdentifications.Add(_mapper.Map<IndividualIdentification>(request));
+        }
+        else
+        {
+            _mapper.Map(request, old);
+            _db.IndividualIdentifications.Update(old);
+        }
+        await _db.SaveChangesAsync();
     }
 
     // --- Step 4: Employment ---
     public async Task UpsertEmploymentAsync(IndividualEmploymentDTO.PageModel request)
     {
         using var _db = _dbContextFactory.CreateDbContext();
-        using var tx = await _transactionPolicy.BeginSqlTransaction(_db);
-        try
+
+        if (request.CustomerID <= 0)
+            throw new Exception("CustomerID is required for employment upsert.");
+
+        var old = await _db.IndividualEmployments
+            .FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
+
+        if (old == null)
         {
-            var old = await _db.IndividualEmployments
-                .FirstOrDefaultAsync(e => e.EmploymentID == request.EmploymentID);
-
-            if (old == null)
-            {
-                var model = _mapper.Map<IndividualEmployment>(request);
-                _db.IndividualEmployments.Add(model);
-            }
-            else
-            {
-                _mapper.Map(request, old);
-                _db.IndividualEmployments.Update(old);
-            }
-
-            await _db.SaveChangesAsync();
-            if (tx != null) await tx.CommitAsync();
+            _db.IndividualEmployments.Add(_mapper.Map<IndividualEmployment>(request));
         }
-        catch { if (tx != null) await tx.RollbackAsync(); throw; }
+        else
+        {
+            _mapper.Map(request, old);
+            _db.IndividualEmployments.Update(old);
+        }
+
+        await _db.SaveChangesAsync();
     }
 
     // --- Step 5: Family ---
@@ -129,12 +194,11 @@ public class IndividualRepository
         try
         {
             var old = await _db.IndividualFamilies
-                .FirstOrDefaultAsync(e => e.FamilyID == request.FamilyID);
+                .FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
 
             if (old == null)
             {
-                var model = _mapper.Map<IndividualFamily>(request);
-                _db.IndividualFamilies.Add(model);
+                _db.IndividualFamilies.Add(_mapper.Map<IndividualFamily>(request));
             }
             else
             {
@@ -145,6 +209,10 @@ public class IndividualRepository
             await _db.SaveChangesAsync();
             if (tx != null) await tx.CommitAsync();
         }
-        catch { if (tx != null) await tx.RollbackAsync(); throw; }
+        catch
+        {
+            if (tx != null) await tx.RollbackAsync();
+            throw;
+        }
     }
 }

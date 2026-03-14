@@ -17,19 +17,24 @@ public class IndividualIdentificationDTO
     {
         public long IdentificationID { get; set; }
         public long CustomerID { get; set; }
+
+        // Personal Identification
         public string? TINNumber { get; set; }
         public string? SSSNumber { get; set; }
         public string? GSISNumber { get; set; }
-        public string? PassportIDNo { get; set; }
 
-        public class Validator : AbstractValidator<PageModel>
-        {
-            public Validator()
-            {
-                RuleFor(x => x.TINNumber).MaximumLength(20);
-                RuleFor(x => x.SSSNumber).MaximumLength(20);
-            }
-        }
+        // Driver's License
+        public string? DriversLicenseIDNo { get; set; }
+        public DateOnly? DriversLicenseExpiry { get; set; }
+
+        // Passport
+        public string? PassportIDNo { get; set; }
+        public DateOnly? PassportExpiry { get; set; }
+
+        // Others
+        public string? OtherIDType { get; set; }
+        public string? OtherIDNumber { get; set; }
+        public DateOnly? OtherIDExpiry { get; set; }
     }
 
     public class MappingProfile : Profile

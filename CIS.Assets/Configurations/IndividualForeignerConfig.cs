@@ -17,10 +17,5 @@ public static class IndividualForeignerConfig
         entity.IsBool(e => e.IsACR);
         entity.IsBool(e => e.IsSIRV);
         entity.IsBool(e => e.IsSRRV);
-        
-        
-        
-        
-        entity.HasOne(e => e.Customer).WithOne(e => e.IndividualForeigner).HasForeignKey<IndividualForeigner>(e => e.CustomerID).OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -19,4 +19,6 @@ public class IndividualService
 
     public async Task UpsertFamilyAsync(IndividualFamilyDTO.PageModel request) =>
         await _http.PostAsJsonAsync($"{BaseUrl}/family", request);
+    public async Task UpsertIdentificationAsync(IndividualIdentificationDTO.PageModel request) =>
+        await _http.PostAsJsonAsync($"{BaseUrl}/identification", request);
 }

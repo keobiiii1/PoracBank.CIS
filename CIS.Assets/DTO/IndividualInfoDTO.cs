@@ -54,7 +54,41 @@ public class IndividualInfoDTO
         public bool IsSIRV { get; set; }
         public bool IsSRRV { get; set; }
 
+        public string? HomePhoneNo { get; set; } // Added
+        public string? MobilePhoneNo { get; set; }
+        public string? EmailAddress { get; set; }
         public MailingPreference MailingPreference { get; set; }
+
+        public string? TinNo { get; set; }
+        public string? SssNo { get; set; }
+        public string? GsisNo { get; set; }
+
+        public PurposeOfAccount AccountPurpose { get; set; }
+        public string? AccountPurposeOther { get; set; }
+        public string? ProductsAvailed { get; set; }
+        public string? ProductsAvailedOther { get; set; }
+
+        // Business Interest
+        public string? BusinessName { get; set; }
+        public decimal? OwnershipPercentage { get; set; }
+
+        // PEP (Government Official) Details
+        public bool IsGovOfficial { get; set; }
+        public string? GovPosition { get; set; }
+        public string? GovPeriodCovered { get; set; }
+
+        // Relative of Gov Official
+        public bool HasGovRelative { get; set; }
+        public string? GovRelativeName { get; set; }
+        public string? GovRelativeRelationship { get; set; }
+        public string? GovRelativePosition { get; set; }
+        public string? GovRelativePeriod { get; set; }
+
+        // Business Interest List
+        public List<BusinessInterestModel> BusinessInterests { get; set; } = new();
+        public List<GovRelativeModel> GovRelatives { get; set; } = new();
+
+        public List<string> SelectedProducts { get; set; } = new();
 
         public class Validator : AbstractValidator<PageModel>
         {
@@ -70,6 +104,19 @@ public class IndividualInfoDTO
                     .WithMessage("Maiden Name is required for female applicants.");
             }
         }
+        public class BusinessInterestModel
+        {
+            public string? BusinessName { get; set; }
+            public decimal OwnershipPercentage { get; set; }
+        }
+
+        public class GovRelativeModel
+        {
+            public string? Name { get; set; }
+            public string? Relationship { get; set; }
+            public string? Position { get; set; }
+            public string? PeriodCovered { get; set; }
+        }
     }
 
     public class MappingProfile : Profile
@@ -77,7 +124,8 @@ public class IndividualInfoDTO
         public MappingProfile()
         {
             CreateMap<IndividualInfo, Browse>().ReverseMap();
-            CreateMap<IndividualInfo, PageModel>().ReverseMap();
+            CreateMap<IndividualInfo, PageModel>().ReverseMap()
+            .ForMember(dest => dest.IndividualInfoID, opt => opt.Ignore());
             CreateMap<PageModel, IndividualForeigner>();
         }
     }

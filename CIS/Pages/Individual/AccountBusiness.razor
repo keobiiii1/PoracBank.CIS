@@ -1,0 +1,123 @@
+﻿@using CIS.Client.Services
+@using CIS.Assets.Enum
+@using static CIS.Assets.DTO.IndividualInfoDTO.PageModel
+@inject IndividualService IndividualService
+
+<div class="card shadow-sm p-4 mb-4">
+    <h5>Step 6: Account & Business Information</h5>
+    <div class="row g-3">
+        @* Purpose of Account *@
+        <div class="col-md-6">
+            <label class="form-label">Purpose of Account</label>
+            <InputSelect @bind-Value="InfoModel.AccountPurpose" class="form-select">
+                @foreach (var val in Enum.GetValues<PurposeOfAccount>())
+                {
+                    <option value="@val">@val</option>
+                }
+            </InputSelect>
+            @if (InfoModel.AccountPurpose == PurposeOfAccount.Others)
+            {
+                <InputText @bind-Value="InfoModel.AccountPurposeOther" class="form-control mt-2" placeholder="Specify" />
+            }
+        </div>
+
+        @* Products to be Availed *@
+        <div class="col-md-6">
+            <label class="form-label">Products to be Availed</label>
+            <InputSelect @bind-Value="InfoModel.ProductsAvailed" class="form-select">
+                <option value="Savings">Savings</option>
+                <option value="Checking">Checking</option>
+                <option value="Loan">Loan</option>
+                <option value="Others">Others</option>
+            </InputSelect>
+            @if (InfoModel.ProductsAvailed == "Others")
+            {
+                <InputText @bind-Value="InfoModel.ProductsAvailedOther" class="form-control mt-2" placeholder="Specify" />
+            }
+        </div>
+    </div>
+
+    @* Fixed: Removed duplicate Business Interests Section *@
+    <div class="mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6>Business Interests</h6>
+            <button type="button" class="btn btn-sm btn-primary" @onclick="AddBusiness">+ Add Business</button>
+        </div>
+        @foreach (var biz in InfoModel.BusinessInterests)
+        {
+            <div class="row g-2 mb-2">
+                <div class="col-md-7"><InputText @bind-Value="biz.BusinessName" class="form-control" placeholder="Business Name" /></div>
+                <div class="col-md-3"><InputNumber @bind-Value="biz.OwnershipPercentage" class="form-control" placeholder="%" /></div>
+                <div class="col-md-2"><button type="button" class="btn btn-danger btn-sm w-100" @onclick="() => InfoModel.BusinessInterests.Remove(biz)">Remove</button></div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card shadow-sm p-4">
+    @* Restored: PEP Government Official Checkbox *@
+    <div class="form-check mb-3">
+        <InputCheckbox @bind-Value="InfoModel.IsGovOfficial" class="form-check-input" id="isGov" />
+        <label class="form-check-label fw-bold text-primary" for="isGov">PAST/PRESENT GOVERNMENT OFFICIAL?</label>
+    </div>
+
+    @if (InfoModel.IsGovOfficial)
+    {
+        <div class="row g-3 mb-4 p-3 bg-light border rounded">
+            <div class="col-md-6"><label>Highest Position Occupied</label><InputText @bind-Value="InfoModel.GovPosition" class="form-control" /></div>
+            <div class="col-md-6"><label>Period Covered</label><InputText @bind-Value="InfoModel.GovPeriodCovered" class="form-control" /></div>
+        </div>
+    }
+
+    @* Relative Section - 4 Columns in 1 Row *@
+    <div class="form-check mb-3">
+        <InputCheckbox @bind-Value="InfoModel.HasGovRelative" class="form-check-input" id="relCheck" />
+        <label class="form-check-label" for="relCheck">Do you have a relative who is a Government Official?</label>
+    </div>
+
+    @* Single-row layout for Gov Relatives *@
+    @if (InfoModel.HasGovRelative)
+    {
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="small">Relative Details</h6>
+            <button type="button" class="btn btn-sm btn-info text-white" @onclick="AddGovRelative">+ Add Relative</button>
+        </div>
+        @foreach (var rel in InfoModel.GovRelatives)
+        {
+            <div class="row g-2 mb-2">
+                <div class="col-md-3"><InputText @bind-Value="rel.Name" class="form-control" placeholder="Full Name" /></div>
+                <div class="col-md-3"><InputText @bind-Value="rel.Relationship" class="form-control" placeholder="Relationship" /></div>
+                <div class="col-md-3"><InputText @bind-Value="rel.Position" class="form-control" placeholder="Position" /></div>
+                <div class="col-md-2"><InputText @bind-Value="rel.PeriodCovered" class="form-control" placeholder="Period" /></div>
+                <div class="col-md-1"><button type="button" class="btn btn-link text-danger p-0 mt-1" @onclick="() => InfoModel.GovRelatives.Remove(rel)">Remove</button></div>
+            </div>
+        }
+    }
+
+    <div class="d-flex justify-content-between mt-5">
+        <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
+        <button type="button" class="btn btn-primary px-5" @onclick="HandleNext">Save & Next</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public IndividualInfoDTO.PageModel InfoModel { get; set; } = new();
+    [Parameter] public long CustomerId { get; set; }
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (InfoModel.BusinessInterests.Count == 0) AddBusiness();
+    }
+
+    private void AddBusiness() => InfoModel.BusinessInterests.Add(new BusinessInterestModel());
+    private void AddGovRelative() => InfoModel.GovRelatives.Add(new GovRelativeModel());
+
+    private async Task HandleNext()
+    {
+        InfoModel.CustomerID = CustomerId;
+        await IndividualService.UpsertInfoAsync(InfoModel);
+        await OnNext.InvokeAsync();
+    }
+}

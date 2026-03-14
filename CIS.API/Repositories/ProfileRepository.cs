@@ -45,23 +45,19 @@ public class ProfileRepository
     public async Task UpsertAsync(ContactDTO.PageModel request)
     {
         using var _db = _dbContextFactory.CreateDbContext();
-        using var tx = await _transactionPolicy.BeginSqlTransaction(_db);
-        try
+        var old = await _db.Contacts
+            .FirstOrDefaultAsync(e => e.EntityID == request.EntityID && e.EntityType == request.EntityType);
+
+        if (old == null)
         {
-            var old = await _db.Contacts.FirstOrDefaultAsync(e => e.ContactID == request.ContactID);
-            if (old == null)
-            {
-                var model = _mapper.Map<Contact>(request);
-                _db.Contacts.Add(model);
-            }
-            else
-            {
-                _mapper.Map(request, old);
-                _db.Contacts.Update(old);
-            }
-            await _db.SaveChangesAsync();
-            if (tx != null) await tx.CommitAsync();
+            var model = _mapper.Map<Contact>(request);
+            _db.Contacts.Add(model);
         }
-        catch { if (tx != null) await tx.RollbackAsync(); throw; }
+        else
+        {
+            _mapper.Map(request, old);
+            _db.Contacts.Update(old);
+        }
+        await _db.SaveChangesAsync();
     }
 }

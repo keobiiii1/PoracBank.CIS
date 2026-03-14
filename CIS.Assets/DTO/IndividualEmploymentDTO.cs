@@ -18,20 +18,22 @@ public class IndividualEmploymentDTO
     {
         public long EmploymentID { get; set; }
         public long CustomerID { get; set; }
-        public EmploymentStatus EmploymentStatus { get; set; }
-        public TypeOfEmployment TypeOfEmployment { get; set; }
-        public string? NameOfEmployer { get; set; }
+        public string? EmploymentStatus { get; set; }
+        public string? EmploymentStatusOther { get; set; }
+        public string? TypeOfEmployment { get; set; }
+        public string? TypeOfEmploymentOther { get; set; }
+        public string? OFWCountry { get; set; }
+        public string? EducationalAttainment { get; set; }
         public string? NatureOfWork { get; set; }
         public AverageMonthlyIncome AverageMonthlyIncome { get; set; }
-
-        public class Validator : AbstractValidator<PageModel>
-        {
-            public Validator()
-            {
-                RuleFor(x => x.NameOfEmployer).NotEmpty().MaximumLength(200);
-                RuleFor(x => x.NatureOfWork).MaximumLength(200);
-            }
-        }
+        public string? NameOfEmployer { get; set; }
+        public string? EmployerBuildingNo { get; set; }
+        public string? EmployerStreet { get; set; }
+        public string? EmployerBrgyDistrict { get; set; }
+        public string? EmployerCityTown { get; set; }
+        public string? EmployerPhoneNumber { get; set; }
+        public string? EmployerEmailAddress { get; set; }
+        public string? PositionRank { get; set; }
     }
 
     public class MappingProfile : Profile

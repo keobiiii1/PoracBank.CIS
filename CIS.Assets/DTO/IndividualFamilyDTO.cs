@@ -37,7 +37,8 @@ public class IndividualFamilyDTO
         public MappingProfile()
         {
             CreateMap<IndividualFamily, Browse>().ReverseMap();
-            CreateMap<IndividualFamily, PageModel>().ReverseMap();
+            CreateMap<IndividualInfoDTO.PageModel, IndividualFamily>()
+            .ForMember(dest => dest.FamilyID, opt => opt.Ignore());
         }
     }
 }

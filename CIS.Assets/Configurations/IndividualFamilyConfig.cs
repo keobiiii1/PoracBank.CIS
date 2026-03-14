@@ -18,10 +18,5 @@ public static class IndividualFamilyConfig
         entity.IsNvarchar(e => e.MotherMaidenLastName, 100);
         entity.IsNvarchar(e => e.MotherMaidenGivenName, 100);
         entity.IsNvarchar(e => e.MotherMaidenMiddleName, 100);
-        
-        
-        
-        
-        entity.HasOne(e => e.Customer).WithOne(e => e.IndividualFamily).HasForeignKey<IndividualFamily>(e => e.CustomerID).OnDelete(DeleteBehavior.Cascade);
     }
 }

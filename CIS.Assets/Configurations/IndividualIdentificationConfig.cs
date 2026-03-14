@@ -22,10 +22,5 @@ public static class IndividualIdentificationConfig
         entity.IsNvarchar(e => e.OtherIDType, 100);
         entity.IsNvarchar(e => e.OtherIDNumber, 100);
         entity.IsDateOnly(e => e.OtherIDExpiry);
-        
-        
-        
-        
-        entity.HasOne(e => e.Customer).WithOne(e => e.IndividualIdentification).HasForeignKey<IndividualIdentification>(e => e.CustomerID).OnDelete(DeleteBehavior.Cascade);
     }
 }

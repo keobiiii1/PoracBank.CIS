@@ -22,8 +22,4 @@ public class Customer
     public ICollection<BusinessInterest> BusinessInterests { get; set; } = new List<BusinessInterest>();
     public ICollection<GovernmentRelation> GovernmentRelations { get; set; } = new List<GovernmentRelation>();
     public BankReview? BankReview { get; set; }
-    public IndividualFamily? IndividualFamily { get; set; }
-    public IndividualIdentification? IndividualIdentification { get; set; }
-    public IndividualForeigner? IndividualForeigner { get; set; }
-    public IndividualEmployment? IndividualEmployment { get; set; }
 }
