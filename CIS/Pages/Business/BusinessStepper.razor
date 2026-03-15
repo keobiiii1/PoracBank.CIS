@@ -2,6 +2,7 @@
 @namespace CIS.Client.Pages.Business
 @using CIS.Assets.DTO
 @using CIS.Assets.Enum
+@using CIS.Client.Services
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -54,9 +55,14 @@
     // private BeneficiaryDTO.PageModel beneficiaryModel = new();
     // private BankUseDTO.PageModel bankUseModel = new();
 
-    private void HandleNext()
+    private async Task HandleNext()
     {
-        // Preparation for Step 2
+        if (businessModel.CustomerID == 0)
+        {
+            // businessModel.CustomerID = await BusinessService.CreateCustomerAsync();
+        }
+
+        addressModel.EntityID = businessModel.CustomerID;
         addressModel.EntityType = EntityType.Business;
 
         CurrentStep++;

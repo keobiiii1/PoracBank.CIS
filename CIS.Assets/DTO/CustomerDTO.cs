@@ -12,6 +12,7 @@ public class CustomerDTO
     {
         public long CustomerID { get; set; }
         public string? CIDNumber { get; set; }
+        public EntityType EntityType { get; set; }
         public CustomerCategory CustomerCategory { get; set; }
         public CustomerType CustomerType { get; set; }
     }
@@ -26,6 +27,7 @@ public class CustomerDTO
     public class PageModel
     {
         public long CustomerID { get; set; }
+        public EntityType EntityType { get; set; }
         public CustomerCategory CustomerCategory { get; set; }
         public CustomerType CustomerType { get; set; }
         public string? CIDNumber { get; set; }

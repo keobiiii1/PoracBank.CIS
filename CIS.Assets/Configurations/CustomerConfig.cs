@@ -11,6 +11,7 @@ public static class CustomerConfig
         var entity = modelBuilder.Entity<Customer>();
         entity.AsTable("cis");
         entity.IsPrimaryKey(e => e.CustomerID);
+        entity.IsNvarcharEnum(e => e.EntityType, 50);
         entity.IsNvarcharEnum(e => e.CustomerCategory, 50);
         entity.IsNvarcharEnum(e => e.CustomerType, 50);
         entity.IsNvarchar(e => e.CIDNumber, 50);

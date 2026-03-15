@@ -103,6 +103,7 @@ namespace CIS.API.Migrations
                 {
                     CustomerID = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    EntityType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CustomerCategory = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CustomerType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CIDNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),

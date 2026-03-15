@@ -10,8 +10,21 @@ public class IndividualService
 
     public IndividualService(HttpClient http) => _http = http;
 
-    public async Task UpsertInfoAsync(IndividualInfoDTO.PageModel request) =>
-        await _http.PostAsJsonAsync($"{BaseUrl}/info", request);
+    public async Task<IndividualInfoDTO.PageModel?> UpsertInfoAsync(IndividualInfoDTO.PageModel request)
+    {
+        var response = await _http.PostAsJsonAsync($"{BaseUrl}/info", request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            if (response.Content.Headers.ContentLength > 0)
+            {
+                return await response.Content.ReadFromJsonAsync<IndividualInfoDTO.PageModel>();
+            }
+            return request;
+        }
+
+        return null;
+    }
 
     public async Task UpsertEmploymentAsync(IndividualEmploymentDTO.PageModel request) =>
         await _http.PostAsJsonAsync($"{BaseUrl}/employment", request);

@@ -19,6 +19,9 @@ public class IndividualInfoDTO
     {
         public long IndividualInfoID { get; set; }
         public long CustomerID { get; set; }
+        public EntityType EntityType { get; set; } = EntityType.Individual;
+        public CustomerCategory CustomerCategory { get; set; } = CustomerCategory.None;
+        public CustomerType CustomerType { get; set; } = CustomerType.None;
         public string? FirstName { get; set; }
         public string? MiddleName { get; set; }
         public string? LastName { get; set; }

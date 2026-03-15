@@ -1,5 +1,8 @@
 ﻿@using CIS.Assets.DTO
 @using CIS.Assets.Enum
+@using CIS.Client.Services
+@inject BusinessService BusinessService
+@inject IJSRuntime JS
 
 <EditForm Model="BusinessModel" OnValidSubmit="HandleNext">
     <div class="card shadow-sm mb-4">
@@ -23,13 +26,11 @@
                     </div>
                 </div>
 
-                @* Name of Business *@
                 <div class="col-md-6">
                     <label class="form-label fw-bold">Name of Business</label>
                     <InputText @bind-Value="BusinessModel.NameOfBusiness" class="form-control" />
                 </div>
 
-                @* Type of Organization *@
                 <div class="col-md-6">
                     <label class="form-label fw-bold">Type of Organization</label>
                     <InputSelect @bind-Value="BusinessModel.TypeOfOrganization" class="form-select">
@@ -49,17 +50,16 @@
                     </div>
                 }
 
-                @* Business Address *@
+                @* Address Model Integration *@
                 <div class="col-12">
                     <label class="form-label fw-bold">Business Address</label>
-                    <InputTextArea @bind-Value="AddressModel.BusinessAddress" class="form-control" rows="2" placeholder="Street, Barangay, City/Town" />
+                    <InputTextArea @bind-Value="AddressModel.BusinessAddress" class="form-control" rows="2" />
                 </div>
 
-                @* Principal Address Toggle *@
                 <div class="col-12">
                     <div class="form-check form-switch">
                         <InputCheckbox @bind-Value="AddressModel.IsPresentSameAsPermanent" class="form-check-input" id="principalSwitch" />
-                        <label class="form-check-label" for="principalSwitch">Principal Address is different from Business Address</label>
+                        <label class="form-check-label" for="principalSwitch">Principal Address is different</label>
                     </div>
                 </div>
 
@@ -82,18 +82,6 @@
                 <div class="col-md-4">
                     <label class="form-label">Date of Registration</label>
                     <InputDate @bind-Value="BusinessModel.DateOfRegistration" class="form-control" TValue="DateOnly ?" />
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Registration Number</label>
-                    <InputText @bind-Value="BusinessModel.BusinessRegNumber" class="form-control" />
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Place of Registration</label>
-                    <InputText @bind-Value="BusinessModel.PlaceOfRegistration" class="form-control" />
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Nature of Business</label>
-                    <InputText @bind-Value="BusinessModel.NatureOfBusiness" class="form-control" />
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">TIN</label>
@@ -125,15 +113,30 @@
 
     private async Task HandleNext()
     {
-        // Set EntityType for the shared Address table
-        AddressModel.EntityType = EntityType.Business;
-
-        // Logic for Address sync
-        if (!AddressModel.IsPresentSameAsPermanent)
+        try
         {
-            AddressModel.PrincipalAddress = AddressModel.BusinessAddress;
-        }
+            if (BusinessModel.CustomerID == 0)
+            {
+                // You'll need to implement this endpoint in your CustomerController
+                // var newCustomer = await CustomerService.CreateBaseCustomerAsync("Business");
+                // BusinessModel.CustomerID = newCustomer.CustomerID;
+            }
 
-        await OnNext.InvokeAsync();
+            AddressModel.EntityID = BusinessModel.CustomerID;
+            AddressModel.EntityType = EntityType.Business;
+
+            var request = new BusinessInfoDTO.BusinessSaveRequest
+            {
+                Business = BusinessModel,
+                Address = AddressModel
+            };
+
+            await BusinessService.UpsertBusinessInfoAsync(request);
+            await OnNext.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("alert", $"Foreign Key Error: Ensure the CustomerID exists. Details: {ex.Message}");
+        }
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CIS.API.Migrations
 {
     [DbContext(typeof(CISDbContext))]
-    [Migration("20260315051603_0.0.001")]
+    [Migration("20260315064413_0.0.001")]
     partial class _00001
     {
         /// <inheritdoc />
@@ -435,6 +435,11 @@ namespace CIS.API.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("CustomerType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("EntityType")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");

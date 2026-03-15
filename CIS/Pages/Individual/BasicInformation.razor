@@ -52,10 +52,12 @@
     private async Task SaveAndNext()
     {
         var generatedId = await CustomerService.UpsertAsync(Customer);
-
         if (generatedId > 0)
         {
             Customer.CustomerID = generatedId;
+            Customer.EntityType = EntityType.Individual; // Ensure type is preserved
+
+            // Notify the Stepper (IndividualStepper) that the model has changed
             await CustomerChanged.InvokeAsync(Customer);
             await OnNext.InvokeAsync();
         }

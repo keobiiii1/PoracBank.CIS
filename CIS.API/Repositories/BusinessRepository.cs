@@ -2,8 +2,8 @@
 using CIS.API.Data;
 using CIS.Assets.Models;
 using CIS.Assets.DTO;
-using Microsoft.EntityFrameworkCore;
 using CIS.Assets.Enum;
+using Microsoft.EntityFrameworkCore;
 
 namespace CIS.API.Repositories;
 
@@ -26,10 +26,34 @@ public class BusinessRepository
         using var tx = await _transactionPolicy.BeginSqlTransaction(_db);
         try
         {
-            var oldBusiness = await _db.BusinessInfos.FirstOrDefaultAsync(e => e.BusinessInfoID == businessReq.BusinessInfoID);
+            // 1. HANDLE PARENT CUSTOMER RECORD
+            if (businessReq.CustomerID == 0)
+            {
+                var newCustomer = new Customer
+                {
+                    CustomerCategory = CustomerCategory.None,
+                    CustomerType = CustomerType.None,
+
+                    EntityType = EntityType.Business,
+
+                    CreatedAt = DateTime.Now
+                };
+
+                _db.Customers.Add(newCustomer);
+
+                await _db.SaveChangesAsync();
+
+                businessReq.CustomerID = newCustomer.CustomerID;
+            }
+
+            // 2. UPSERT BUSINESS INFO
+            var oldBusiness = await _db.BusinessInfos
+                .FirstOrDefaultAsync(e => e.CustomerID == businessReq.CustomerID); // Search by CustomerID
+
             if (oldBusiness == null)
             {
                 var model = _mapper.Map<BusinessInfo>(businessReq);
+                model.CustomerID = businessReq.CustomerID; // Ensure link
                 _db.BusinessInfos.Add(model);
             }
             else
@@ -38,6 +62,7 @@ public class BusinessRepository
                 _db.BusinessInfos.Update(oldBusiness);
             }
 
+            // 3. UPSERT ADDRESS
             var oldAddress = await _db.Addresses.FirstOrDefaultAsync(e =>
                 e.EntityID == businessReq.CustomerID &&
                 e.EntityType == EntityType.Business);
@@ -58,7 +83,11 @@ public class BusinessRepository
             await _db.SaveChangesAsync();
             if (tx != null) await tx.CommitAsync();
         }
-        catch { if (tx != null) await tx.RollbackAsync(); throw; }
+        catch
+        {
+            if (tx != null) await tx.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task UpsertAsync(BusinessInterestDTO.PageModel request)
@@ -67,7 +96,9 @@ public class BusinessRepository
         using var tx = await _transactionPolicy.BeginSqlTransaction(_db);
         try
         {
-            var old = await _db.BusinessInterests.FirstOrDefaultAsync(e => e.BusinessInterestID == request.BusinessInterestID);
+            var old = await _db.BusinessInterests
+                .FirstOrDefaultAsync(e => e.BusinessInterestID == request.BusinessInterestID);
+
             if (old == null)
             {
                 var model = _mapper.Map<BusinessInterest>(request);

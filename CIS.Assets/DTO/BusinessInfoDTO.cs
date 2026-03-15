@@ -23,10 +23,6 @@ public class BusinessInfoDTO
         public bool IsPrivate { get; set; }
         public TypeOfOrganization TypeOfOrganization { get; set; }
         public string? TypeOfOrganizationOther { get; set; }
-
-        // Removed BusinessAddress and PrincipalAddress from here 
-        // as they are handled by AddressDTO
-
         public DateOnly? DateOfRegistration { get; set; }
         public string? BusinessRegNumber { get; set; }
         public DateOnly? BusinessRegExpiry { get; set; }

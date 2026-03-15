@@ -12,10 +12,10 @@ public class IndividualController : ControllerBase
     public IndividualController(IndividualRepository repo) => _repository = repo;
 
     [HttpPost("info")]
-    public async Task<IActionResult> UpsertInfo(IndividualInfoDTO.PageModel req)
+    public async Task<IActionResult> UpsertInfo([FromBody] IndividualInfoDTO.PageModel request)
     {
-        await _repository.UpsertInfoAsync(req);
-        return Ok();
+        await _repository.UpsertInfoAsync(request);
+        return Ok(request);
     }
 
     [HttpPost("employment")]

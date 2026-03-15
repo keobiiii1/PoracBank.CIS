@@ -30,18 +30,32 @@ public class IndividualRepository
         using var tx = await _transactionPolicy.BeginSqlTransaction(_db);
         try
         {
+            if (request.CustomerID == 0)
+            {
+                var newCustomer = new Customer
+                {
+                    EntityType = EntityType.Individual,
+                    CustomerCategory = request.CustomerCategory,
+                    CustomerType = request.CustomerType,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _db.Customers.Add(newCustomer);
+                await _db.SaveChangesAsync(); // SQL generates the ID here
+                request.CustomerID = newCustomer.CustomerID;
+            }
+
             // --- 1. Main Individual Info ---
             var info = await _db.IndividualInfos.FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
             if (info == null)
             {
                 info = _mapper.Map<IndividualInfo>(request);
+                info.CustomerID = request.CustomerID;
                 _db.IndividualInfos.Add(info);
             }
             else
             {
                 _mapper.Map(request, info);
-                // Prevents System.InvalidOperationException by protecting the PK
-                _db.Entry(info).Property(x => x.IndividualInfoID).IsModified = false;
                 _db.IndividualInfos.Update(info);
             }
 

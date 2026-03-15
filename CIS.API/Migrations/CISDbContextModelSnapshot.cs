@@ -436,6 +436,11 @@ namespace CIS.API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<long?>("SourceOfFundsID")
                         .HasColumnType("bigint");
 

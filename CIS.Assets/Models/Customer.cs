@@ -8,6 +8,7 @@ namespace CIS.Assets.Models;
 public class Customer 
 {
     public long CustomerID { get; set; }
+    public EntityType EntityType { get; set; }
     public CustomerCategory CustomerCategory { get; set; } = CustomerCategory.None;
     public CustomerType CustomerType { get; set; } = CustomerType.None;
     public string? CIDNumber { get; set; }

@@ -163,13 +163,11 @@
 
     private async Task HandleNext()
     {
-        if (Model.CustomerID == 0)
-        {
-            Console.WriteLine("Error: CustomerID is missing for Personal Information");
-            return;
-        }
+        // REMOVE the CustomerID == 0 check.
+        // It is expected to be 0 for new registrations.
 
-        await IndividualService.UpsertInfoAsync(Model);
+        // Only invoke the stepper's next logic.
+        // Let the stepper handle the UpsertInfoAsync call.
         await OnNext.InvokeAsync();
     }
 }

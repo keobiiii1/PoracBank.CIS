@@ -1,5 +1,7 @@
 ﻿@page "/cis/individual"
 @namespace CIS.Client.Pages.Individual
+@using CIS.Client.Services
+@inject IndividualService IndividualService
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -13,6 +15,7 @@
 
     @if (CurrentStep == 1)
     {
+        customerModel.EntityType = EntityType.Individual;
         <BasicInformation @bind-Customer="customerModel" OnNext="HandleNext" />
     }
     else if (CurrentStep == 2)
@@ -81,14 +84,33 @@
     private IndividualFamilyDTO.PageModel familyModel = new();
     private ContactDTO.PageModel contactModel = new();
 
-    private void HandleNext()
+    private async Task HandleNext()
     {
+        // CRITICAL: Always keep models in sync with the current CustomerID
         personalModel.CustomerID = customerModel.CustomerID;
         addressModel.EntityID = customerModel.CustomerID;
         contactModel.EntityID = customerModel.CustomerID;
         identificationModel.CustomerID = customerModel.CustomerID;
         employmentModel.CustomerID = customerModel.CustomerID;
         familyModel.CustomerID = customerModel.CustomerID;
+
+        personalModel.EntityType = EntityType.Individual;
+        personalModel.CustomerCategory = customerModel.CustomerCategory;
+        personalModel.CustomerType = customerModel.CustomerType;
+
+        if (CurrentStep == 2)
+        {
+            var result = await IndividualService.UpsertInfoAsync(personalModel);
+            if (result != null)
+            {
+                customerModel.CustomerID = result.CustomerID;
+                personalModel.CustomerID = result.CustomerID;
+            }
+            else
+            {
+                return;
+            }
+        }
 
         CurrentStep++;
         StateHasChanged();
