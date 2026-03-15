@@ -15,9 +15,9 @@ public class BusinessController : ControllerBase
     [HttpPost("info")]
     public async Task<IActionResult> UpsertBusiness(BusinessInfoDTO.BusinessSaveRequest req)
     {
-        // Passes both models to the repository for a single transaction save
         await _repository.UpsertAsync(req.Business, req.Address);
-        return Ok();
+
+        return Ok(req);
     }
 
     [HttpPost("interest")]

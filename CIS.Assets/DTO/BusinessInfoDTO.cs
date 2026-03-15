@@ -18,6 +18,7 @@ public class BusinessInfoDTO
     {
         public long BusinessInfoID { get; set; }
         public long CustomerID { get; set; }
+        public EntityType EntityType { get; set; } = EntityType.Business;
         public string? NameOfBusiness { get; set; }
         public bool IsGovernment { get; set; }
         public bool IsPrivate { get; set; }

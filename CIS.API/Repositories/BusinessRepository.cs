@@ -26,34 +26,28 @@ public class BusinessRepository
         using var tx = await _transactionPolicy.BeginSqlTransaction(_db);
         try
         {
-            // 1. HANDLE PARENT CUSTOMER RECORD
             if (businessReq.CustomerID == 0)
             {
                 var newCustomer = new Customer
                 {
+                    EntityType = EntityType.Business,
                     CustomerCategory = CustomerCategory.None,
                     CustomerType = CustomerType.None,
-
-                    EntityType = EntityType.Business,
-
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 _db.Customers.Add(newCustomer);
-
                 await _db.SaveChangesAsync();
-
                 businessReq.CustomerID = newCustomer.CustomerID;
             }
 
-            // 2. UPSERT BUSINESS INFO
             var oldBusiness = await _db.BusinessInfos
-                .FirstOrDefaultAsync(e => e.CustomerID == businessReq.CustomerID); // Search by CustomerID
+                .FirstOrDefaultAsync(e => e.CustomerID == businessReq.CustomerID);
 
             if (oldBusiness == null)
             {
                 var model = _mapper.Map<BusinessInfo>(businessReq);
-                model.CustomerID = businessReq.CustomerID; // Ensure link
+                model.CustomerID = businessReq.CustomerID;
                 _db.BusinessInfos.Add(model);
             }
             else
@@ -62,7 +56,7 @@ public class BusinessRepository
                 _db.BusinessInfos.Update(oldBusiness);
             }
 
-            // 3. UPSERT ADDRESS
+            // 3. Upsert Address
             var oldAddress = await _db.Addresses.FirstOrDefaultAsync(e =>
                 e.EntityID == businessReq.CustomerID &&
                 e.EntityType == EntityType.Business);

@@ -3,6 +3,7 @@
 @using CIS.Assets.DTO
 @using CIS.Assets.Enum
 @using CIS.Client.Services
+@inject BusinessService BusinessService
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -57,14 +58,6 @@
 
     private async Task HandleNext()
     {
-        if (businessModel.CustomerID == 0)
-        {
-            // businessModel.CustomerID = await BusinessService.CreateCustomerAsync();
-        }
-
-        addressModel.EntityID = businessModel.CustomerID;
-        addressModel.EntityType = EntityType.Business;
-
         CurrentStep++;
         StateHasChanged();
     }

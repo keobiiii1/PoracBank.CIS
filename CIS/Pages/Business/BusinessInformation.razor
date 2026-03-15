@@ -115,28 +115,23 @@
     {
         try
         {
-            if (BusinessModel.CustomerID == 0)
-            {
-                // You'll need to implement this endpoint in your CustomerController
-                // var newCustomer = await CustomerService.CreateBaseCustomerAsync("Business");
-                // BusinessModel.CustomerID = newCustomer.CustomerID;
-            }
-
             AddressModel.EntityID = BusinessModel.CustomerID;
             AddressModel.EntityType = EntityType.Business;
+            BusinessModel.EntityType = EntityType.Business;
 
-            var request = new BusinessInfoDTO.BusinessSaveRequest
+            var result = await BusinessService.UpsertBusinessInfoAsync(BusinessModel, AddressModel);
+
+            if (result != null)
             {
-                Business = BusinessModel,
-                Address = AddressModel
-            };
+                BusinessModel.CustomerID = result.Business.CustomerID;
+                AddressModel.EntityID = result.Business.CustomerID;
 
-            await BusinessService.UpsertBusinessInfoAsync(request);
-            await OnNext.InvokeAsync();
+                await OnNext.InvokeAsync();
+            }
         }
         catch (Exception ex)
         {
-            await JS.InvokeVoidAsync("alert", $"Foreign Key Error: Ensure the CustomerID exists. Details: {ex.Message}");
+            await JS.InvokeVoidAsync("alert", $"Save failed: {ex.Message}");
         }
     }
 }
