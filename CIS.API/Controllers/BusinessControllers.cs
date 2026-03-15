@@ -2,6 +2,8 @@
 using CIS.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using CIS.Assets.DTO;
+using static CIS.Assets.DTO.BusinessInfoDTO.PageModel;
+using static CIS.Assets.DTO.BusinessInfoDTO;
 
 namespace CIS.API.Controllers;
 
@@ -13,9 +15,10 @@ public class BusinessController : ControllerBase
     public BusinessController(BusinessRepository repo) => _repository = repo;
 
     [HttpPost("info")]
-    public async Task<IActionResult> UpsertBusiness(BusinessInfoDTO.PageModel req)
+    public async Task<IActionResult> UpsertBusiness([FromBody] BusinessSaveRequest req)
     {
-        await _repository.UpsertAsync(req); return Ok();
+        await _repository.UpsertAsync(req.Business, req.Address);
+        return Ok();
     }
 
     [HttpPost("interest")]

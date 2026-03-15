@@ -51,7 +51,9 @@ namespace CIS.API.Migrations
                     PermanentCountry = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     PresentAddress = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     PresentZipCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    PresentCountry = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true)
+                    PresentCountry = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    BusinessAddress = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    PrincipalAddress = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -191,6 +193,7 @@ namespace CIS.API.Migrations
                     BeneficiaryName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Birthday = table.Column<DateOnly>(type: "date", nullable: true),
                     PlaceOfBirth = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Nationality = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     NatureOfWork = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
                 },
@@ -219,8 +222,6 @@ namespace CIS.API.Migrations
                     IsPrivate = table.Column<bool>(type: "bit", nullable: false),
                     TypeOfOrganization = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     TypeOfOrganizationOther = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    BusinessAddress = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    PrincipalAddress = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     DateOfRegistration = table.Column<DateOnly>(type: "date", nullable: true),
                     BusinessRegNumber = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     BusinessRegExpiry = table.Column<DateOnly>(type: "date", nullable: true),
@@ -433,12 +434,7 @@ namespace CIS.API.Migrations
                     PlaceOfBirth = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Gender = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     MaritalStatus = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Nationality = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    MailingPreference = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    FamilyID = table.Column<long>(type: "bigint", nullable: true),
-                    IdentificationID = table.Column<long>(type: "bigint", nullable: true),
-                    ForeignerID = table.Column<long>(type: "bigint", nullable: true),
-                    EmploymentID = table.Column<long>(type: "bigint", nullable: true)
+                    MailingPreference = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -450,30 +446,6 @@ namespace CIS.API.Migrations
                         principalTable: "Customer",
                         principalColumn: "CustomerID",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_IndividualInfo_IndividualEmployment_EmploymentID",
-                        column: x => x.EmploymentID,
-                        principalSchema: "cis",
-                        principalTable: "IndividualEmployment",
-                        principalColumn: "EmploymentID");
-                    table.ForeignKey(
-                        name: "FK_IndividualInfo_IndividualFamily_FamilyID",
-                        column: x => x.FamilyID,
-                        principalSchema: "cis",
-                        principalTable: "IndividualFamily",
-                        principalColumn: "FamilyID");
-                    table.ForeignKey(
-                        name: "FK_IndividualInfo_IndividualForeigner_ForeignerID",
-                        column: x => x.ForeignerID,
-                        principalSchema: "cis",
-                        principalTable: "IndividualForeigner",
-                        principalColumn: "ForeignerID");
-                    table.ForeignKey(
-                        name: "FK_IndividualInfo_IndividualIdentification_IdentificationID",
-                        column: x => x.IdentificationID,
-                        principalSchema: "cis",
-                        principalTable: "IndividualIdentification",
-                        principalColumn: "IdentificationID");
                 });
 
             migrationBuilder.CreateIndex(
@@ -537,29 +509,25 @@ namespace CIS.API.Migrations
                 name: "IX_IndividualEmployment_CustomerID",
                 schema: "cis",
                 table: "IndividualEmployment",
-                column: "CustomerID",
-                unique: true);
+                column: "CustomerID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_IndividualFamily_CustomerID",
                 schema: "cis",
                 table: "IndividualFamily",
-                column: "CustomerID",
-                unique: true);
+                column: "CustomerID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_IndividualForeigner_CustomerID",
                 schema: "cis",
                 table: "IndividualForeigner",
-                column: "CustomerID",
-                unique: true);
+                column: "CustomerID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_IndividualIdentification_CustomerID",
                 schema: "cis",
                 table: "IndividualIdentification",
-                column: "CustomerID",
-                unique: true);
+                column: "CustomerID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_IndividualInfo_CustomerID",
@@ -567,30 +535,6 @@ namespace CIS.API.Migrations
                 table: "IndividualInfo",
                 column: "CustomerID",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_IndividualInfo_EmploymentID",
-                schema: "cis",
-                table: "IndividualInfo",
-                column: "EmploymentID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_IndividualInfo_FamilyID",
-                schema: "cis",
-                table: "IndividualInfo",
-                column: "FamilyID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_IndividualInfo_ForeignerID",
-                schema: "cis",
-                table: "IndividualInfo",
-                column: "ForeignerID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_IndividualInfo_IdentificationID",
-                schema: "cis",
-                table: "IndividualInfo",
-                column: "IdentificationID");
         }
 
         /// <inheritdoc />
@@ -617,10 +561,6 @@ namespace CIS.API.Migrations
                 schema: "cis");
 
             migrationBuilder.DropTable(
-                name: "IndividualInfo",
-                schema: "cis");
-
-            migrationBuilder.DropTable(
                 name: "IndividualEmployment",
                 schema: "cis");
 
@@ -634,6 +574,10 @@ namespace CIS.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "IndividualIdentification",
+                schema: "cis");
+
+            migrationBuilder.DropTable(
+                name: "IndividualInfo",
                 schema: "cis");
 
             migrationBuilder.DropTable(

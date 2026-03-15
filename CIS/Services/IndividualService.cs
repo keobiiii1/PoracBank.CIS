@@ -1,5 +1,4 @@
-﻿using CIS.Assets.Common;
-using CIS.Assets.DTO;
+﻿using CIS.Assets.DTO;
 using System.Net.Http.Json;
 
 namespace CIS.Client.Services;
@@ -19,6 +18,7 @@ public class IndividualService
 
     public async Task UpsertFamilyAsync(IndividualFamilyDTO.PageModel request) =>
         await _http.PostAsJsonAsync($"{BaseUrl}/family", request);
+
     public async Task UpsertIdentificationAsync(IndividualIdentificationDTO.PageModel request) =>
         await _http.PostAsJsonAsync($"{BaseUrl}/identification", request);
 }

@@ -1,14 +1,24 @@
-﻿using CIS.Assets.Common;
-using CIS.Assets.DTO;
+﻿using CIS.Assets.DTO;
 using System.Net.Http.Json;
 
 namespace CIS.Client.Services;
 
-public class BankReviewService
+public class BusinessService
 {
-    private readonly HttpClient _http;
-    public BankReviewService(HttpClient http) => _http = http;
+    private readonly HttpClient _httpClient;
+    private const string BaseUrl = "api/business";
 
-    public async Task UpsertReviewAsync(BankReviewDTO.PageModel req) =>
-        await _http.PostAsJsonAsync("api/bankreview/review", req);
+    public BusinessService(HttpClient httpClient) => _httpClient = httpClient;
+
+    public async Task UpsertBusinessInfoAsync(BusinessInfoDTO.PageModel business, AddressDTO.PageModel address)
+    {
+        // Use the wrapper class defined in the DTO
+        var request = new BusinessInfoDTO.BusinessSaveRequest
+        {
+            Business = business,
+            Address = address
+        };
+
+        await _httpClient.PostAsJsonAsync($"{BaseUrl}/info", request);
+    }
 }

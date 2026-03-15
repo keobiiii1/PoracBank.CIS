@@ -4,7 +4,7 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Individual Account Registration</h2>
-        <span class="badge bg-primary">Step @CurrentStep of 7</span>
+        <span class="badge bg-primary">Step @CurrentStep of 8</span>
     </div>
 
     <div class="progress mb-4" style="height: 10px;">
@@ -24,7 +24,7 @@
     {
         <ContactInformation CustomerId="customerModel.CustomerID"
                             AddressModel="addressModel"
-                            InfoModel="individualInfoModel"
+                            InfoModel="personalModel"
                             OnNext="HandleNext"
                             OnBack="PrevStep" />
     }
@@ -44,7 +44,7 @@
                                OnNext="HandleNext"
                                OnBack="PrevStep" />
     }
-    @* --- Step 6: Family (Shifted from 5 to 6) --- *@
+    @* --- Step 6: Account & Business --- *@
     else if (CurrentStep == 6)
     {
         <AccountBusiness InfoModel="personalModel"
@@ -55,42 +55,43 @@
     @* --- Step 7: Bank Review (Shifted from 6 to 7) --- *@
     else if (CurrentStep == 7)
     {
-        <BankReview Customer="customerModel"
-                    Personal="personalModel"
-                    Address="addressModel"
-                    Identification="identificationModel"
-                    Employment="employmentModel"
-                    OnBack="PrevStep"
-                    OnSubmit="HandleSubmit" />
+        <IndividualReview Customer="customerModel"
+                          Personal="personalModel"
+                          Address="addressModel"
+                          Identification="identificationModel"
+                          Employment="employmentModel"
+                          OnBack="PrevStep"
+                          OnSubmit="HandleSubmit" />
+    }
+    else if (CurrentStep == 8)
+    {
+        <RegistrationSuccess CustomerName="@(personalModel.FirstName + " " + personalModel.LastName)"
+                             CustomerId="customerModel.CustomerID"
+                             OnReset="ResetStepper" />
     }
 </div>
 
 @code {
     private int CurrentStep = 1;
-
     private CustomerDTO.PageModel customerModel = new();
     private IndividualInfoDTO.PageModel personalModel = new();
     private AddressDTO.PageModel addressModel = new();
-    private IndividualInfoDTO.PageModel individualInfoModel = new();
-    private ContactDTO.PageModel contactModel = new();
     private IndividualIdentificationDTO.PageModel identificationModel = new();
     private IndividualEmploymentDTO.PageModel employmentModel = new();
     private IndividualFamilyDTO.PageModel familyModel = new();
-    private BankReviewDTO.PageModel reviewModel = new();
+    private ContactDTO.PageModel contactModel = new();
 
     private void HandleNext()
     {
-        // Ensure the ID is passed to every model as we progress
         personalModel.CustomerID = customerModel.CustomerID;
         addressModel.EntityID = customerModel.CustomerID;
         contactModel.EntityID = customerModel.CustomerID;
         identificationModel.CustomerID = customerModel.CustomerID;
         employmentModel.CustomerID = customerModel.CustomerID;
         familyModel.CustomerID = customerModel.CustomerID;
-        reviewModel.CustomerID = customerModel.CustomerID;
 
         CurrentStep++;
-        StateHasChanged(); // Force Blazor to refresh the UI
+        StateHasChanged();
     }
 
     private async Task HandleSubmit()
@@ -100,4 +101,16 @@
     }
 
     private void PrevStep() => CurrentStep--;
+
+    private void ResetStepper()
+    {
+        CurrentStep = 1;
+        customerModel = new();
+        personalModel = new();
+        addressModel = new();
+        identificationModel = new();
+        employmentModel = new();
+        familyModel = new();
+        StateHasChanged();
+    }
 }

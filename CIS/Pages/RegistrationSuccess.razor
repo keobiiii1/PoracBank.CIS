@@ -1,0 +1,43 @@
+﻿@inject IJSRuntime JS
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    <h2 class="fw-bold mb-3">Registration Successful!</h2>
+                    <p class="text-muted mb-4">
+                        The account for <strong>@CustomerName</strong> has been successfully created and saved to the database.
+                    </p>
+
+                    <div class="bg-light p-4 rounded mb-4">
+                        <span class="text-uppercase small fw-bold text-muted d-block mb-1">Generated Customer ID</span>
+                        <h3 class="text-primary fw-bold mb-0">@CustomerId</h3>
+                    </div>
+
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                        @* <button type="button" class="btn btn-primary btn-lg px-4" @onclick="PrintApplication">
+                            <i class="bi bi-printer me-2"></i> Print Application
+                        </button> *@
+                        <button type="button" class="btn btn-outline-secondary btn-lg px-4" @onclick="OnReset">
+                            Register Another
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <p class="mt-4 text-muted small">
+                Reference Date: @DateTime.Now.ToString("MMMM dd, yyyy HH:mm")
+            </p>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string CustomerName { get; set; } = "";
+    [Parameter] public long CustomerId { get; set; }
+    [Parameter] public EventCallback OnReset { get; set; }
+}

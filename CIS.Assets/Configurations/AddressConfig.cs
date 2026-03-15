@@ -13,15 +13,17 @@ public static class AddressConfig
         entity.IsPrimaryKey(e => e.AddressID);
         entity.IsLong2(e => e.EntityID);
         entity.IsNvarcharEnum(e => e.EntityType, 50);
+
+        // Individual Mapping
         entity.IsNvarchar(e => e.PermanentAddress, 500);
         entity.IsNvarchar(e => e.PermanentZipCode, 20);
         entity.IsNvarchar(e => e.PermanentCountry, 100);
         entity.IsNvarchar(e => e.PresentAddress, 500);
         entity.IsNvarchar(e => e.PresentZipCode, 20);
         entity.IsNvarchar(e => e.PresentCountry, 100);
-        
-        
-        
-        
+
+        // New Business Mapping
+        entity.IsNvarchar(e => e.BusinessAddress, 500);
+        entity.IsNvarchar(e => e.PrincipalAddress, 500);
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CIS.API.Migrations
 {
     [DbContext(typeof(CISDbContext))]
-    [Migration("20260314120212_0.0.001")]
+    [Migration("20260315051603_0.0.001")]
     partial class _00001
     {
         /// <inheritdoc />
@@ -81,6 +81,10 @@ namespace CIS.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("AddressID"));
 
+                    b.Property<string>("BusinessAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<long>("EntityID")
                         .HasColumnType("bigint");
 
@@ -112,6 +116,10 @@ namespace CIS.API.Migrations
                     b.Property<string>("PresentZipCode")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("PrincipalAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.HasKey("AddressID");
 
@@ -268,10 +276,6 @@ namespace CIS.API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("BusinessAddress")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<DateOnly?>("BusinessRegExpiry")
                         .HasColumnType("date");
 
@@ -309,10 +313,6 @@ namespace CIS.API.Migrations
                     b.Property<string>("PlaceOfRegistration")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("PrincipalAddress")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("SizeOfBusiness")
                         .IsRequired()
@@ -574,8 +574,7 @@ namespace CIS.API.Migrations
 
                     b.HasKey("EmploymentID");
 
-                    b.HasIndex("CustomerID")
-                        .IsUnique();
+                    b.HasIndex("CustomerID");
 
                     b.ToTable("IndividualEmployment", "cis");
                 });
@@ -617,8 +616,7 @@ namespace CIS.API.Migrations
 
                     b.HasKey("FamilyID");
 
-                    b.HasIndex("CustomerID")
-                        .IsUnique();
+                    b.HasIndex("CustomerID");
 
                     b.ToTable("IndividualFamily", "cis");
                 });
@@ -652,8 +650,7 @@ namespace CIS.API.Migrations
 
                     b.HasKey("ForeignerID");
 
-                    b.HasIndex("CustomerID")
-                        .IsUnique();
+                    b.HasIndex("CustomerID");
 
                     b.ToTable("IndividualForeigner", "cis");
                 });
@@ -708,8 +705,7 @@ namespace CIS.API.Migrations
 
                     b.HasKey("IdentificationID");
 
-                    b.HasIndex("CustomerID")
-                        .IsUnique();
+                    b.HasIndex("CustomerID");
 
                     b.ToTable("IndividualIdentification", "cis");
                 });
@@ -741,26 +737,14 @@ namespace CIS.API.Migrations
                     b.Property<DateOnly?>("DateOfBirth")
                         .HasColumnType("date");
 
-                    b.Property<long?>("EmploymentID")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("FamilyID")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("FirstName")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<long?>("ForeignerID")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("Gender")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
-
-                    b.Property<long?>("IdentificationID")
-                        .HasColumnType("bigint");
 
                     b.Property<bool>("IsResident")
                         .HasColumnType("bit");
@@ -783,10 +767,6 @@ namespace CIS.API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Nationality")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<string>("PlaceOfBirth")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -795,14 +775,6 @@ namespace CIS.API.Migrations
 
                     b.HasIndex("CustomerID")
                         .IsUnique();
-
-                    b.HasIndex("EmploymentID");
-
-                    b.HasIndex("FamilyID");
-
-                    b.HasIndex("ForeignerID");
-
-                    b.HasIndex("IdentificationID");
 
                     b.ToTable("IndividualInfo", "cis");
                 });
@@ -922,8 +894,8 @@ namespace CIS.API.Migrations
             modelBuilder.Entity("CIS.Assets.Models.IndividualEmployment", b =>
                 {
                     b.HasOne("CIS.Assets.Models.Customer", "Customer")
-                        .WithOne("IndividualEmployment")
-                        .HasForeignKey("CIS.Assets.Models.IndividualEmployment", "CustomerID")
+                        .WithMany()
+                        .HasForeignKey("CustomerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -933,8 +905,8 @@ namespace CIS.API.Migrations
             modelBuilder.Entity("CIS.Assets.Models.IndividualFamily", b =>
                 {
                     b.HasOne("CIS.Assets.Models.Customer", "Customer")
-                        .WithOne("IndividualFamily")
-                        .HasForeignKey("CIS.Assets.Models.IndividualFamily", "CustomerID")
+                        .WithMany()
+                        .HasForeignKey("CustomerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -944,8 +916,8 @@ namespace CIS.API.Migrations
             modelBuilder.Entity("CIS.Assets.Models.IndividualForeigner", b =>
                 {
                     b.HasOne("CIS.Assets.Models.Customer", "Customer")
-                        .WithOne("IndividualForeigner")
-                        .HasForeignKey("CIS.Assets.Models.IndividualForeigner", "CustomerID")
+                        .WithMany()
+                        .HasForeignKey("CustomerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -955,8 +927,8 @@ namespace CIS.API.Migrations
             modelBuilder.Entity("CIS.Assets.Models.IndividualIdentification", b =>
                 {
                     b.HasOne("CIS.Assets.Models.Customer", "Customer")
-                        .WithOne("IndividualIdentification")
-                        .HasForeignKey("CIS.Assets.Models.IndividualIdentification", "CustomerID")
+                        .WithMany()
+                        .HasForeignKey("CustomerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -971,31 +943,7 @@ namespace CIS.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CIS.Assets.Models.IndividualEmployment", "Employment")
-                        .WithMany()
-                        .HasForeignKey("EmploymentID");
-
-                    b.HasOne("CIS.Assets.Models.IndividualFamily", "Family")
-                        .WithMany()
-                        .HasForeignKey("FamilyID");
-
-                    b.HasOne("CIS.Assets.Models.IndividualForeigner", "Foreigner")
-                        .WithMany()
-                        .HasForeignKey("ForeignerID");
-
-                    b.HasOne("CIS.Assets.Models.IndividualIdentification", "Identification")
-                        .WithMany()
-                        .HasForeignKey("IdentificationID");
-
                     b.Navigation("Customer");
-
-                    b.Navigation("Employment");
-
-                    b.Navigation("Family");
-
-                    b.Navigation("Foreigner");
-
-                    b.Navigation("Identification");
                 });
 
             modelBuilder.Entity("CIS.Assets.Models.Customer", b =>
@@ -1009,14 +957,6 @@ namespace CIS.API.Migrations
                     b.Navigation("BusinessInterests");
 
                     b.Navigation("GovernmentRelations");
-
-                    b.Navigation("IndividualEmployment");
-
-                    b.Navigation("IndividualFamily");
-
-                    b.Navigation("IndividualForeigner");
-
-                    b.Navigation("IndividualIdentification");
 
                     b.Navigation("IndividualInfo");
                 });

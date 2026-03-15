@@ -17,8 +17,6 @@ public static class BusinessInfoConfig
         entity.IsBool(e => e.IsPrivate);
         entity.IsNvarcharEnum(e => e.TypeOfOrganization, 50);
         entity.IsNvarchar(e => e.TypeOfOrganizationOther, 255);
-        entity.IsNvarchar(e => e.BusinessAddress, 500);
-        entity.IsNvarchar(e => e.PrincipalAddress, 500);
         entity.IsDateOnly(e => e.DateOfRegistration);
         entity.IsNvarchar(e => e.BusinessRegNumber, 100);
         entity.IsDateOnly(e => e.BusinessRegExpiry);

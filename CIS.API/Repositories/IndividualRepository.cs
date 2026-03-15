@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using CIS.API.Data;
-using CIS.Assets.Models;
 using CIS.Assets.DTO;
-using Microsoft.EntityFrameworkCore;
 using CIS.Assets.Enum;
+using CIS.Assets.Models;
+using Microsoft.EntityFrameworkCore;
+using static CIS.Assets.DTO.IndividualInfoDTO.PageModel;
 
 namespace CIS.API.Repositories;
 

@@ -45,7 +45,7 @@
     {
         <div class="row g-2 mb-3">
             <div class="col-md-6"><InputText @bind-Value="IdModel.PassportIDNo" class="form-control" placeholder="Passport No." /></div>
-            <div class="col-md-6"><InputDate @bind-Value="IdModel.PassportExpiry" class="form-control" /></div>
+            <div class="col-md-6"><InputDate @bind-Value="IdModel.PassportIDExpiry" class="form-control" /></div>
         </div>
     }
 
@@ -83,7 +83,7 @@
 
         // Nullify fields if checkbox is unchecked before saving
         if (!ShowDL) { IdModel.DriversLicenseIDNo = null; IdModel.DriversLicenseExpiry = null; }
-        if (!ShowPassport) { IdModel.PassportIDNo = null; IdModel.PassportExpiry = null; }
+        if (!ShowPassport) { IdModel.PassportIDNo = null; IdModel.PassportIDExpiry = null; }
         if (!ShowOthers) { IdModel.OtherIDType = null; IdModel.OtherIDNumber = null; IdModel.OtherIDExpiry = null; }
 
         await IndividualService.UpsertIdentificationAsync(IdModel);

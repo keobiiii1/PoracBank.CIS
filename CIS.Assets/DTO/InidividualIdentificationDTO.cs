@@ -29,7 +29,7 @@ public class IndividualIdentificationDTO
 
         // Passport
         public string? PassportIDNo { get; set; }
-        public DateOnly? PassportExpiry { get; set; }
+        public DateOnly? PassportIDExpiry { get; set; }
 
         // Others
         public string? OtherIDType { get; set; }
@@ -42,7 +42,8 @@ public class IndividualIdentificationDTO
         public MappingProfile()
         {
             CreateMap<IndividualIdentification, Browse>().ReverseMap();
-            CreateMap<IndividualIdentification, PageModel>().ReverseMap();
+            CreateMap<IndividualIdentification, IndividualIdentificationDTO.PageModel>().ReverseMap()
+            .ForMember(dest => dest.PassportIDExpiry, opt => opt.MapFrom(src => src.PassportIDExpiry));
         }
     }
 }

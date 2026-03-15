@@ -29,7 +29,11 @@ public class AddressDTO
         public string? PresentZipCode { get; set; }
         public string? PresentCountry { get; set; } // Added
 
-        public bool IsPresentSameAsPermanent { get; set; } // For the checkbox logic
+        // New Business Fields
+        public string? BusinessAddress { get; set; }
+        public string? PrincipalAddress { get; set; }
+
+        public bool IsPresentSameAsPermanent { get; set; }
 
         public class Validator : AbstractValidator<PageModel>
         {

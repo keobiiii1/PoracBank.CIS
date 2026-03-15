@@ -1,0 +1,92 @@
+﻿@page "/cis/business"
+@namespace CIS.Client.Pages.Business
+@using CIS.Assets.DTO
+@using CIS.Assets.Enum
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Business Account Registration</h2>
+        <span class="badge bg-primary">Step @CurrentStep of 6</span>
+    </div>
+
+    @* Progress Bar *@
+    <div class="progress mb-4" style="height: 10px;">
+        <div class="progress-bar" style="width: @(CurrentStep * 16.66)%"></div>
+    </div>
+
+    @* --- Step 1: Business Information & Address --- *@
+    @if (CurrentStep == 1)
+    {
+        <BusinessInformation BusinessModel="businessModel"
+                             AddressModel="addressModel"
+                             OnNext="HandleNext" />
+    }
+    @* --- Future Steps Placeholder --- *@
+    else if (CurrentStep > 1 && CurrentStep < 7)
+    {
+        <div class="card p-5 text-center shadow-sm">
+            <h4>Step @CurrentStep Content Placeholder</h4>
+            <p class="text-muted">Logic for subsequent business steps will be implemented next.</p>
+            <button class="btn btn-outline-secondary mt-3" @onclick="PrevStep">Back</button>
+        </div>
+    }
+    else if (CurrentStep == 7)
+    {
+        <div class="text-center p-5">
+            <div class="alert alert-success shadow">
+                <h4>Registration Submitted Successfully!</h4>
+                <p>The business record has been queued for bank review.</p>
+            </div>
+            <button class="btn btn-primary" @onclick="ResetStepper">Register Another Business</button>
+        </div>
+    }
+</div>
+
+@code {
+    private int CurrentStep = 1;
+
+    // Core models for Step 1
+    private BusinessInfoDTO.PageModel businessModel = new();
+    private AddressDTO.PageModel addressModel = new();
+
+    // // Future models (initialized but unused in Step 1)
+    // private BusinessAccountDTO.PageModel accountModel = new();
+    // private BeneficiaryDTO.PageModel beneficiaryModel = new();
+    // private BankUseDTO.PageModel bankUseModel = new();
+
+    private void HandleNext()
+    {
+        // Preparation for Step 2
+        addressModel.EntityType = EntityType.Business;
+
+        CurrentStep++;
+        StateHasChanged();
+    }
+
+    private void PrevStep()
+    {
+        if (CurrentStep > 1)
+        {
+            CurrentStep--;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        // Business logic for database submission
+        CurrentStep = 7;
+        StateHasChanged();
+    }
+
+    private void ResetStepper()
+    {
+        CurrentStep = 1;
+        businessModel = new();
+        addressModel = new();
+        // accountModel = new();
+        // beneficiaryModel = new();
+        // bankUseModel = new();
+        StateHasChanged();
+    }
+}

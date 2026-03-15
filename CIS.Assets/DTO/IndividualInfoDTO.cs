@@ -107,7 +107,7 @@ public class IndividualInfoDTO
         public class BusinessInterestModel
         {
             public string? BusinessName { get; set; }
-            public decimal OwnershipPercentage { get; set; }
+            public decimal? OwnershipPercentage { get; set; }
         }
 
         public class GovRelativeModel

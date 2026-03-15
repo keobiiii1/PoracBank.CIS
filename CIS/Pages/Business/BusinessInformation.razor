@@ -1,0 +1,139 @@
+﻿@using CIS.Assets.DTO
+@using CIS.Assets.Enum
+
+<EditForm Model="BusinessModel" OnValidSubmit="HandleNext">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Step 1: Business Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                @* Sector Selection *@
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Sector</label>
+                    <div class="d-flex gap-3 mt-2">
+                        <div class="form-check">
+                            <input type="radio" name="sector" class="form-check-input" checked="@BusinessModel.IsPrivate" @onclick="() => SetSector(false)" />
+                            <label class="form-check-label">Private</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" name="sector" class="form-check-input" checked="@BusinessModel.IsGovernment" @onclick="() => SetSector(true)" />
+                            <label class="form-check-label">Government</label>
+                        </div>
+                    </div>
+                </div>
+
+                @* Name of Business *@
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Name of Business</label>
+                    <InputText @bind-Value="BusinessModel.NameOfBusiness" class="form-control" />
+                </div>
+
+                @* Type of Organization *@
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Type of Organization</label>
+                    <InputSelect @bind-Value="BusinessModel.TypeOfOrganization" class="form-select">
+                        <option value="@TypeOfOrganization.None">-- Select Type --</option>
+                        @foreach (var type in Enum.GetValues<TypeOfOrganization>().Where(t => t != TypeOfOrganization.None))
+                        {
+                            <option value="@type">@type</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                @if (BusinessModel.TypeOfOrganization == TypeOfOrganization.Others)
+                {
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Please Specify</label>
+                        <InputText @bind-Value="BusinessModel.TypeOfOrganizationOther" class="form-control" />
+                    </div>
+                }
+
+                @* Business Address *@
+                <div class="col-12">
+                    <label class="form-label fw-bold">Business Address</label>
+                    <InputTextArea @bind-Value="AddressModel.BusinessAddress" class="form-control" rows="2" placeholder="Street, Barangay, City/Town" />
+                </div>
+
+                @* Principal Address Toggle *@
+                <div class="col-12">
+                    <div class="form-check form-switch">
+                        <InputCheckbox @bind-Value="AddressModel.IsPresentSameAsPermanent" class="form-check-input" id="principalSwitch" />
+                        <label class="form-check-label" for="principalSwitch">Principal Address is different from Business Address</label>
+                    </div>
+                </div>
+
+                @if (AddressModel.IsPresentSameAsPermanent)
+                {
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Principal Address</label>
+                        <InputTextArea @bind-Value="AddressModel.PrincipalAddress" class="form-control" rows="2" />
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* Registration Details Section *@
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light fw-bold">Registration Details</div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Date of Registration</label>
+                    <InputDate @bind-Value="BusinessModel.DateOfRegistration" class="form-control" TValue="DateOnly ?" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Registration Number</label>
+                    <InputText @bind-Value="BusinessModel.BusinessRegNumber" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Place of Registration</label>
+                    <InputText @bind-Value="BusinessModel.PlaceOfRegistration" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Nature of Business</label>
+                    <InputText @bind-Value="BusinessModel.NatureOfBusiness" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">TIN</label>
+                    <InputText @bind-Value="BusinessModel.TaxIdentificationNumber" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">DTI Cert Number</label>
+                    <InputText @bind-Value="BusinessModel.DTICertNumber" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end mb-5">
+        <button type="submit" class="btn btn-primary px-5 btn-lg">Next Step</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public BusinessInfoDTO.PageModel BusinessModel { get; set; } = new();
+    [Parameter] public AddressDTO.PageModel AddressModel { get; set; } = new();
+    [Parameter] public EventCallback OnNext { get; set; }
+
+    private void SetSector(bool isGov)
+    {
+        BusinessModel.IsGovernment = isGov;
+        BusinessModel.IsPrivate = !isGov;
+    }
+
+    private async Task HandleNext()
+    {
+        // Set EntityType for the shared Address table
+        AddressModel.EntityType = EntityType.Business;
+
+        // Logic for Address sync
+        if (!AddressModel.IsPresentSameAsPermanent)
+        {
+            AddressModel.PrincipalAddress = AddressModel.BusinessAddress;
+        }
+
+        await OnNext.InvokeAsync();
+    }
+}
