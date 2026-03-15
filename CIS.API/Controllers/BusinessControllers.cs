@@ -26,4 +26,11 @@ public class BusinessController : ControllerBase
         await _repository.UpsertAsync(req);
         return Ok();
     }
+
+    [HttpPost("upsert/beneficiary")]
+    public async Task<IActionResult> UpsertBeneficiary(BeneficiaryDTO.PageModel req)
+    {
+        await _repository.UpsertBeneficiaryAsync(req);
+        return Ok();
+    }
 }

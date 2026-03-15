@@ -7,7 +7,7 @@ public enum TrustType
     [Description("None")]
     None,
     [Description("In Trust For")]
-    InTrustFor,
+    ITF,
     [Description("For the Account Of")]
-    ForTheAccountOf,
+    FAO
 }

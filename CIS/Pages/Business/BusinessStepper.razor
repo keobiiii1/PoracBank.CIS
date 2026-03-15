@@ -24,6 +24,13 @@
     {
         <AccountContact BusinessModel="businessModel" AddressModel="addressModel" OnNext="HandleNext" OnBack="PrevStep" />
     }
+    else if (CurrentStep == 3)
+    {
+        <BeneficiaryInfo BeneficiaryModel="beneficiaryModel"
+                         CustomerID="businessModel.CustomerID"
+                         OnNext="HandleNext"
+                         OnBack="PrevStep" />
+    }
     @* --- Future Steps Placeholder --- *@
     else if (CurrentStep > 1 && CurrentStep < 7)
     {
@@ -51,10 +58,10 @@
     // Core models for Step 1
     private BusinessInfoDTO.PageModel businessModel = new();
     private AddressDTO.PageModel addressModel = new();
+    private BeneficiaryDTO.PageModel beneficiaryModel = new();
 
     // // Future models (initialized but unused in Step 1)
-    // private BusinessAccountDTO.PageModel accountModel = new();
-    // private BeneficiaryDTO.PageModel beneficiaryModel = new();
+    // private BusinessAccountDTO.PageModel accountModel = new();  
     // private BankUseDTO.PageModel bankUseModel = new();
 
     private async Task HandleNext()

@@ -21,6 +21,11 @@ public class BusinessService
         return null;
     }
 
+    public async Task UpsertBeneficiaryAsync(BeneficiaryDTO.PageModel request)
+    {
+        await _http.PostAsJsonAsync($"{BaseUrl}/upsert/beneficiary", request);
+    }
+
     public async Task UpsertInterestAsync(BusinessInterestDTO.PageModel request) =>
         await _http.PostAsJsonAsync($"{BaseUrl}/interest", request);
 }

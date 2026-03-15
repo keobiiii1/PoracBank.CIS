@@ -95,6 +95,26 @@ public class BusinessRepository
         catch { if (tx != null) await tx.RollbackAsync(); throw; }
     }
 
+    public async Task UpsertBeneficiaryAsync(BeneficiaryDTO.PageModel request)
+    {
+        using var _db = _dbContextFactory.CreateDbContext();
+        var old = await _db.Beneficiaries
+            .FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
+
+        if (old == null)
+        {
+            var model = _mapper.Map<Beneficiary>(request);
+            _db.Beneficiaries.Add(model);
+        }
+        else
+        {
+            _mapper.Map(request, old);
+            _db.Entry(old).Property(x => x.BeneficiaryID).IsModified = false;
+            _db.Beneficiaries.Update(old);
+        }
+        await _db.SaveChangesAsync();
+    }
+
     public async Task UpsertAsync(BusinessInterestDTO.PageModel request)
     {
         using var _db = _dbContextFactory.CreateDbContext();
