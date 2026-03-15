@@ -15,15 +15,7 @@ public static class AccountPurposeConfig
         entity.IsNvarcharEnum(e => e.EntityType, 50);
         entity.IsNvarcharEnum(e => e.PurposeOfAccount, 50);
         entity.IsNvarchar(e => e.PurposeOfAccountOther, 255);
-        entity.IsBool(e => e.ProductSavings);
-        entity.IsBool(e => e.ProductTimeDeposit);
-        entity.IsBool(e => e.ProductSaleOfROPA);
-        entity.IsBool(e => e.ProductCurrent);
-        entity.IsBool(e => e.ProductLoan);
-        entity.IsBool(e => e.ProductOthers);
-        
-        
-        
-        
+        entity.IsNvarchar(e => e.ProductsAvailed, 500);
+        entity.IsNvarchar(e => e.ProductsAvailedOther, 255);
     }
 }

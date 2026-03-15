@@ -25,12 +25,8 @@ namespace CIS.API.Migrations
                     EntityType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     PurposeOfAccount = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     PurposeOfAccountOther = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    ProductSavings = table.Column<bool>(type: "bit", nullable: false),
-                    ProductTimeDeposit = table.Column<bool>(type: "bit", nullable: false),
-                    ProductSaleOfROPA = table.Column<bool>(type: "bit", nullable: false),
-                    ProductCurrent = table.Column<bool>(type: "bit", nullable: false),
-                    ProductLoan = table.Column<bool>(type: "bit", nullable: false),
-                    ProductOthers = table.Column<bool>(type: "bit", nullable: false)
+                    ProductsAvailed = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    ProductsAvailedOther = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true)
                 },
                 constraints: table =>
                 {

@@ -28,23 +28,14 @@ public class BusinessRepository
         {
             if (businessReq.CustomerID == 0)
             {
-                var newCustomer = new Customer
-                {
-                    EntityType = EntityType.Business,
-                    CustomerCategory = CustomerCategory.None,
-                    CustomerType = CustomerType.None,
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                _db.Customers.Add(newCustomer);
+                var customer = new Customer { EntityType = EntityType.Business, CreatedAt = DateTime.UtcNow };
+                _db.Customers.Add(customer);
                 await _db.SaveChangesAsync();
-                businessReq.CustomerID = newCustomer.CustomerID;
+                businessReq.CustomerID = customer.CustomerID;
             }
 
-            var oldBusiness = await _db.BusinessInfos
-                .FirstOrDefaultAsync(e => e.CustomerID == businessReq.CustomerID);
-
-            if (oldBusiness == null)
+            var oldBiz = await _db.BusinessInfos.FirstOrDefaultAsync(e => e.CustomerID == businessReq.CustomerID);
+            if (oldBiz == null)
             {
                 var model = _mapper.Map<BusinessInfo>(businessReq);
                 model.CustomerID = businessReq.CustomerID;
@@ -52,36 +43,56 @@ public class BusinessRepository
             }
             else
             {
-                _mapper.Map(businessReq, oldBusiness);
-                _db.BusinessInfos.Update(oldBusiness);
+                _mapper.Map(businessReq, oldBiz);
+                _db.Entry(oldBiz).Property(x => x.BusinessInfoID).IsModified = false;
             }
 
-            // 3. Upsert Address
-            var oldAddress = await _db.Addresses.FirstOrDefaultAsync(e =>
-                e.EntityID == businessReq.CustomerID &&
-                e.EntityType == EntityType.Business);
-
-            if (oldAddress == null)
+            var oldAddr = await _db.Addresses.FirstOrDefaultAsync(e => e.EntityID == businessReq.CustomerID && e.EntityType == EntityType.Business);
+            if (oldAddr == null)
             {
-                var addrModel = _mapper.Map<Address>(addressReq);
-                addrModel.EntityID = businessReq.CustomerID;
-                addrModel.EntityType = EntityType.Business;
-                _db.Addresses.Add(addrModel);
+                var model = _mapper.Map<Address>(addressReq);
+                model.EntityID = businessReq.CustomerID;
+                model.EntityType = EntityType.Business;
+                _db.Addresses.Add(model);
             }
             else
             {
-                _mapper.Map(addressReq, oldAddress);
-                _db.Addresses.Update(oldAddress);
+                _mapper.Map(addressReq, oldAddr);
+                _db.Entry(oldAddr).Property(x => x.AddressID).IsModified = false;
+            }
+
+            var oldContact = await _db.Contacts.FirstOrDefaultAsync(e => e.EntityID == businessReq.CustomerID && e.EntityType == EntityType.Business);
+            if (oldContact == null)
+            {
+                var model = _mapper.Map<Contact>(businessReq);
+                model.EntityID = businessReq.CustomerID;
+                model.EntityType = EntityType.Business;
+                _db.Contacts.Add(model);
+            }
+            else
+            {
+                _mapper.Map(businessReq, oldContact);
+                _db.Entry(oldContact).Property(x => x.ContactID).IsModified = false;
+            }
+
+            var oldPurpose = await _db.AccountPurposes.FirstOrDefaultAsync(e => e.EntityID == businessReq.CustomerID && e.EntityType == EntityType.Business);
+            if (oldPurpose == null)
+            {
+                var model = _mapper.Map<AccountPurpose>(businessReq);
+                model.EntityID = businessReq.CustomerID;
+                model.EntityType = EntityType.Business;
+                _db.AccountPurposes.Add(model);
+            }
+            else
+            {
+                _mapper.Map(businessReq, oldPurpose);
+                _db.Entry(oldPurpose).Property(x => x.AccountPurposeID).IsModified = false;
             }
 
             await _db.SaveChangesAsync();
             if (tx != null) await tx.CommitAsync();
         }
-        catch
-        {
-            if (tx != null) await tx.RollbackAsync();
-            throw;
-        }
+        catch { if (tx != null) await tx.RollbackAsync(); throw; }
     }
 
     public async Task UpsertAsync(BusinessInterestDTO.PageModel request)

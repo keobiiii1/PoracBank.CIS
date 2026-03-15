@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CIS.API.Migrations
 {
     [DbContext(typeof(CISDbContext))]
-    [Migration("20260315064413_0.0.001")]
+    [Migration("20260315105925_0.0.001")]
     partial class _00001
     {
         /// <inheritdoc />
@@ -41,23 +41,13 @@ namespace CIS.API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<bool>("ProductCurrent")
-                        .HasColumnType("bit");
+                    b.Property<string>("ProductsAvailed")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
-                    b.Property<bool>("ProductLoan")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("ProductOthers")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("ProductSaleOfROPA")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("ProductSavings")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("ProductTimeDeposit")
-                        .HasColumnType("bit");
+                    b.Property<string>("ProductsAvailedOther")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("PurposeOfAccount")
                         .IsRequired()

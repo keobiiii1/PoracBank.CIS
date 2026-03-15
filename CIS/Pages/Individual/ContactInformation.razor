@@ -49,11 +49,11 @@
     <div class="row g-3">
         <div class="col-md-4">
             <label>Home Phone No.</label>
-            <InputText @bind-Value="InfoModel.HomePhoneNo" class="form-control" />
+            <InputText @bind-Value="InfoModel.HomePhoneNumber" class="form-control" />
         </div>
         <div class="col-md-4">
             <label>Mobile Phone No.</label>
-            <InputText @bind-Value="InfoModel.MobilePhoneNo" class="form-control" />
+            <InputText @bind-Value="InfoModel.MobilePhoneNumber" class="form-control" />
         </div>
         <div class="col-md-4">
             <label>Email Address</label>
@@ -108,8 +108,8 @@
         {
             EntityID = CustomerId,
             EntityType = EntityType.Individual,
-            HomePhoneNumber = InfoModel.HomePhoneNo,
-            MobilePhoneNumber = InfoModel.MobilePhoneNo,
+            HomePhoneNumber = InfoModel.HomePhoneNumber,
+            MobilePhoneNumber = InfoModel.MobilePhoneNumber,
             EmailAddress = InfoModel.EmailAddress
         };
         await ProfileService.UpsertContactAsync(contactData);

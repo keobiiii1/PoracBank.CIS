@@ -16,12 +16,13 @@
         <div class="progress-bar" style="width: @(CurrentStep * 16.66)%"></div>
     </div>
 
-    @* --- Step 1: Business Information & Address --- *@
     @if (CurrentStep == 1)
     {
-        <BusinessInformation BusinessModel="businessModel"
-                             AddressModel="addressModel"
-                             OnNext="HandleNext" />
+        <BusinessInformation BusinessModel="businessModel" AddressModel="addressModel" OnNext="HandleNext" />
+    }
+    else if (CurrentStep == 2)
+    {
+        <AccountContact BusinessModel="businessModel" AddressModel="addressModel" OnNext="HandleNext" OnBack="PrevStep" />
     }
     @* --- Future Steps Placeholder --- *@
     else if (CurrentStep > 1 && CurrentStep < 7)

@@ -11,19 +11,17 @@
         </div>
         <div class="card-body">
             <div class="row g-3">
-                @* Sector Selection *@
+                @* Sector Selection - Dropdown *@
                 <div class="col-md-6">
                     <label class="form-label fw-bold">Sector</label>
-                    <div class="d-flex gap-3 mt-2">
-                        <div class="form-check">
-                            <input type="radio" name="sector" class="form-check-input" checked="@BusinessModel.IsPrivate" @onclick="() => SetSector(false)" />
-                            <label class="form-check-label">Private</label>
-                        </div>
-                        <div class="form-check">
-                            <input type="radio" name="sector" class="form-check-input" checked="@BusinessModel.IsGovernment" @onclick="() => SetSector(true)" />
-                            <label class="form-check-label">Government</label>
-                        </div>
-                    </div>
+                    <InputSelect TValue="bool"
+                                 Value="BusinessModel.IsGovernment"
+                                 ValueChanged="@((bool val) => SetSector(val))"
+                                 ValueExpression="@(() => BusinessModel.IsGovernment)"
+                                 class="form-select">
+                        <option value="false">Private</option>
+                        <option value="true">Government</option>
+                    </InputSelect>
                 </div>
 
                 <div class="col-md-6">
@@ -58,12 +56,12 @@
 
                 <div class="col-12">
                     <div class="form-check form-switch">
-                        <InputCheckbox @bind-Value="AddressModel.IsPresentSameAsPermanent" class="form-check-input" id="principalSwitch" />
+                        <InputCheckbox @bind-Value="showPrincipalAddress" class="form-check-input" id="principalSwitch" />
                         <label class="form-check-label" for="principalSwitch">Principal Address is different</label>
                     </div>
                 </div>
 
-                @if (AddressModel.IsPresentSameAsPermanent)
+                @if (showPrincipalAddress)
                 {
                     <div class="col-12">
                         <label class="form-label fw-bold">Principal Address</label>
@@ -84,12 +82,33 @@
                     <InputDate @bind-Value="BusinessModel.DateOfRegistration" class="form-control" TValue="DateOnly ?" />
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">TIN</label>
+                    <label class="form-label">Business Registration Number</label>
+                    <InputText @bind-Value="BusinessModel.BusinessRegNumber" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Registration Expiry</label>
+                    <InputDate @bind-Value="BusinessModel.BusinessRegExpiry" class="form-control" TValue="DateOnly ?" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Place of Registration / Origin</label>
+                    <InputText @bind-Value="BusinessModel.PlaceOfRegistration" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Nature of Business</label>
+                    <InputText @bind-Value="BusinessModel.NatureOfBusiness" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tax Identification Number (TIN)</label>
                     <InputText @bind-Value="BusinessModel.TaxIdentificationNumber" class="form-control" />
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">DTI Cert Number</label>
                     <InputText @bind-Value="BusinessModel.DTICertNumber" class="form-control" />
+                </div>
+                @* ADDED: DTI Cert Expiry *@
+                <div class="col-md-4">
+                    <label class="form-label">DTI Cert Expiry</label>
+                    <InputDate @bind-Value="BusinessModel.DTICertExpiry" class="form-control" TValue="DateOnly ?" />
                 </div>
             </div>
         </div>
@@ -105,6 +124,8 @@
     [Parameter] public AddressDTO.PageModel AddressModel { get; set; } = new();
     [Parameter] public EventCallback OnNext { get; set; }
 
+    private bool showPrincipalAddress;
+
     private void SetSector(bool isGov)
     {
         BusinessModel.IsGovernment = isGov;
@@ -115,12 +136,15 @@
     {
         try
         {
-            AddressModel.EntityID = BusinessModel.CustomerID;
             AddressModel.EntityType = EntityType.Business;
             BusinessModel.EntityType = EntityType.Business;
 
-            var result = await BusinessService.UpsertBusinessInfoAsync(BusinessModel, AddressModel);
+            if (!showPrincipalAddress)
+            {
+                AddressModel.PrincipalAddress = AddressModel.BusinessAddress;
+            }
 
+            var result = await BusinessService.UpsertBusinessInfoAsync(BusinessModel, AddressModel);
             if (result != null)
             {
                 BusinessModel.CustomerID = result.Business.CustomerID;

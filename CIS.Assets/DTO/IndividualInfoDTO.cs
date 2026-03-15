@@ -57,8 +57,8 @@ public class IndividualInfoDTO
         public bool IsSIRV { get; set; }
         public bool IsSRRV { get; set; }
 
-        public string? HomePhoneNo { get; set; } // Added
-        public string? MobilePhoneNo { get; set; }
+        public string? HomePhoneNumber { get; set; } // Added
+        public string? MobilePhoneNumber { get; set; }
         public string? EmailAddress { get; set; }
         public MailingPreference MailingPreference { get; set; }
 

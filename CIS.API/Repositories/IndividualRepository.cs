@@ -97,20 +97,30 @@ public class IndividualRepository
             }
 
             // --- 4. Account Purpose (Step 6) ---
-            var acc = await _db.AccountPurposes.FirstOrDefaultAsync(e => e.EntityID == request.CustomerID);
+            var acc = await _db.AccountPurposes.FirstOrDefaultAsync(e =>
+                e.EntityID == request.CustomerID && e.EntityType == EntityType.Individual);
+
             if (acc == null)
             {
-                acc = new AccountPurpose { EntityID = request.CustomerID, EntityType = EntityType.Individual };
+                acc = new AccountPurpose
+                {
+                    EntityID = request.CustomerID,
+                    EntityType = EntityType.Individual,
+                    PurposeOfAccount = request.AccountPurpose,
+                    PurposeOfAccountOther = request.AccountPurposeOther,
+                    ProductsAvailed = request.ProductsAvailed
+                };
                 _db.AccountPurposes.Add(acc);
             }
-            acc.PurposeOfAccount = request.AccountPurpose;
-            acc.PurposeOfAccountOther = request.AccountPurposeOther;
+            else
+            {
+                acc.PurposeOfAccount = request.AccountPurpose;
+                acc.PurposeOfAccountOther = request.AccountPurposeOther;
+                acc.ProductsAvailed = request.ProductsAvailed;
 
-            // Map products based on your UI selection
-            acc.ProductSavings = request.ProductsAvailed == "Savings";
-            acc.ProductLoan = request.ProductsAvailed == "Loan";
-            acc.ProductCurrent = request.ProductsAvailed == "Checking";
-            acc.ProductOthers = request.ProductsAvailed == "Others";
+                _db.Entry(acc).Property(x => x.AccountPurposeID).IsModified = false;
+                _db.AccountPurposes.Update(acc);
+            }
 
             // --- 5. Government Relations (Step 6 - Dynamic List) ---
             var oldRels = await _db.GovernmentRelations.Where(x => x.CustomerID == request.CustomerID).ToListAsync();
@@ -146,6 +156,31 @@ public class IndividualRepository
                         OwnershipPercentage = bizReq.OwnershipPercentage
                     });
                 }
+            }
+
+            var contact = await _db.Contacts.FirstOrDefaultAsync(e =>
+                e.EntityID == request.CustomerID && e.EntityType == EntityType.Individual);
+
+            if (contact == null)
+            {
+                contact = new Contact
+                {
+                    EntityID = request.CustomerID,
+                    EntityType = EntityType.Individual,
+                    HomePhoneNumber = request.HomePhoneNumber,
+                    MobilePhoneNumber = request.MobilePhoneNumber,
+                    EmailAddress = request.EmailAddress
+                };
+                _db.Contacts.Add(contact);
+            }
+            else
+            {
+                contact.HomePhoneNumber = request.HomePhoneNumber;
+                contact.MobilePhoneNumber = request.MobilePhoneNumber;
+                contact.EmailAddress = request.EmailAddress;
+
+                _db.Entry(contact).Property(x => x.ContactID).IsModified = false;
+                _db.Contacts.Update(contact);
             }
 
             await _db.SaveChangesAsync();
