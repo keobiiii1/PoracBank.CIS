@@ -34,4 +34,9 @@ public class BusinessService
     {
         await _http.PostAsJsonAsync($"{BaseUrl}/acknowledgement", request);
     }
+
+    public async Task UpsertBankReviewAsync(BankReviewDTO.PageModel request)
+    {
+        await _http.PostAsJsonAsync($"{BaseUrl}/bank-review", request);
+    }
 }

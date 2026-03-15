@@ -1,23 +1,26 @@
 ﻿using CIS.API.Repositories;
 using CIS.Assets.DTO;
-using CIS.Assets.Models;
 using Microsoft.AspNetCore.Mvc;
-
-namespace CIS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 public class BusinessController : ControllerBase
 {
     private readonly BusinessRepository _repository;
+    private readonly BankReviewRepository _bankReviewRepository;
 
-    public BusinessController(BusinessRepository repo) => _repository = repo;
+    public BusinessController(
+        BusinessRepository repo,
+        BankReviewRepository bankReviewRepo)
+    {
+        _repository = repo;
+        _bankReviewRepository = bankReviewRepo;
+    }
 
     [HttpPost("info")]
     public async Task<IActionResult> UpsertBusiness(BusinessInfoDTO.BusinessSaveRequest req)
     {
         await _repository.UpsertAsync(req.Business, req.Address);
-
         return Ok(req);
     }
 
@@ -39,6 +42,13 @@ public class BusinessController : ControllerBase
     public async Task<IActionResult> UpsertAcknowledgement(ClientAcknowlegdementDTO.PageModel req)
     {
         await _repository.UpsertAcknowlegdementAsync(req);
+        return Ok();
+    }
+
+    [HttpPost("bank-review")]
+    public async Task<IActionResult> UpsertBankReview(BankReviewDTO.PageModel req)
+    {
+        await _bankReviewRepository.UpsertAsync(req);
         return Ok();
     }
 }

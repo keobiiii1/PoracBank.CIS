@@ -12,29 +12,33 @@ public static class BankReviewConfig
         entity.AsTable("cis");
         entity.IsPrimaryKey(e => e.BankReviewID);
         entity.IsLong2(e => e.CustomerID);
-        entity.IsBool(e => e.IsNegativeListed);
-        entity.IsBool(e => e.IsPEPListed);
-        entity.IsBool(e => e.IsPoracEmployee);
-        entity.IsNvarcharEnum(e => e.DOSRIType, 50);
-        entity.IsNvarchar(e => e.EmployeePosition, 255);
-        entity.IsBool(e => e.IsRelativeOfEmployee);
-        entity.IsNvarchar(e => e.RelativeEmployeeName, 255);
-        entity.IsNvarchar(e => e.RelativeEmployeePosition, 255);
-        entity.IsNvarchar(e => e.RelativeRelationship, 255);
+
+        entity.IsNvarchar(e => e.CheckedAgainst, 250);
+
+        entity.IsBool(e => e.IsEmployee);
+        entity.IsBool(e => e.IsDosri);
+        entity.IsBool(e => e.IsRpt);
+        entity.IsNvarchar(e => e.Position, 250);
+
+        entity.IsBool(e => e.IsRelative);
+        entity.IsNvarchar(e => e.RelativeEmployeeName, 250);
+        entity.IsNvarchar(e => e.RelativePosition, 150);
+        entity.IsNvarchar(e => e.RelativeRelationship, 100);
         entity.IsBool(e => e.IsEntityOwnedByEmployee);
-        entity.IsBool(e => e.IsEntityOwnedByPEP);
-        entity.IsNvarcharEnum(e => e.NatureOfWorkBusiness, 100);
-        entity.IsNvarchar(e => e.NatureOfWorkBusinessOther, 255);
-        entity.IsNvarchar(e => e.DocumentsPresented, 500);
-        entity.IsNvarchar(e => e.SignatureAuthenticatedBy, 255);
-        entity.IsNvarchar(e => e.VerifiedBy, 255);
-        entity.IsNvarchar(e => e.ApprovedBy, 255);
-        entity.IsNvarchar(e => e.Remarks, 1000);
-        entity.Property(e => e.ReviewedAt).HasColumnType("datetime");
-        
-        
-        
-        
-        entity.HasOne(e => e.Customer).WithOne(e => e.BankReview).HasForeignKey<BankReview>(e => e.CustomerID).OnDelete(DeleteBehavior.Cascade);
+
+        entity.IsBool(e => e.IsOwnedByPEP);
+
+        entity.IsNvarcharMax(e => e.NatureOfWorkBusiness);
+        entity.IsNvarchar(e => e.NatureOfWorkBusinessOther, 250);
+
+        entity.IsNvarcharMax(e => e.DocumentsPresented);
+        entity.IsNvarcharMax(e => e.AdditionalDocuments);
+        entity.IsNvarchar(e => e.DocumentsOther, 500);
+
+        entity.IsNvarcharMax(e => e.SignatureAuthenticated);
+        entity.IsNvarchar(e => e.VerifiedBy, 250);
+        entity.IsNvarchar(e => e.ApprovedBy, 250);
+        entity.IsNvarcharMax(e => e.Remarks);
+        entity.IsNvarcharMax(e => e.ReviewerSignature);
     }
 }

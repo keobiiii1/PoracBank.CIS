@@ -1,32 +1,31 @@
-﻿using CIS.Assets;
-using CIS.Assets.Enum;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using CIS.Assets.Enum;
 
 namespace CIS.Assets.Models;
 
-[Table("BankReview")]
-public class BankReview 
+public class BankReview
 {
     public long BankReviewID { get; set; }
     public long CustomerID { get; set; }
-    public bool IsNegativeListed { get; set; }
-    public bool IsPEPListed { get; set; }
-    public bool IsPoracEmployee { get; set; }
-    public DOSRIType DOSRIType { get; set; } = DOSRIType.None;
-    public string? EmployeePosition { get; set; }
-    public bool IsRelativeOfEmployee { get; set; }
+    public string? CheckedAgainst { get; set; }
+    public bool IsEmployee { get; set; }
+    public bool IsDosri { get; set; }
+    public bool IsRpt { get; set; }
+    public string? Position { get; set; }
+    public bool IsRelative { get; set; }
     public string? RelativeEmployeeName { get; set; }
-    public string? RelativeEmployeePosition { get; set; }
+    public string? RelativePosition { get; set; }
     public string? RelativeRelationship { get; set; }
+
     public bool IsEntityOwnedByEmployee { get; set; }
-    public bool IsEntityOwnedByPEP { get; set; }
-    public NatureOfWorkBusiness NatureOfWorkBusiness { get; set; } = NatureOfWorkBusiness.None;
+    public string? NatureOfWorkBusiness { get; set; }
     public string? NatureOfWorkBusinessOther { get; set; }
+    public bool IsOwnedByPEP { get; set; }
     public string? DocumentsPresented { get; set; }
-    public string? SignatureAuthenticatedBy { get; set; }
+    public string? AdditionalDocuments { get; set; }
+    public string? DocumentsOther { get; set; }
+    public string? SignatureAuthenticated { get; set; }
     public string? VerifiedBy { get; set; }
     public string? ApprovedBy { get; set; }
     public string? Remarks { get; set; }
-    public DateTime? ReviewedAt { get; set; }
-    public Customer Customer { get; set; } = null!;
+    public string? ReviewerSignature { get; set; }
 }

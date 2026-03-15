@@ -25,7 +25,8 @@ public class BankReviewRepository
         using var tx = await _transactionPolicy.BeginSqlTransaction(_db);
         try
         {
-            var old = await _db.BankReviews.FirstOrDefaultAsync(e => e.BankReviewID == request.BankReviewID);
+            var old = await _db.BankReviews.FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
+
             if (old == null)
             {
                 var model = _mapper.Map<BankReview>(request);
@@ -34,11 +35,19 @@ public class BankReviewRepository
             else
             {
                 _mapper.Map(request, old);
+
+                _db.Entry(old).Property(x => x.BankReviewID).IsModified = false;
+
                 _db.BankReviews.Update(old);
             }
+
             await _db.SaveChangesAsync();
             if (tx != null) await tx.CommitAsync();
         }
-        catch { if (tx != null) await tx.RollbackAsync(); throw; }
+        catch
+        {
+            if (tx != null) await tx.RollbackAsync();
+            throw;
+        }
     }
 }

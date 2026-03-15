@@ -1,0 +1,179 @@
+﻿@inject IJSRuntime JS
+@using CIS.Assets.DTO
+@using CIS.Assets.Enum
+@using CIS.Client.Services
+@inject BusinessService BusinessService
+
+<EditForm Model="ReviewModel" OnValidSubmit="HandleNext">
+    <div class="card shadow-sm mb-4 border-dark">
+        <div class="card-header bg-dark text-white text-center py-1">
+            <h6 class="mb-0">FOR BANK USE ONLY</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="row g-0 border-bottom">
+                <div class="col-md-5 border-end p-3">
+                    <label class="fw-bold x-small mb-2">CUSTOMER WAS CHECKED AGAINST:*</label>
+                    <div class="x-small mb-3 ps-2">
+                        <div class="form-check">
+                            <input type="checkbox" checked="@ReviewModel.ScreeningList.Contains("NEGATIVE LIST")" @onchange='(e) => Toggle(ReviewModel.ScreeningList, "NEGATIVE LIST", e)' class="form-check-input" />
+                            <label>NEGATIVE LIST (OFAC/UN SANCTION LIST)</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" checked="@ReviewModel.ScreeningList.Contains("PEPLIST")" @onchange='(e) => Toggle(ReviewModel.ScreeningList, "PEPLIST", e)' class="form-check-input" />
+                            <label>PEPLIST</label>
+                        </div>
+                    </div>
+
+                    <label class="fw-bold x-small mb-2">NATURE OF WORK/ BUSINESS*</label>
+                    <div class="row g-0 x-small overflow-auto border-top pt-2" style="max-height: 300px;">
+                        @foreach (var nature in NatureOptions)
+                        {
+                            <div class="col-6 mb-1">
+                                <div class="form-check">
+                                    <input type="checkbox" checked="@ReviewModel.WorkList.Contains(nature)" class="form-check-input" @onchange='(e) => Toggle(ReviewModel.WorkList, nature, e)' />
+                                    <label>@nature</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="col-md-7 p-3 bg-light">
+                    <div class="d-flex flex-wrap gap-4 mb-3 border-bottom pb-2">
+                        <div class="col-md-7">
+                            <label class="x-small fw-bold">POSITION*</label>
+                            <div class="form-check"><InputCheckbox @bind-Value="ReviewModel.IsEmployee" class="form-check-input" /> <label class="x-small fw-bold">PB EMPLOYEE*</label></div>
+                            <InputText @bind-Value="ReviewModel.Position" class="form-control form-control-sm" />
+                        </div>
+                        <div class="form-check"><InputCheckbox @bind-Value="ReviewModel.IsDosri" class="form-check-input" /> <label class="x-small fw-bold">DOSRI</label></div>
+                        <div class="form-check"><InputCheckbox @bind-Value="ReviewModel.IsRpt" class="form-check-input" /> <label class="x-small fw-bold">RPT</label></div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <label class="x-small fw-bold">POSITION*</label>
+                        <InputText @bind-Value="ReviewModel.Position" class="form-control form-control-sm" />
+                    </div>
+
+
+                    <div class="border p-2 rounded mb-3 bg-white shadow-sm">
+                        <div class="form-check mb-2">
+                            <InputCheckbox @bind-Value="ReviewModel.IsRelative" class="form-check-input" id="isRel" />
+                            <label class="x-small fw-bold" for="isRel">CUSTOMER IS A RELATIVE (UP TO 2ND DEGREE)*</label>
+                        </div>
+                        @if (ReviewModel.IsRelative)
+                        {
+                            <div class="row g-2">
+                                <div class="col-12"><label class="x-small">NAME OF EMPLOYEE*</label><InputText @bind-Value="ReviewModel.RelativeEmployeeName" class="form-control form-control-sm" /></div>
+                                <div class="col-6"><label class="x-small">POSITION*</label><InputText @bind-Value="ReviewModel.RelativePosition" class="form-control form-control-sm" /></div>
+                                <div class="col-6"><label class="x-small">RELATIONSHIP*</label><InputText @bind-Value="ReviewModel.RelativeRelationship" class="form-control form-control-sm" /></div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <InputCheckbox @bind-Value="ReviewModel.IsEntityOwnedByEmployee" class="form-check-input" />
+                        <label class="x-small fw-bold">ENTITY CONTROLLED BY PB EMPLOYEE*</label>
+                    </div>
+
+                    <div class="p-2 border rounded bg-white shadow-sm">
+                        <h6 class="x-small fw-bold text-info mb-1">FOR BUSINESS ACCOUNTS ONLY</h6>
+                        <div class="form-check">
+                            <InputCheckbox @bind-Value="ReviewModel.IsOwnedByPEP" class="form-check-input" />
+                            <label class="x-small">CONTROLLED BY A POLITICALLY EXPOSED PERSON</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-3 border-bottom small">
+                <label class="fw-bold x-small mb-2 d-block">DOCUMENTS PRESENTED*</label>
+                @foreach (var doc in DocMainOptions)
+                {
+                    <div class="form-check mb-1">
+                        <input type="checkbox" checked="@ReviewModel.DocsList.Contains(doc.Key)" @onchange='(e) => Toggle(ReviewModel.DocsList, doc.Key, e)' class="form-check-input" />
+                        <label>@doc.Value</label>
+                    </div>
+                }
+                <label class="fw-bold mt-2 d-block">ADDITIONAL DOCUMENTS FOR B, C AND D</label>
+                <div class="ps-3 mt-1">
+                    @foreach (var add in DocAddOptions)
+                    {
+                        <div class="form-check mb-1">
+                            <input type="checkbox" checked="@ReviewModel.AdditionalDocsList.Contains(add)" @onchange='(e) => Toggle(ReviewModel.AdditionalDocsList, add, e)' class="form-check-input" />
+                            <label>@add</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="row g-0 text-center x-small fw-bold bg-dark text-white border-top">
+                <div class="col-3 border-end py-1">SIGNATURE AUTHENTICATED</div>
+                <div class="col-3 border-end py-1">VERIFIED BY</div>
+                <div class="col-3 border-end py-1">APPROVED BY</div>
+                <div class="col-3 py-1">REMARKS</div>
+            </div>
+            <div class="row g-0 border-top align-items-stretch">
+                <div class="col-3 border-end p-1 text-center bg-white">
+                    <canvas id="auth-sig-pad" width="180" height="70" style="border:1px solid #eee;"></canvas>
+                    <button type="button" class="btn btn-link btn-sm text-danger x-small p-0 d-block mx-auto" @onclick='() => JS.InvokeVoidAsync("signaturePad.clear", "auth-sig-pad")'>Clear</button>
+                </div>
+                <div class="col-3 border-end"><InputText @bind-Value="ReviewModel.VerifiedBy" class="form-control h-100 border-0 rounded-0" /></div>
+                <div class="col-3 border-end"><InputText @bind-Value="ReviewModel.ApprovedBy" class="form-control h-100 border-0 rounded-0" /></div>
+                <div class="col-3"><InputText @bind-Value="ReviewModel.Remarks" class="form-control h-100 border-0 rounded-0" /></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mb-5">
+        <button type="button" class="btn btn-outline-secondary px-5" @onclick="OnBack">Back</button>
+        <button type="submit" class="btn btn-success px-5">Finalize Registration</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public BankReviewDTO.PageModel ReviewModel { get; set; } = new();
+    [Parameter] public long CustomerID { get; set; }
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Task.Delay(200);
+            await JS.InvokeVoidAsync("signaturePad.init", "auth-sig-pad");
+        }
+    }
+
+    private void Toggle(List<string> list, string val, ChangeEventArgs e)
+    {
+        if ((bool)e.Value!) { if (!list.Contains(val)) list.Add(val); } else { list.Remove(val); }
+    }
+
+    private async Task HandleNext()
+    {
+        ReviewModel.CustomerID = CustomerID;
+        // Capture the signature from the pad
+        ReviewModel.SignatureAuthenticated = await JS.InvokeAsync<string>("signaturePad.getData", "auth-sig-pad");
+
+        await BusinessService.UpsertBankReviewAsync(ReviewModel);
+        await OnNext.InvokeAsync();
+    }
+
+    private readonly string[] NatureOptions = { "AGRICULTURE", "BANKING", "BPO/KPO", "BROKERAGE", "CANTEEN", "CASINO", "DRUGS", "EDUCATION", "GOVERNMENT SERVICE", "INFORMAL LENDING", "IMPORT/EXPORT", "MANUFACTURING", "MARKET VENDOR", "MEDICAL", "MONEY CHANGER", "ONLINE BUSINESS", "PROFESSIONAL", "QUARRYING", "REAL ESTATE", "RENTAL", "REMITTANCE AGENT", "RESORTS", "STUDENT", "TRANSPORTATION", "WHOLESALE", "UNEMPLOYED" };
+
+    private Dictionary<string, string> DocMainOptions = new()
+    {
+        ["A"] = "A. SOLE PROPRIETOR (DTI)",
+        ["B"] = "B. PARTNERS/CORP (SEC/IC)",
+        ["C"] = "C. MONEY CHANGER (BSP)",
+        ["D"] = "D. FOREIGN ENTITY"
+    };
+
+    private string[] DocAddOptions = { "ARTICLES OF INCORPORATION", "BY LAWS", "BOARD RESOLUTION", "LATEST GIS" };
+}
+
+<style>
+    .x-small {
+        font-size: 11px;
+    }</style>
