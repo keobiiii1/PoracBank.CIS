@@ -2,6 +2,8 @@
 @namespace CIS.Client.Pages.Individual
 @using CIS.Client.Services
 @inject IndividualService IndividualService
+@inject RegistrationStorageService Storage
+@inject IJSRuntime JS
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -68,8 +70,9 @@
     }
     else if (CurrentStep == 8)
     {
-        <RegistrationSuccess CustomerName="@(personalModel.FirstName + " " + personalModel.LastName)"
+        <RegistrationSuccess CustomerName="@($"{personalModel.FirstName} {personalModel.LastName}")"
                              CustomerId="customerModel.CustomerID"
+                             RegistrationType="Individual"
                              OnReset="ResetStepper" />
     }
 </div>
@@ -83,49 +86,97 @@
     private IndividualEmploymentDTO.PageModel employmentModel = new();
     private IndividualFamilyDTO.PageModel familyModel = new();
     private ContactDTO.PageModel contactModel = new();
+    private IndividualForeignerDTO.PageModel foreignerModel = new();
+    private BusinessInterestDTO.PageModel busintModel = new();
+    private GovernmentRelationDTO.PageModel govrelModel = new();
+    private AccountPurposeDTO.PageModel accpurpModel = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var draft = await Storage.GetIndividualDraftAsync();
+        if (draft != null)
+        {
+            customerModel = draft.Customer ?? new();
+            personalModel = draft.Individual ?? new();
+            addressModel = draft.Address ?? new();
+            identificationModel = draft.Identification ?? new();
+            employmentModel = draft.Employment ?? new();
+            familyModel = draft.Family ?? new();
+            contactModel = draft.Contact ?? new();
+            foreignerModel = draft.Foreigner ?? new();
+            busintModel = draft.BusinessInterest ?? new();
+            govrelModel = draft.GovernmentRelation ?? new();
+            accpurpModel = draft.AccountPurpose ?? new();
+            CurrentStep = draft.CurrentStep;
+        }
+    }
 
     private async Task HandleNext()
     {
-        // CRITICAL: Always keep models in sync with the current CustomerID
-        personalModel.CustomerID = customerModel.CustomerID;
-        addressModel.EntityID = customerModel.CustomerID;
-        contactModel.EntityID = customerModel.CustomerID;
-        identificationModel.CustomerID = customerModel.CustomerID;
-        employmentModel.CustomerID = customerModel.CustomerID;
-        familyModel.CustomerID = customerModel.CustomerID;
-
-        personalModel.EntityType = EntityType.Individual;
-        personalModel.CustomerCategory = customerModel.CustomerCategory;
-        personalModel.CustomerType = customerModel.CustomerType;
-
-        if (CurrentStep == 2)
-        {
-            var result = await IndividualService.UpsertInfoAsync(personalModel);
-            if (result != null)
-            {
-                customerModel.CustomerID = result.CustomerID;
-                personalModel.CustomerID = result.CustomerID;
-            }
-            else
-            {
-                return;
-            }
-        }
-
         CurrentStep++;
+
+        await Storage.SaveIndividualDraftAsync(
+            customerModel, personalModel, addressModel, identificationModel,
+            employmentModel, familyModel, contactModel, foreignerModel,
+            busintModel, govrelModel, accpurpModel, CurrentStep
+        );
+
         StateHasChanged();
+        await JS.InvokeVoidAsync("window.scrollTo", 0, 0);
     }
 
     private async Task HandleSubmit()
     {
-        CurrentStep = 8;
-        StateHasChanged();
+        personalModel.CustomerCategory = customerModel.CustomerCategory;
+        personalModel.CustomerType = customerModel.CustomerType;
+        personalModel.CIDNumber = customerModel.CIDNumber;
+
+        familyModel.SpouseGivenName = personalModel.SpouseGivenName;
+        familyModel.SpouseLastName = personalModel.SpouseLastName;
+        familyModel.SpouseMiddleName = personalModel.SpouseMiddleName;
+        familyModel.MotherMaidenGivenName = personalModel.MotherMaidenGivenName;
+        familyModel.MotherMaidenLastName = personalModel.MotherMaidenLastName;
+        familyModel.MotherMaidenMiddleName = personalModel.MotherMaidenMiddleName;
+
+        var request = new IndividualRegistrationRequest
+        {
+            Individual = personalModel,
+            Address = addressModel,
+            Identification = identificationModel,
+            Employment = employmentModel,
+            Family = familyModel,
+            Contact = contactModel,
+            Foreigner = foreignerModel,
+            BusinessInterest = busintModel,
+            GovernmentRelation = govrelModel,
+            AccountPurpose = accpurpModel
+        };
+
+        var success = await IndividualService.FinalizeRegistrationAsync(request);
+
+        if (success)
+        {
+            CurrentStep = 8;
+
+            await Storage.ClearIndividualDraftAsync();
+
+            StateHasChanged();
+        }
     }
 
-    private void PrevStep() => CurrentStep--;
 
-    private void ResetStepper()
+    private void PrevStep()
     {
+        if (CurrentStep > 1)
+        {
+            CurrentStep--;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ResetStepper()
+    {
+        await Storage.ClearIndividualDraftAsync();
         CurrentStep = 1;
         customerModel = new();
         personalModel = new();
@@ -133,6 +184,11 @@
         identificationModel = new();
         employmentModel = new();
         familyModel = new();
+        contactModel = new();
+        foreignerModel = new();
+        busintModel = new();
+        govrelModel = new();
+        accpurpModel = new();
         StateHasChanged();
     }
 }

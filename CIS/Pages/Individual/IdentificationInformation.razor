@@ -65,7 +65,7 @@
 
     <div class="d-flex justify-content-between mt-5">
         <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
-        <button type="button" class="btn btn-primary px-5" @onclick="HandleNext">Save & Next</button>
+        <button type="button" class="btn btn-primary px-5" @onclick="Next">Next</button>
     </div>
 </div>
 
@@ -77,7 +77,7 @@
 
     private bool ShowDL, ShowPassport, ShowOthers;
 
-    private async Task HandleNext()
+    private async Task Next()
     {
         IdModel.CustomerID = CustomerId;
 
@@ -86,7 +86,6 @@
         if (!ShowPassport) { IdModel.PassportIDNo = null; IdModel.PassportIDExpiry = null; }
         if (!ShowOthers) { IdModel.OtherIDType = null; IdModel.OtherIDNumber = null; IdModel.OtherIDExpiry = null; }
 
-        await IndividualService.UpsertIdentificationAsync(IdModel);
         await OnNext.InvokeAsync();
     }
 }

@@ -108,7 +108,7 @@
 
     <div class="d-flex justify-content-between mt-5">
         <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
-        <button type="button" class="btn btn-primary px-5" @onclick="HandleNext">Save & Next</button>
+        <button type="button" class="btn btn-primary px-5" @onclick="Next">Next</button>
     </div>
 </div>
 
@@ -118,7 +118,7 @@
     [Parameter] public EventCallback OnNext { get; set; }
     [Parameter] public EventCallback OnBack { get; set; }
 
-    private async Task HandleNext()
+    private async Task Next()
     {
         Model.CustomerID = CustomerId;
 
@@ -127,7 +127,6 @@
         if (Model.TypeOfEmployment != "Others") Model.TypeOfEmploymentOther = null;
         if (Model.TypeOfEmployment != "OFW") Model.OFWCountry = null;
 
-        await IndividualService.UpsertEmploymentAsync(Model);
         await OnNext.InvokeAsync();
     }
 }

@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CIS.API.Repositories;
 
+/// <summary>
+/// Refactored Repository: Now strictly for Customer Management (Browse/Delete).
+/// Creating new customers is now handled by Individual/Business batch submission.
+/// </summary>
 public class CustomerRepository
 {
     private readonly IMapper _mapper;
@@ -26,7 +30,6 @@ public class CustomerRepository
         using var _dbcontext = _dbContextFactory.CreateDbContext();
         var response = new CollectionDataSet<CustomerDTO.Browse>();
 
-        // FIX: Changed .Customers to .Customer
         var query = _dbcontext.Customers.AsNoTracking();
 
         if (!string.IsNullOrEmpty(filter.SearchText))
@@ -52,43 +55,27 @@ public class CustomerRepository
         return response;
     }
 
-    public async Task<long> UpsertAsync(CustomerDTO.PageModel request)
+    /// <summary>
+    /// Update an existing customer record. 
+    /// Note: Creating new customers is now atomic within the Registration flows.
+    /// </summary>
+    public async Task<long> UpdateAsync(CustomerDTO.PageModel request)
     {
         using var _dbcontext = _dbContextFactory.CreateDbContext();
         using var transaction = await _transactionPolicy.BeginSqlTransaction(_dbcontext);
         try
         {
-            var validator = new CustomerDTO.PageModel.Validator();
-            var validationResult = await validator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                throw new XNotAcceptableException(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
-            }
+            var old = await _dbcontext.Customers.FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
+            if (old == null) throw new XNotAcceptableException("Customer record not found for update.");
 
-            Customer? old = null;
-            if (request.CustomerID != 0)
-            {
-                // FIX: Changed .Customers to .Customer
-                old = await _dbcontext.Customers.FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
-            }
+            old.CustomerCategory = request.CustomerCategory;
+            old.CustomerType = request.CustomerType;
+            old.CIDNumber = request.CIDNumber;
 
-            if (old == null)
-            {
-                var model = _mapper.Map<Customer>(request);
-                _dbcontext.Customers.Add(model);
-                await _dbcontext.SaveChangesAsync();
-                request.CustomerID = model.CustomerID;
-            }
-            else
-            {
-                old.CustomerCategory = request.CustomerCategory;
-                old.CustomerType = request.CustomerType;
-                old.CIDNumber = request.CIDNumber;
-                // FIX: Changed .Customers to .Customer
-                _dbcontext.Customers.Update(old);
-            }
+            _dbcontext.Customers.Update(old);
+            await _dbcontext.SaveChangesAsync();
+
             if (transaction is not null) await transaction.CommitAsync();
-
             return request.CustomerID;
         }
         catch (Exception)
@@ -104,11 +91,9 @@ public class CustomerRepository
         using var transaction = await _transactionPolicy.BeginSqlTransaction(_dbcontext);
         try
         {
-            // FIX: Changed .Customers to .Customer
             var model = await _dbcontext.Customers.FindAsync(customerId);
             if (model == null) throw new XNotAcceptableException("Customer record not found.");
 
-            // FIX: Changed .Customers to .Customer
             _dbcontext.Customers.Remove(model);
 
             await _dbcontext.SaveChangesAsync();

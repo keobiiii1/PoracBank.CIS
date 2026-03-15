@@ -19,7 +19,9 @@ public class IndividualFamilyDTO
         public long CustomerID { get; set; }
         public string? SpouseLastName { get; set; }
         public string? SpouseGivenName { get; set; }
+        public string? SpouseMiddleName { get; set; }
         public string? MotherMaidenLastName { get; set; }
+        public string? MotherMaidenMiddleName { get; set; }
         public string? MotherMaidenGivenName { get; set; }
 
         public class Validator : AbstractValidator<PageModel>
@@ -31,14 +33,16 @@ public class IndividualFamilyDTO
             }
         }
     }
-
     public class MappingProfile : Profile
     {
         public MappingProfile()
         {
             CreateMap<IndividualFamily, Browse>().ReverseMap();
+
+            CreateMap<PageModel, IndividualFamily>().ReverseMap();
+
             CreateMap<IndividualInfoDTO.PageModel, IndividualFamily>()
-            .ForMember(dest => dest.FamilyID, opt => opt.Ignore());
+                .ForMember(dest => dest.FamilyID, opt => opt.Ignore());
         }
     }
 }

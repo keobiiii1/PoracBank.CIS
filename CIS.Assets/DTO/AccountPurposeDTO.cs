@@ -39,6 +39,8 @@ public class AccountPurposeDTO
     {
         public MappingProfile()
         {
+            CreateMap<PageModel, AccountPurpose>().ReverseMap();
+
             CreateMap<BusinessInfoDTO.PageModel, AccountPurpose>()
                 .ForMember(d => d.AccountPurposeID, o => o.Ignore())
                 .ForMember(d => d.EntityID, o => o.MapFrom(s => s.CustomerID))

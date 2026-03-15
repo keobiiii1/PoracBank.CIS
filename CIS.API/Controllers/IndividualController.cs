@@ -38,4 +38,11 @@ public class IndividualController : ControllerBase
         await _repository.UpsertIdentificationAsync(req);
         return Ok();
     }
+
+    [HttpPost("submit")]
+    public async Task<IActionResult> SubmitFullRegistration([FromBody] IndividualRegistrationRequest request)
+    {
+        await _repository.SubmitFullRegistrationAsync(request);
+        return Ok();
+    }
 }

@@ -1,7 +1,7 @@
 ﻿@using CIS.Client.Services
 @inject IndividualService IndividualService
 
-<EditForm Model="Model" OnValidSubmit="HandleNext">
+<EditForm Model="Model" OnValidSubmit="Next">
     <DataAnnotationsValidator />
 
     <div class="card shadow-sm p-4">
@@ -150,7 +150,7 @@
 
         <div class="d-flex justify-content-between mt-5">
             <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
-            <button type="submit" class="btn btn-primary px-5">Save & Next</button>
+            <button type="submit" class="btn btn-primary px-5">Next</button>
         </div>
     </div>
 </EditForm>
@@ -161,13 +161,8 @@
     [Parameter] public EventCallback OnNext { get; set; }
     [Parameter] public EventCallback OnBack { get; set; }
 
-    private async Task HandleNext()
+    private async Task Next()
     {
-        // REMOVE the CustomerID == 0 check.
-        // It is expected to be 0 for new registrations.
-
-        // Only invoke the stepper's next logic.
-        // Let the stepper handle the UpsertInfoAsync call.
         await OnNext.InvokeAsync();
     }
 }

@@ -1,7 +1,7 @@
 ﻿@using CIS.Client.Services
 @inject CustomerService CustomerService
 
-<EditForm Model="Customer" OnValidSubmit="SaveAndNext">
+<EditForm Model="Customer" OnValidSubmit="Next">
     <DataAnnotationsValidator />
 
     <div class="card p-4 shadow-sm">
@@ -38,7 +38,7 @@
         </div>
 
         <div class="mt-4 d-flex justify-content-end">
-            <button type="submit" class="btn btn-success px-5">Save and Next</button>
+            <button type="submit" class="btn btn-success px-5">Next</button>
         </div>
     </div>
 </EditForm>
@@ -49,16 +49,11 @@
     [Parameter] public EventCallback OnNext { get; set; }
 
 
-    private async Task SaveAndNext()
+    private async Task Next()
     {
-        var generatedId = await CustomerService.UpsertAsync(Customer);
-        if (generatedId > 0)
-        {
-            Customer.CustomerID = generatedId;
-            Customer.EntityType = EntityType.Individual;
+        Customer.EntityType = EntityType.Individual;
 
-            await CustomerChanged.InvokeAsync(Customer);
-            await OnNext.InvokeAsync();
-        }
+        await CustomerChanged.InvokeAsync(Customer);
+        await OnNext.InvokeAsync();
     }
 }

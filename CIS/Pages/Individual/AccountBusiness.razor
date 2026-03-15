@@ -96,7 +96,7 @@
 
     <div class="d-flex justify-content-between mt-5">
         <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
-        <button type="button" class="btn btn-primary px-5" @onclick="HandleNext">Save & Next</button>
+        <button type="button" class="btn btn-primary px-5" @onclick="Next">Next</button>
     </div>
 </div>
 
@@ -114,10 +114,9 @@
     private void AddBusiness() => InfoModel.BusinessInterests.Add(new BusinessInterestModel());
     private void AddGovRelative() => InfoModel.GovRelatives.Add(new GovRelativeModel());
 
-    private async Task HandleNext()
+    private async Task Next()
     {
         InfoModel.CustomerID = CustomerId;
-        await IndividualService.UpsertInfoAsync(InfoModel);
         await OnNext.InvokeAsync();
     }
 }

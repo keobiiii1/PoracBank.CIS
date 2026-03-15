@@ -51,4 +51,11 @@ public class BusinessController : ControllerBase
         await _bankReviewRepository.UpsertAsync(req);
         return Ok();
     }
+
+    [HttpPost("submit")]
+    public async Task<IActionResult> SubmitFullRegistration([FromBody] BusinessRegistrationRequest request)
+    {
+        await _repository.SubmitFullRegistrationAsync(request);
+        return Ok();
+    }
 }

@@ -18,16 +18,17 @@ public class CustomerService
                ?? new CollectionDataSet<CustomerDTO.Browse>();
     }
 
-    public async Task<long> UpsertAsync(CustomerDTO.PageModel request)
+    /// <summary>
+    /// Update existing customer information.
+    /// Creation logic is now handled by FinalizeRegistrationAsync in specific services.
+    /// </summary>
+    public async Task<long> UpdateAsync(CustomerDTO.PageModel request)
     {
-        var response = await _http.PostAsJsonAsync($"{BaseUrl}/upsert", request);
-
+        var response = await _http.PostAsJsonAsync($"{BaseUrl}/update", request);
         if (response.IsSuccessStatusCode)
         {
-            // Read the long value returned by the Controller
             return await response.Content.ReadFromJsonAsync<long>();
         }
-
         return 0;
     }
 

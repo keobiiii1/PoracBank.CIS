@@ -36,8 +36,11 @@ public class IndividualForeignerDTO
         public MappingProfile()
         {
             CreateMap<IndividualForeigner, Browse>().ReverseMap();
+
+            CreateMap<PageModel, IndividualForeigner>().ReverseMap();
+
             CreateMap<IndividualInfoDTO.PageModel, IndividualForeigner>()
-            .ForMember(dest => dest.ForeignerID, opt => opt.Ignore());
+                .ForMember(dest => dest.ForeignerID, opt => opt.Ignore());
         }
     }
 }

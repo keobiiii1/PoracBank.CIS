@@ -1,5 +1,6 @@
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #f8fafc;
 }
 
 h1:focus {
@@ -17,7 +18,7 @@ a, .btn-link {
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 .content {
@@ -64,7 +65,7 @@ a, .btn-link {
 }
 
     .blazor-error-boundary::after {
-        content: "An error has occurred."
+        content: "An error has occurred.";
     }
 
 .loading-progress {
@@ -122,5 +123,621 @@ code {
     .print-container {
         width: 100%;
         border: none;
+    }
+}
+
+/* ===== DESIGN SYSTEM VARIABLES ===== */
+:root {
+    --primary-blue: #2563eb;
+    --primary-dark: #1d4ed8;
+    --success-green: #10b981;
+    --warning-amber: #f59e0b;
+    --danger-red: #ef4444;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
+}
+
+/* ===== CARD STYLES ===== */
+.form-card {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 5px 15px -5px rgba(0, 0, 0, 0.05);
+    padding: 28px;
+    transition: all 0.2s ease;
+    margin-bottom: 20px;
+}
+
+/* ===== SECTION TITLES ===== */
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--gray-200);
+    letter-spacing: 0.3px;
+}
+
+    .section-title i {
+        color: var(--primary-blue);
+        margin-right: 10px;
+        font-size: 20px;
+    }
+
+/* ===== FORM LABELS ===== */
+.form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-600);
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+}
+
+/* ===== FORM INPUTS ===== */
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 12px;
+    font-size: 15px;
+    transition: all 0.15s ease;
+    background: white;
+    margin-bottom: 16px;
+}
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+        border-color: var(--primary-blue);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+/* Override Bootstrap styles */
+.form-control, .form-select {
+    border: 1.5px solid var(--gray-200) !important;
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+    font-size: 15px !important;
+}
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-blue) !important;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+    }
+
+/* ===== CHECKBOX GROUPS ===== */
+.checkbox-group {
+    background: var(--gray-50);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--gray-200);
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+    .checkbox-item input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary-blue);
+    }
+
+/* ===== STEP INDICATORS ===== */
+.step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.step-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 15px;
+    background: var(--gray-200);
+    color: var(--gray-500);
+}
+
+    .step-dot.active {
+        background: var(--primary-blue);
+        color: white;
+    }
+
+    .step-dot.completed {
+        background: var(--success-green);
+        color: white;
+    }
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: var(--gray-200);
+}
+
+    .step-line.active {
+        background: var(--primary-blue);
+    }
+
+/* ===== NAVIGATION BUTTONS ===== */
+.nav-button {
+    padding: 14px 24px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 15px;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    border: none;
+}
+
+    .nav-button.primary {
+        background: var(--primary-blue);
+        color: white;
+    }
+
+        .nav-button.primary:hover {
+            background: var(--primary-dark);
+        }
+
+    .nav-button.secondary {
+        background: white;
+        border: 1.5px solid var(--gray-200);
+        color: var(--gray-600);
+    }
+
+        .nav-button.secondary:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+        }
+
+/* ===== ACCOUNT TYPE SELECTORS ===== */
+.type-selector {
+    border: 2px solid var(--gray-200);
+    border-radius: 20px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+    .type-selector:hover {
+        border-color: var(--primary-blue);
+        background: var(--gray-50);
+    }
+
+    .type-selector.selected {
+        border-color: var(--primary-blue);
+        background: #eff6ff;
+    }
+
+/* ===== DOCUMENT SECTION ===== */
+.document-section {
+    background: var(--gray-50);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border-left: 4px solid var(--primary-blue);
+}
+
+/* ===== SIGNATURE AREA ===== */
+.signature-area {
+    border: 2px dashed var(--gray-300);
+    border-radius: 16px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gray-50);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+    .signature-area:hover {
+        border-color: var(--primary-blue);
+        background: #eff6ff;
+    }
+
+/* ===== REVIEW SECTION ===== */
+.review-section {
+    background: var(--gray-50);
+    border-radius: 16px;
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.review-item {
+    display: flex;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.review-label {
+    width: 140px;
+    font-weight: 500;
+    color: var(--gray-600);
+}
+
+.review-value {
+    flex: 1;
+    color: var(--gray-800);
+}
+
+/* ===== TOGGLE SWITCH ===== */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 56px;
+    height: 28px;
+}
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--gray-300);
+    transition: .3s;
+    border-radius: 28px;
+}
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 24px;
+        width: 24px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: .3s;
+        border-radius: 50%;
+    }
+
+input:checked + .toggle-slider {
+    background-color: #7c3aed;
+}
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(28px);
+    }
+
+/* ===== LOADING SPINNER ===== */
+.spinner {
+    border: 3px solid var(--gray-200);
+    border-top: 3px solid var(--primary-blue);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* ===== UTILITY CLASSES ===== */
+.text-primary-blue {
+    color: var(--primary-blue);
+}
+
+.bg-primary-blue {
+    background-color: var(--primary-blue);
+}
+
+.bg-primary-blue-light {
+    background-color: #eff6ff;
+}
+
+.text-success-green {
+    color: var(--success-green);
+}
+
+.bg-success-green {
+    background-color: var(--success-green);
+}
+
+.max-w-3xl {
+    max-width: 48rem;
+}
+
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Print styles for the form */
+@media print {
+    .no-print, .nav-button, .step-indicator, .type-selector {
+        display: none !important;
+    }
+
+    .form-card {
+        box-shadow: none;
+        border: 1px solid var(--gray-200);
+    }
+}
+
+/* ===== RESPONSIVE DESIGN FOR PWA ===== */
+
+/* Mobile First - Base styles for phones */
+@media (max-width: 576px) {
+    .form-card {
+        padding: 16px !important;
+        border-radius: 20px !important;
+    }
+
+    .section-title {
+        font-size: 16px !important;
+        margin-bottom: 16px !important;
+    }
+
+        .section-title i {
+            font-size: 18px !important;
+        }
+
+    .form-label {
+        font-size: 12px !important;
+    }
+
+    .form-input, .form-select {
+        padding: 14px 16px !important;
+        font-size: 16px !important; /* Prevents zoom on iOS */
+        margin-bottom: 14px !important;
+    }
+
+    .step-dot {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 14px !important;
+    }
+
+    .step-line {
+        height: 2px !important;
+    }
+
+    .nav-button {
+        padding: 16px 20px !important;
+        font-size: 16px !important;
+        width: 100%;
+    }
+
+    .d-grid {
+        display: grid !important;
+    }
+
+    .type-selector {
+        padding: 20px !important;
+    }
+
+    .checkbox-group {
+        padding: 14px !important;
+    }
+
+    .checkbox-item {
+        font-size: 14px !important;
+    }
+
+        /* Better touch targets */
+        .btn,
+        .nav-button,
+        .type-selector,
+        .form-check-input,
+        .checkbox-item input[type="checkbox"] {
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+    /* Stack review items on mobile */
+    .review-item {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .review-label {
+        width: 100%;
+        font-size: 12px;
+    }
+
+    .review-value {
+        font-size: 14px;
+        font-weight: 500;
+    }
+}
+
+/* Tablets (576px to 768px) */
+@media (min-width: 577px) and (max-width: 768px) {
+    .form-card {
+        padding: 24px !important;
+    }
+
+    .step-dot {
+        width: 34px !important;
+        height: 34px !important;
+    }
+
+    .nav-button {
+        padding: 14px 28px !important;
+    }
+
+    /* 2 columns for tablets */
+    .tablet-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+/* Small desktops (769px to 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .form-card {
+        padding: 32px !important;
+    }
+}
+
+/* Landscape orientation on phones */
+@media (max-width: 896px) and (orientation: landscape) {
+    .form-card {
+        padding: 20px !important;
+    }
+
+    .step-indicator {
+        margin-bottom: 16px !important;
+    }
+
+    /* Adjust spacing for landscape */
+    .mb-4 {
+        margin-bottom: 12px !important;
+    }
+
+    .py-4 {
+        padding-top: 12px !important;
+        padding-bottom: 12px !important;
+    }
+}
+
+/* High-resolution phones (e.g., iPhone Pro Max) */
+@media (min-width: 390px) and (max-width: 428px) {
+    .form-card {
+        padding: 20px !important;
+    }
+}
+
+/* ===== PWA Specific Styles ===== */
+
+/* Add safe area insets for notched phones */
+@supports (padding: max(0px)) {
+    .container-fluid {
+        padding-left: max(12px, env(safe-area-inset-left)) !important;
+        padding-right: max(12px, env(safe-area-inset-right)) !important;
+        padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
+    }
+}
+
+/* Better tap highlighting */
+* {
+    -webkit-tap-highlight-color: rgba(37, 99, 235, 0.1);
+}
+
+/* Smooth transitions for interactive elements */
+.btn, .nav-button, .type-selector, .form-check-input {
+    transition: all 0.2s ease;
+    -webkit-transition: all 0.2s ease;
+}
+
+    /* Active state for touch feedback */
+    .btn:active, .nav-button:active, .type-selector:active {
+        transform: scale(0.98);
+        opacity: 0.9;
+    }
+
+/* Prevent pull-to-refresh on PWA */
+body {
+    overscroll-behavior-y: contain;
+}
+
+/* Improve scrolling experience */
+.smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar but keep functionality */
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+/* PWA install banner styles */
+.pwa-install-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 16px;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+    z-index: 1000;
+    transform: translateY(100%);
+    animation: slideUp 0.3s forwards;
+}
+
+@keyframes slideUp {
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1a1a1a;
+    }
+
+    .form-card {
+        background: #2d2d2d;
+        color: #e0e0e0;
+    }
+
+    .section-title {
+        color: #ffffff;
+        border-bottom-color: #404040;
+    }
+
+    .form-input, .form-select {
+        background: #3d3d3d;
+        border-color: #404040;
+        color: #ffffff;
+    }
+
+    .form-label {
+        color: #b0b0b0;
     }
 }

@@ -19,11 +19,13 @@ public class CustomerController : ControllerBase
         return Ok(await _repository.BrowseAsync(filter));
     }
 
-    [HttpPost("upsert")]
-    public async Task<IActionResult> Upsert(CustomerDTO.PageModel request)
+    /// <summary>
+    /// Now strictly for updating existing customer details.
+    /// </summary>
+    [HttpPost("update")]
+    public async Task<IActionResult> Update(CustomerDTO.PageModel request)
     {
-
-        var customerId = await _repository.UpsertAsync(request);
+        var customerId = await _repository.UpdateAsync(request);
         return Ok(customerId);
     }
 

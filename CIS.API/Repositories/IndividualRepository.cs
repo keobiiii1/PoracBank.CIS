@@ -265,4 +265,125 @@ public class IndividualRepository
             throw;
         }
     }
+    public async Task SubmitFullRegistrationAsync(IndividualRegistrationRequest request)
+    {
+        using var _db = _dbContextFactory.CreateDbContext();
+        using var tx = await _transactionPolicy.BeginSqlTransaction(_db);
+        try
+        {
+            // 1. Create the Master Customer Record
+            var customer = new Customer
+            {
+                EntityType = EntityType.Individual,
+                CustomerCategory = request.Individual.CustomerCategory,
+                CustomerType = request.Individual.CustomerType,
+                CIDNumber = request.Individual.CIDNumber,
+                CreatedAt = DateTime.UtcNow
+            };
+            _db.Customers.Add(customer);
+            await _db.SaveChangesAsync();
+
+            long customerId = customer.CustomerID;
+
+            // 2. Sync IDs to sub-models
+            request.Individual.CustomerID = customerId;
+            request.Identification.CustomerID = customerId;
+            request.Employment.CustomerID = customerId;
+
+            // 3. Save Core Info (IndividualInfo)
+            _db.IndividualInfos.Add(_mapper.Map<IndividualInfo>(request.Individual));
+
+            // 4. Save Modules (Identification & Employment)
+            _db.IndividualIdentifications.Add(_mapper.Map<IndividualIdentification>(request.Identification));
+            _db.IndividualEmployments.Add(_mapper.Map<IndividualEmployment>(request.Employment));
+
+            // 5. FIX: Save Family (Manual mapping to avoid AutoMapper error)
+            _db.IndividualFamilies.Add(new IndividualFamily
+            {
+                CustomerID = customerId,
+                SpouseGivenName = request.Family.SpouseGivenName,
+                SpouseMiddleName = request.Family.SpouseMiddleName,
+                SpouseLastName = request.Family.SpouseLastName,
+                MotherMaidenGivenName = request.Family.MotherMaidenGivenName,
+                MotherMaidenMiddleName = request.Family.MotherMaidenMiddleName,
+                MotherMaidenLastName = request.Family.MotherMaidenLastName
+            });
+
+            // 6. FIX: Save Foreigner Info (Missing insert)
+            if (request.Individual.IsForeigner)
+            {
+                _db.IndividualForeigners.Add(new IndividualForeigner
+                {
+                    CustomerID = customerId,
+                    PassportIDNumber = request.Individual.PassportIDNumber,
+                    PassportExpiry = request.Individual.PassportExpiry,
+                    IsACR = request.Individual.IsACR,
+                    IsSIRV = request.Individual.IsSIRV,
+                    IsSRRV = request.Individual.IsSRRV
+                });
+            }
+
+            // 7. Save Address & Contact
+            var address = _mapper.Map<Address>(request.Address);
+            address.EntityID = customerId;
+            address.EntityType = EntityType.Individual;
+            _db.Addresses.Add(address);
+
+            _db.Contacts.Add(new Contact
+            {
+                EntityID = customerId,
+                EntityType = EntityType.Individual,
+                EmailAddress = request.Individual.EmailAddress,
+                MobilePhoneNumber = request.Individual.MobilePhoneNumber,
+                HomePhoneNumber = request.Individual.HomePhoneNumber
+            });
+
+            // 8. Save Account Purpose
+            _db.AccountPurposes.Add(new AccountPurpose
+            {
+                EntityID = customerId,
+                EntityType = EntityType.Individual,
+                PurposeOfAccount = request.Individual.AccountPurpose,
+                PurposeOfAccountOther = request.Individual.AccountPurposeOther,
+                ProductsAvailed = request.Individual.ProductsAvailed
+            });
+
+            // 9. FIX: Save Business Interests List (Manual mapping fixes the Exception)
+            if (request.Individual.BusinessInterests != null)
+            {
+                foreach (var biz in request.Individual.BusinessInterests)
+                {
+                    _db.BusinessInterests.Add(new BusinessInterest
+                    {
+                        CustomerID = customerId,
+                        BusinessName = biz.BusinessName,
+                        OwnershipPercentage = biz.OwnershipPercentage
+                    });
+                }
+            }
+
+            // 10. FIX: Save Government Relations List (Missing insert)
+            if (request.Individual.GovRelatives != null)
+            {
+                foreach (var rel in request.Individual.GovRelatives)
+                {
+                    _db.GovernmentRelations.Add(new GovernmentRelation
+                    {
+                        CustomerID = customerId,
+                        Name = rel.Name,
+                        Relationship = rel.Relationship,
+                        HighestPositionOccupied = rel.Position
+                    });
+                }
+            }
+
+            await _db.SaveChangesAsync();
+            if (tx != null) await tx.CommitAsync();
+        }
+        catch (Exception)
+        {
+            if (tx != null) await tx.RollbackAsync();
+            throw;
+        }
+    }
 }

@@ -47,7 +47,6 @@
     }
     else if (CurrentStep == 6)
     {
-        @* REGISTERED STEP 6: FINAL REVIEW *@
         <BusinessReview BusinessModel="businessModel"
                         AddressModel="addressModel"
                         BeneficiaryModel="beneficiaryModel"
@@ -56,23 +55,9 @@
     }
     else if (CurrentStep == 7)
     {
-        <div class="text-center p-5 animate__animated animate__fadeIn">
-            <div class="card border-0 shadow-lg p-5">
-                <div class="mb-4">
-                    <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
-                </div>
-                <h2 class="fw-bold">Registration Completed!</h2>
-                <p class="text-muted mb-4">The business record for <strong>@businessModel.NameOfBusiness</strong> has been successfully registered and reviewed.</p>
-                <div class="d-grid gap-2 col-md-6 mx-auto">
-                    <button class="btn btn-primary btn-lg" @onclick="ResetStepper">
-                        <i class="bi bi-plus-circle me-2"></i> Register New Business
-                    </button>
-                    <button class="btn btn-outline-secondary" @onclick="@(() => StateHasChanged())">
-                        <i class="bi bi-printer me-2"></i> Print Forms
-                    </button>
-                </div>
-            </div>
-        </div>
+        <RegistrationSuccess CustomerName="@businessModel.NameOfBusiness"
+                             CustomerId="businessModel.CustomerID"
+                             RegistrationType="Business" />
     }
 </div>
 

@@ -73,7 +73,7 @@
 
     <div class="d-flex justify-content-between mt-5">
         <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
-        <button type="button" class="btn btn-primary px-5" @onclick="HandleNext">Save & Next</button>
+        <button type="button" class="btn btn-primary px-5" @onclick="Next">Next</button>
     </div>
 </div>
 
@@ -96,12 +96,11 @@
         }
     }
 
-    private async Task HandleNext()
+    private async Task Next()
     {
         // 1. Prepare Address
         AddressModel.EntityID = CustomerId;
         AddressModel.EntityType = EntityType.Individual;
-        await ProfileService.UpsertAddressAsync(AddressModel);
 
         // 2. Prepare and Save specifically to the Contact table
         var contactData = new ContactDTO.PageModel
@@ -112,10 +111,6 @@
             MobilePhoneNumber = InfoModel.MobilePhoneNumber,
             EmailAddress = InfoModel.EmailAddress
         };
-        await ProfileService.UpsertContactAsync(contactData);
-
-        // 3. Update IndividualInfo (for Mailing Preference)
-        await IndividualService.UpsertInfoAsync(InfoModel);
 
         await OnNext.InvokeAsync();
     }

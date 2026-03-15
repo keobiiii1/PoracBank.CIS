@@ -19,6 +19,7 @@ public class IndividualInfoDTO
     {
         public long IndividualInfoID { get; set; }
         public long CustomerID { get; set; }
+        public string? CIDNumber { get; set; }
         public EntityType EntityType { get; set; } = EntityType.Individual;
         public CustomerCategory CustomerCategory { get; set; } = CustomerCategory.None;
         public CustomerType CustomerType { get; set; } = CustomerType.None;
@@ -127,6 +128,13 @@ public class IndividualInfoDTO
         public MappingProfile()
         {
             CreateMap<IndividualInfo, Browse>().ReverseMap();
+
+            CreateMap<PageModel, IndividualFamily>().ReverseMap()
+            .ForMember(dest => dest.IndividualInfoID, opt => opt.Ignore());
+
+            CreateMap<PageModel, IndividualForeigner>().ReverseMap()
+            .ForMember(dest => dest.IndividualInfoID, opt => opt.Ignore());
+
             CreateMap<IndividualInfo, PageModel>().ReverseMap()
             .ForMember(dest => dest.IndividualInfoID, opt => opt.Ignore());
             CreateMap<PageModel, IndividualForeigner>();
