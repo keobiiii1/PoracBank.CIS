@@ -1,5 +1,6 @@
 ﻿using CIS.API.Repositories;
 using CIS.Assets.DTO;
+using CIS.Assets.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CIS.API.Controllers;
@@ -31,6 +32,13 @@ public class BusinessController : ControllerBase
     public async Task<IActionResult> UpsertBeneficiary(BeneficiaryDTO.PageModel req)
     {
         await _repository.UpsertBeneficiaryAsync(req);
+        return Ok();
+    }
+
+    [HttpPost("acknowledgement")]
+    public async Task<IActionResult> UpsertAcknowledgement(ClientAcknowlegdementDTO.PageModel req)
+    {
+        await _repository.UpsertAcknowlegdementAsync(req);
         return Ok();
     }
 }

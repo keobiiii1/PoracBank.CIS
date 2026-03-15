@@ -1,0 +1,73 @@
+﻿@inject IJSRuntime JS
+@using CIS.Assets.DTO
+@using CIS.Client.Services
+@inject BusinessService BusinessService
+
+<EditForm Model="AcknowledgementModel" OnValidSubmit="SaveAndSubmit">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white text-center py-3">
+            <h5 class="mb-0">CLIENT'S ACKNOWLEDGEMENT</h5>
+        </div>
+        <div class="card-body p-4">
+            @* Legal Text Block *@
+            <div class="acknowledgement-text small text-secondary mb-4" style="line-height: 1.6; text-align: justify;">
+                <p>By signing this form, I/We certify that all information provided herein is true and correct... [cite: 19]</p>
+                <ul>
+                    <li>To allow Porac Bank to verify the above information... [cite: 20]</li>
+                </ul>
+            </div>
+
+            <div class="signature-section text-center p-4" style="background-color: #f8f9fa; border-radius: 8px;">
+                <label class="fw-bold d-block mb-3 text-primary">SIGNATURE OF DEPOSITOR</label>
+                <div class="d-inline-block shadow-sm bg-white" style="border-radius: 4px; overflow: hidden; border: 1px solid #dee2e6;">
+                    <canvas id="signature-pad" width="600" height="180" style="cursor: crosshair; display: block;"></canvas>
+                </div>
+                <div class="mt-2 mb-4">
+                    <button type="button" class="btn btn-sm btn-outline-danger" @onclick="@(() => JS.InvokeVoidAsync("signaturePad.clear"))">Clear Signature</button>
+                </div>
+
+                <hr />
+                <div class="row g-3 justify-content-center mt-2">
+                    <div class="col-md-5 text-start">
+                        <label class="form-label small fw-bold">Printed Name of Depositor</label>
+                        <InputText @bind-Value="AcknowledgementModel.PrintedName" class="form-control" />
+                    </div>
+                    <div class="col-md-3 text-start">
+                        <label class="form-label small fw-bold">Date Signed</label>
+                        <InputDate @bind-Value="AcknowledgementModel.DateSigned" class="form-control" TValue="DateTime" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mb-5">
+        <button type="button" class="btn btn-outline-secondary px-5" @onclick="OnBack">Back</button>
+        <button type="submit" class="btn btn-success px-5">Finalize & Save</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public long CustomerID { get; set; }
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+
+    private ClientAcknowlegdementDTO.PageModel AcknowledgementModel = new() { DateSigned = DateTime.Now };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Task.Delay(100);
+            await JS.InvokeVoidAsync("signaturePad.init", "signature-pad");
+        }
+    }
+
+    private async Task SaveAndSubmit()
+    {
+        AcknowledgementModel.SignatureData = await JS.InvokeAsync<string>("signaturePad.getData");
+        AcknowledgementModel.CustomerID = CustomerID;
+        await BusinessService.UpsertAcknowledgementAsync(AcknowledgementModel);
+        await OnNext.InvokeAsync();
+    }
+}

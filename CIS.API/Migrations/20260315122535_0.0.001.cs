@@ -57,6 +57,24 @@ namespace CIS.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ClientAcknowlegdement",
+                schema: "cis",
+                columns: table => new
+                {
+                    ClientAcknowlegdementID = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CustomerID = table.Column<long>(type: "bigint", nullable: false),
+                    SignatureData = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PrintedName = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
+                    DateSigned = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
+                    IsAgreed = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientAcknowlegdement", x => x.ClientAcknowlegdementID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Contact",
                 schema: "cis",
                 columns: table => new
@@ -551,6 +569,10 @@ namespace CIS.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "BusinessInterest",
+                schema: "cis");
+
+            migrationBuilder.DropTable(
+                name: "ClientAcknowlegdement",
                 schema: "cis");
 
             migrationBuilder.DropTable(

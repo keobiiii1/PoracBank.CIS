@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CIS.API.Migrations
 {
     [DbContext(typeof(CISDbContext))]
-    [Migration("20260315112425_0.0.001")]
+    [Migration("20260315122535_0.0.001")]
     partial class _00001
     {
         /// <inheritdoc />
@@ -354,6 +354,37 @@ namespace CIS.API.Migrations
                     b.HasIndex("CustomerID");
 
                     b.ToTable("BusinessInterest", "cis");
+                });
+
+            modelBuilder.Entity("CIS.Assets.Models.ClientAcknowlegdement", b =>
+                {
+                    b.Property<long>("ClientAcknowlegdementID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ClientAcknowlegdementID"));
+
+                    b.Property<long>("CustomerID")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("DateSigned")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<bool>("IsAgreed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PrintedName")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("SignatureData")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ClientAcknowlegdementID");
+
+                    b.ToTable("ClientAcknowlegdement", "cis");
                 });
 
             modelBuilder.Entity("CIS.Assets.Models.Contact", b =>

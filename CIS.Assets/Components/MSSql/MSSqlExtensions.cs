@@ -20,6 +20,10 @@ public static class MSSqlExtensions
     {
         return builder.Property(propertyExpression).HasMaxLength(length).HasColumnType($"nvarchar({length})");
     }
+    public static PropertyBuilder<string?> IsNvarcharMax<TEntity>(this EntityTypeBuilder<TEntity> builder, System.Linq.Expressions.Expression<Func<TEntity, string?>> propertyExpression) where TEntity : class
+    {
+        return builder.Property(propertyExpression).HasColumnType("nvarchar(max)");
+    }
 
     public static PropertyBuilder<TEnum> IsNvarcharEnum<TEntity, TEnum>(this EntityTypeBuilder<TEntity> builder, System.Linq.Expressions.Expression<Func<TEntity, TEnum>> propertyExpression, int length) where TEntity : class where TEnum : struct
     {

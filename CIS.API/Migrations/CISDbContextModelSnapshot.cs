@@ -353,6 +353,37 @@ namespace CIS.API.Migrations
                     b.ToTable("BusinessInterest", "cis");
                 });
 
+            modelBuilder.Entity("CIS.Assets.Models.ClientAcknowlegdement", b =>
+                {
+                    b.Property<long>("ClientAcknowlegdementID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ClientAcknowlegdementID"));
+
+                    b.Property<long>("CustomerID")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("DateSigned")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<bool>("IsAgreed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PrintedName")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("SignatureData")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ClientAcknowlegdementID");
+
+                    b.ToTable("ClientAcknowlegdement", "cis");
+                });
+
             modelBuilder.Entity("CIS.Assets.Models.Contact", b =>
                 {
                     b.Property<long>("ContactID")

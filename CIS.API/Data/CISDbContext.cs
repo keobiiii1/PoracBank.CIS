@@ -9,6 +9,7 @@ public class CISDbContext : DbContext
     public CISDbContext(DbContextOptions<CISDbContext> options) : base(options) { }
 
     public DbSet<Customer> Customers { get; set; }
+    public DbSet<ClientAcknowlegdement> ClientAcknowlegdements { get; set; }
     public DbSet<IndividualInfo> IndividualInfos { get; set; }
     public DbSet<IndividualFamily> IndividualFamilies { get; set; }
     public DbSet<IndividualIdentification> IndividualIdentifications { get; set; }
@@ -30,6 +31,7 @@ public class CISDbContext : DbContext
 
         // Apply Configurations in the "cis" schema
         CustomerConfig.Set(modelBuilder);
+        ClientAcknowlegdementConfig.Set(modelBuilder);
         IndividualInfoConfig.Set(modelBuilder);
         IndividualFamilyConfig.Set(modelBuilder);
         IndividualIdentificationConfig.Set(modelBuilder);

@@ -31,8 +31,14 @@
                          OnNext="HandleNext"
                          OnBack="PrevStep" />
     }
+    else if (CurrentStep == 4)
+    {
+        <ClientAcknowlegdement CustomerID="businessModel.CustomerID"
+                               OnNext="HandleNext"
+                               OnBack="PrevStep" />
+    }
     @* --- Future Steps Placeholder --- *@
-    else if (CurrentStep > 1 && CurrentStep < 7)
+    else if (CurrentStep > 4 && CurrentStep < 7)
     {
         <div class="card p-5 text-center shadow-sm">
             <h4>Step @CurrentStep Content Placeholder</h4>
@@ -55,14 +61,9 @@
 @code {
     private int CurrentStep = 1;
 
-    // Core models for Step 1
     private BusinessInfoDTO.PageModel businessModel = new();
     private AddressDTO.PageModel addressModel = new();
     private BeneficiaryDTO.PageModel beneficiaryModel = new();
-
-    // // Future models (initialized but unused in Step 1)
-    // private BusinessAccountDTO.PageModel accountModel = new();  
-    // private BankUseDTO.PageModel bankUseModel = new();
 
     private async Task HandleNext()
     {
@@ -81,7 +82,6 @@
 
     private async Task HandleSubmit()
     {
-        // Business logic for database submission
         CurrentStep = 7;
         StateHasChanged();
     }
@@ -91,9 +91,7 @@
         CurrentStep = 1;
         businessModel = new();
         addressModel = new();
-        // accountModel = new();
-        // beneficiaryModel = new();
-        // bankUseModel = new();
+        beneficiaryModel = new();
         StateHasChanged();
     }
 }

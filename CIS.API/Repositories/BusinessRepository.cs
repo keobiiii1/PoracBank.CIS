@@ -139,4 +139,24 @@ public class BusinessRepository
         }
         catch { if (tx != null) await tx.RollbackAsync(); throw; }
     }
+
+    public async Task UpsertAcknowlegdementAsync(ClientAcknowlegdementDTO.PageModel request)
+    {
+        using var _db = _dbContextFactory.CreateDbContext();
+        var old = await _db.ClientAcknowlegdements
+            .FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
+
+        if (old == null)
+        {
+            var model = _mapper.Map<ClientAcknowlegdement>(request);
+            _db.ClientAcknowlegdements.Add(model);
+        }
+        else
+        {
+            _mapper.Map(request, old);
+            _db.Entry(old).Property(x => x.ClientAcknowlegdementID).IsModified = false;
+            _db.ClientAcknowlegdements.Update(old);
+        }
+        await _db.SaveChangesAsync();
+    }
 }

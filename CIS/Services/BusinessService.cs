@@ -1,4 +1,5 @@
 ﻿using CIS.Assets.DTO;
+using CIS.Assets.Models;
 using System.Net.Http.Json;
 
 namespace CIS.Client.Services;
@@ -28,4 +29,9 @@ public class BusinessService
 
     public async Task UpsertInterestAsync(BusinessInterestDTO.PageModel request) =>
         await _http.PostAsJsonAsync($"{BaseUrl}/interest", request);
+
+    public async Task UpsertAcknowledgementAsync(ClientAcknowlegdementDTO.PageModel request)
+    {
+        await _http.PostAsJsonAsync($"{BaseUrl}/acknowledgement", request);
+    }
 }
