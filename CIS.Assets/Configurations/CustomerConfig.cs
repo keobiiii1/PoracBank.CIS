@@ -16,9 +16,13 @@ public static class CustomerConfig
         entity.IsNvarcharEnum(e => e.CustomerType, 50);
         entity.IsNvarchar(e => e.CIDNumber, 50);
         entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-        
-        
-        
-        
+
+        entity.HasOne(e => e.ClientAcknowlegdement)
+            .WithOne()
+            .HasForeignKey<ClientAcknowlegdement>(e => e.CustomerID);
+
+        entity.HasOne(e => e.BankReview)
+            .WithOne()
+            .HasForeignKey<BankReview>(e => e.CustomerID);
     }
 }

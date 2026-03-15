@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace CIS.Assets.Models;
 
 [Table("Customer")]
-public class Customer 
+public class Customer
 {
     public long CustomerID { get; set; }
     public EntityType EntityType { get; set; }
@@ -23,4 +23,5 @@ public class Customer
     public ICollection<BusinessInterest> BusinessInterests { get; set; } = new List<BusinessInterest>();
     public ICollection<GovernmentRelation> GovernmentRelations { get; set; } = new List<GovernmentRelation>();
     public BankReview? BankReview { get; set; }
+    public ClientAcknowlegdement? ClientAcknowlegdement { get; set; }
 }

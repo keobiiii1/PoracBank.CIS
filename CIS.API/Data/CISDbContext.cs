@@ -19,7 +19,6 @@ public class CISDbContext : DbContext
     public DbSet<Address> Addresses { get; set; }
     public DbSet<Contact> Contacts { get; set; }
     public DbSet<AccountPurpose> AccountPurposes { get; set; }
-    public DbSet<SourceOfFunds> SourceOfFunds { get; set; }
     public DbSet<Beneficiary> Beneficiaries { get; set; }
     public DbSet<BusinessInterest> BusinessInterests { get; set; }
     public DbSet<GovernmentRelation> GovernmentRelations { get; set; }
@@ -41,7 +40,6 @@ public class CISDbContext : DbContext
         AddressConfig.Set(modelBuilder);
         ContactConfig.Set(modelBuilder);
         AccountPurposeConfig.Set(modelBuilder);
-        SourceOfFundsConfig.Set(modelBuilder);
         BeneficiaryConfig.Set(modelBuilder);
         BusinessInterestConfig.Set(modelBuilder);
         GovernmentRelationConfig.Set(modelBuilder);

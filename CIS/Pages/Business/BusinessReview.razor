@@ -1,0 +1,139 @@
+﻿@using CIS.Assets.DTO
+@using CIS.Assets.Enum
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-primary text-white py-3">
+        <h5 class="mb-0"><i class="bi bi-eye-fill me-2"></i> REGISTRATION SUMMARY</h5>
+    </div>
+    <div class="card-body p-4">
+
+        @* --- STEP 1 & 2: BUSINESS INFORMATION --- *@
+        <div class="review-section mb-5">
+            <h6 class="text-primary fw-bold border-bottom pb-2 mb-3">
+                <i class="bi bi-building me-2"></i> BUSINESS & CONTACT INFORMATION
+            </h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="text-muted x-small d-block">BUSINESS NAME</label>
+                    <span class="fw-bold">@(BusinessModel?.NameOfBusiness ?? "N/A")</span>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-muted x-small d-block">TIN</label>
+                    <span class="fw-bold">@(BusinessModel?.TaxIdentificationNumber ?? "N/A")</span>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-muted x-small d-block">DATE OF REGISTRATION</label>
+                    <span class="fw-bold">@BusinessModel?.DateOfRegistration?.ToString("MMMM dd, yyyy")</span>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="text-muted x-small d-block">TELEPHONE NO.</label>
+                    <span class="fw-bold">@(BusinessModel?.OfficePhoneNo ?? "N/A")</span>
+                </div>
+                <div class="col-md-4">
+                    <label class="text-muted x-small d-block">CONTACT PERSON</label>
+                    <span class="fw-bold">@(BusinessModel?.ContactPerson ?? "N/A")</span>
+                </div>
+                <div class="col-md-4">
+                    <label class="text-muted x-small d-block">EMAIL ADDRESS</label>
+                    <span class="fw-bold text-lowercase">@(BusinessModel?.EmailAddress ?? "N/A")</span>
+                </div>
+            </div>
+        </div>
+
+        @* --- STEP 1: ADDRESS --- *@
+        <div class="review-section mb-5">
+            <h6 class="text-primary fw-bold border-bottom pb-2 mb-3">
+                <i class="bi bi-geo-alt-fill me-2"></i> REGISTERED ADDRESS
+            </h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="text-muted x-small d-block">PERMANENT ADDRESS</label>
+                    <span class="fw-bold">@AddressModel?.PermanentAddress</span>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-muted x-small d-block">ZIP CODE</label>
+                    <span class="fw-bold">@AddressModel?.PermanentZipCode</span>
+                </div>
+                <div class="col-md-3">
+                    <label class="text-muted x-small d-block">COUNTRY</label>
+                    <span class="fw-bold">@AddressModel?.PermanentCountry</span>
+                </div>
+                @if (!AddressModel.IsPresentSameAsPermanent)
+                {
+                    <div class="col-md-6 mt-2">
+                        <label class="text-muted x-small d-block">PRESENT ADDRESS</label>
+                        <span class="fw-bold">@AddressModel?.PresentAddress</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* --- STEP 3: BENEFICIARY INFORMATION --- *@
+        <div class="review-section mb-5">
+            <h6 class="text-primary fw-bold border-bottom pb-2 mb-3">
+                <i class="bi bi-people-fill me-2"></i> FOR INDIVIDUAL AND BUSINESS ACCOUNT WITH BENEFICIARY
+            </h6>
+            @if (BeneficiaryModel != null && !string.IsNullOrEmpty(BeneficiaryModel.BeneficiaryName))
+            {
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="text-muted x-small d-block">BENEFICIARY NAME</label>
+                        <span class="fw-bold">@BeneficiaryModel.BeneficiaryName</span>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-muted x-small d-block">DATE OF BIRTH</label>
+                        <span class="fw-bold">@BeneficiaryModel.Birthday?.ToString("MMMM dd, yyyy")</span>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="text-muted x-small d-block">NATIONALITY</label>
+                        <span class="fw-bold">@BeneficiaryModel.Nationality</span>
+                    </div>
+                    <div class="col-12">
+                        <label class="text-muted x-small d-block">FULL ADDRESS</label>
+                        <span class="fw-bold">@BeneficiaryModel.Address</span>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted italic small">No beneficiary information was provided for this account.</p>
+            }
+        </div>
+
+    </div>
+</div>
+
+<div class="d-flex justify-content-between mb-5">
+    <button type="button" class="btn btn-outline-secondary px-5" @onclick="OnBack">
+        <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <button type="button" class="btn btn-success px-5" @onclick="OnSubmit">
+        Finalize Registration <i class="bi bi-check-circle-fill ms-2"></i>
+    </button>
+</div>
+
+<style>
+    .review-section {
+        background: #fafafa;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #0d6efd;
+    }
+
+    .x-small {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+</style>
+
+@code {
+    [Parameter] public BusinessInfoDTO.PageModel BusinessModel { get; set; }
+    [Parameter] public AddressDTO.PageModel AddressModel { get; set; }
+    [Parameter] public BeneficiaryDTO.PageModel BeneficiaryModel { get; set; }
+
+    [Parameter] public EventCallback OnBack { get; set; }
+    [Parameter] public EventCallback OnSubmit { get; set; }
+}
