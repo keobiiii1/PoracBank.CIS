@@ -14,6 +14,7 @@ public class BankReviewDTO
         public List<string> WorkList { get; set; } = new();
         public List<string> DocsList { get; set; } = new();
         public List<string> AdditionalDocsList { get; set; } = new();
+        public string? SelectedWork { get; set; }
         public bool IsEmployee { get; set; }
         public bool IsDosri { get; set; }
         public bool IsRpt { get; set; }
@@ -42,7 +43,8 @@ public class BankReviewDTO
                 .ForMember(dest => dest.CheckedAgainst, opt => opt.MapFrom(src => string.Join(",", src.ScreeningList)))
                 .ForMember(dest => dest.NatureOfWorkBusiness, opt => opt.MapFrom(src => string.Join(",", src.WorkList)))
                 .ForMember(dest => dest.DocumentsPresented, opt => opt.MapFrom(src => string.Join(",", src.DocsList)))
-                .ForMember(dest => dest.AdditionalDocuments, opt => opt.MapFrom(src => string.Join(",", src.AdditionalDocsList)));
+                .ForMember(dest => dest.AdditionalDocuments, opt => opt.MapFrom(src => string.Join(",", src.AdditionalDocsList)))
+                .ForMember(dest => dest.ReviewerSignature, opt => opt.MapFrom(src => src.SignatureAuthenticated));
 
             CreateMap<BankReview, PageModel>();
         }

@@ -90,18 +90,24 @@ public class RegistrationStorageService
     #endregion
 
     #region Business Flow
-    public async Task SaveDraftAsync(
+    public async Task SaveBusinessDraftAsync(
         BusinessInfoDTO.PageModel business,
+        AccountPurposeDTO.PageModel purpose,
         AddressDTO.PageModel address,
+        ContactDTO.PageModel contact,
         BeneficiaryDTO.PageModel beneficiary,
+        ClientAcknowlegdementDTO.PageModel acknowledgement,
         BankReviewDTO.PageModel review,
         int step)
     {
-        var draft = new RegistrationDraft
+        var draft = new BusinessDraft
         {
             Business = business,
+            AccountPurpose = purpose,
             Address = address,
+            Contact = contact,
             Beneficiary = beneficiary,
+            Acknowledgement = acknowledgement,
             Review = review,
             CurrentStep = step,
             LastSaved = DateTime.Now
@@ -109,9 +115,9 @@ public class RegistrationStorageService
         await _storage.SetItemAsync(BIZ_KEY, draft);
     }
 
-    public async Task<RegistrationDraft?> GetDraftAsync()
+    public async Task<BusinessDraft?> GetDraftAsync()
     {
-        return await _storage.GetItemAsync<RegistrationDraft>(BIZ_KEY);
+        return await _storage.GetItemAsync<BusinessDraft>(BIZ_KEY);
     }
 
     public async Task ClearDraftAsync()
@@ -119,11 +125,14 @@ public class RegistrationStorageService
         await _storage.RemoveItemAsync(BIZ_KEY);
     }
 
-    public class RegistrationDraft
+    public class BusinessDraft
     {
         public BusinessInfoDTO.PageModel? Business { get; set; }
+        public AccountPurposeDTO.PageModel? AccountPurpose { get; set; }
         public AddressDTO.PageModel? Address { get; set; }
+        public ContactDTO.PageModel? Contact { get; set; }
         public BeneficiaryDTO.PageModel? Beneficiary { get; set; }
+        public ClientAcknowlegdementDTO.PageModel? Acknowledgement { get; set; }
         public BankReviewDTO.PageModel? Review { get; set; }
         public int CurrentStep { get; set; }
         public DateTime LastSaved { get; set; }

@@ -1,24 +1,20 @@
 ﻿@using CIS.Assets.DTO
 @using CIS.Assets.Enum
-@using CIS.Client.Services
 @using System.ComponentModel
-@inject BusinessService BusinessService
-@inject IJSRuntime JS
 
-<EditForm Model="BusinessModel" OnValidSubmit="HandleNext">
+<EditForm Model="BusinessModel" OnValidSubmit="Next">
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-primary text-white">
             <h5 class="mb-0">Step 2: Account and Contact Information</h5>
         </div>
-        <div class="card-body">
+        <div class="card-body p-4">
             <div class="row g-3">
-                @* --- Account Details --- *@
                 <div class="col-md-6">
                     <label class="form-label fw-bold">Purpose of Account</label>
                     <InputSelect @bind-Value="BusinessModel.AccountPurpose" class="form-select">
                         @foreach (var val in GetFilteredPurposes())
                         {
-                            <option value="@val">@GetDescription(val)</option>
+                            <option value="@val.ToString()">@GetDescription(val)</option>
                         }
                     </InputSelect>
                 </div>
@@ -31,7 +27,6 @@
                     </div>
                 }
 
-                @* --- Products Availed (Checkboxes) --- *@
                 <div class="col-12">
                     <label class="form-label fw-bold">Products to be Availed</label>
                     <div class="d-flex flex-wrap gap-4 mt-2">
@@ -49,13 +44,13 @@
 
                 @if (selectedProducts.Contains("Others"))
                 {
-                    <div class="col-md-12 mt-2">
-                        <label class="form-label fw-bold">Specify Other Products</label>
-                        <InputText @bind-Value="BusinessModel.ProductsAvailedOther" class="form-control" placeholder="e.g. Wealth Management, Trust" />
+                    <div class="col-12 mt-2">
+                        <label class="form-label fw-bold">Please Specify Other Products</label>
+                        <InputText @bind-Value="BusinessModel.ProductsAvailedOther" class="form-control" placeholder="Specify here..." />
                     </div>
                 }
 
-                <div class="col-md-6">
+                <div class="col-md-6 mt-3">
                     <label class="form-label fw-bold">Average Annual Income</label>
                     <InputSelect @bind-Value="BusinessModel.AverageAnnualIncome" class="form-select">
                         @foreach (var val in Enum.GetValues<AverageAnnualIncome>())
@@ -65,7 +60,7 @@
                     </InputSelect>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-6 mt-3">
                     <label class="form-label fw-bold">Size of Business</label>
                     <InputSelect @bind-Value="BusinessModel.SizeOfBusiness" class="form-select">
                         @foreach (var val in Enum.GetValues<SizeOfBusiness>())
@@ -76,20 +71,16 @@
                 </div>
 
                 <div class="col-12"><hr /></div>
-
-                @* --- Contact Information --- *@
-                <h6 class="fw-bold mb-3">Contact Information</h6>
+                <h6 class="fw-bold mb-3 text-primary">Contact Information</h6>
 
                 <div class="col-md-4">
                     <label class="form-label">Phone Number</label>
                     <InputText @bind-Value="BusinessModel.OfficePhoneNo" class="form-control" />
                 </div>
-
                 <div class="col-md-4">
                     <label class="form-label">Email Address</label>
                     <InputText @bind-Value="BusinessModel.EmailAddress" class="form-control" />
                 </div>
-
                 <div class="col-md-4">
                     <label class="form-label">Contact Person</label>
                     <InputText @bind-Value="BusinessModel.ContactPerson" class="form-control" />
@@ -116,64 +107,35 @@
     protected override void OnInitialized()
     {
         if (!string.IsNullOrEmpty(BusinessModel.ProductsAvailed))
-        {
             selectedProducts = BusinessModel.ProductsAvailed.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        }
     }
 
-    // --- ENUM HELPER METHODS ---
-    private List<PurposeOfAccount> GetFilteredPurposes()
-    {
-        // Define which enum values are appropriate for Business
-        var businessPurposes = new List<PurposeOfAccount>
-        {
-            PurposeOfAccount.None,
-            PurposeOfAccount.BusinessPurposes,
-            PurposeOfAccount.Others
-            // Add your new business-specific enums here (e.g., Payroll, Operations)
-        };
-
-        return Enum.GetValues<PurposeOfAccount>()
-            .Where(e => businessPurposes.Contains(e))
-            .ToList();
-    }
+    private List<PurposeOfAccount> GetFilteredPurposes() => new() { PurposeOfAccount.None, PurposeOfAccount.BusinessPurposes, PurposeOfAccount.Others };
 
     private string GetDescription(PurposeOfAccount val)
     {
         var field = val.GetType().GetField(val.ToString());
-        var attr = (DescriptionAttribute)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));
+        var attr = (DescriptionAttribute)Attribute.GetCustomAttribute(field!, typeof(DescriptionAttribute));
         return attr?.Description ?? val.ToString();
     }
 
     private void ToggleProduct(string product, ChangeEventArgs e)
     {
         var isChecked = (bool)e.Value!;
-        if (isChecked)
-        {
-            if (!selectedProducts.Contains(product)) selectedProducts.Add(product);
-        }
-        else
-        {
-            selectedProducts.Remove(product);
-            if (product == "Others") BusinessModel.ProductsAvailedOther = null;
-        }
-
+        if (isChecked) { if (!selectedProducts.Contains(product)) selectedProducts.Add(product); }
+        else { selectedProducts.Remove(product); }
         BusinessModel.ProductsAvailed = string.Join(",", selectedProducts);
     }
 
-    private async Task HandleNext()
+    private async Task Next()
     {
-        try
+        BusinessModel.ProductsAvailed = string.Join(",", selectedProducts);
+
+        if (!selectedProducts.Contains("Others"))
         {
-            var result = await BusinessService.UpsertBusinessInfoAsync(BusinessModel, AddressModel);
-            if (result != null)
-            {
-                await OnNext.InvokeAsync();
-            }
+            BusinessModel.ProductsAvailedOther = null;
         }
-        catch (Exception ex)
-        {
-            await JS.InvokeVoidAsync("alert", $"Error: {ex.Message}");
-        }
+
+        await OnNext.InvokeAsync();
     }
 }

@@ -265,7 +265,7 @@ public class IndividualRepository
             throw;
         }
     }
-    public async Task<long> SubmitFullRegistrationAsync(IndividualRegistrationRequest request)
+    public async Task<long> IndividualFullRegistrationAsync(IndividualRegistrationRequest request)
     {
         using var _db = _dbContextFactory.CreateDbContext();
         using var tx = await _transactionPolicy.BeginSqlTransaction(_db);
@@ -304,8 +304,10 @@ public class IndividualRepository
                 CustomerID = customerId,
                 SpouseGivenName = request.Family.SpouseGivenName,
                 SpouseLastName = request.Family.SpouseLastName,
+                SpouseMiddleName = request.Family.SpouseMiddleName,
                 MotherMaidenGivenName = request.Family.MotherMaidenGivenName,
-                MotherMaidenLastName = request.Family.MotherMaidenLastName
+                MotherMaidenLastName = request.Family.MotherMaidenLastName,
+                MotherMaidenMiddleName = request.Family.MotherMaidenMiddleName
             });
 
             // 6. Save Foreigner Info (if applicable)

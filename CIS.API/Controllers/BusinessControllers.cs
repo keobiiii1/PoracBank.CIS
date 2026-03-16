@@ -55,7 +55,8 @@ public class BusinessController : ControllerBase
     [HttpPost("submit")]
     public async Task<IActionResult> SubmitFullRegistration([FromBody] BusinessRegistrationRequest request)
     {
-        await _repository.SubmitFullRegistrationAsync(request);
-        return Ok();
+        // Capture the generated ID from the repo
+        var customerId = await _repository.BusinessFullRegistration(request);
+        return Ok(customerId);
     }
 }

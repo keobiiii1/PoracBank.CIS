@@ -1,9 +1,7 @@
 ﻿@using CIS.Assets.DTO
 @using CIS.Assets.Enum
-@using CIS.Client.Services
-@inject BusinessService BusinessService
 
-<EditForm Model="BeneficiaryModel" OnValidSubmit="HandleNext">
+<EditForm Model="BeneficiaryModel" OnValidSubmit="Next">
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-primary text-white">
             <h5 class="mb-0">Step 3: Beneficiary Information</h5>
@@ -26,7 +24,7 @@
 
                 <div class="col-md-4">
                     <label class="form-label">Birthday</label>
-                    <InputDate @bind-Value="BeneficiaryModel.Birthday" class="form-control" TValue="DateOnly ?" />
+                    <InputDate @bind-Value="BeneficiaryModel.Birthday" class="form-control" TValue="DateOnly?" />
                 </div>
 
                 <div class="col-md-4">
@@ -78,14 +76,11 @@
 
 @code {
     [Parameter] public BeneficiaryDTO.PageModel BeneficiaryModel { get; set; } = new();
-    [Parameter] public long CustomerID { get; set; }
     [Parameter] public EventCallback OnNext { get; set; }
     [Parameter] public EventCallback OnBack { get; set; }
 
-    private async Task HandleNext()
+    private async Task Next()
     {
-        BeneficiaryModel.CustomerID = CustomerID;
-        await BusinessService.UpsertBeneficiaryAsync(BeneficiaryModel);
         await OnNext.InvokeAsync();
     }
 }

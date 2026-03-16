@@ -23,6 +23,5 @@ public class BusinessRegistrationRequest
     public ContactDTO.PageModel Contact { get; set; } = new();
     public BeneficiaryDTO.PageModel Beneficiary { get; set; } = new();
     public ClientAcknowlegdementDTO.PageModel Acknowledgement { get; set; } = new();
-    public BeneficiaryDTO.PageModel Benefit { get; set; } = new();
     public BankReviewDTO.PageModel BankReview { get; set; } = new();
 }

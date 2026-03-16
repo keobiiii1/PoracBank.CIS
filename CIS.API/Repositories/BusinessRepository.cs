@@ -160,63 +160,82 @@ public class BusinessRepository
         await _db.SaveChangesAsync();
     }
 
-    public async Task SubmitFullRegistrationAsync(BusinessRegistrationRequest request)
+    public async Task<long> BusinessFullRegistration(BusinessRegistrationRequest request)
     {
         using var _db = _dbContextFactory.CreateDbContext();
         using var tx = await _transactionPolicy.BeginSqlTransaction(_db);
         try
         {
-            // 1. Create/Update Customer Record
-            if (request.Business.CustomerID == 0)
+            // 1. Create the Master Customer Record
+            var customer = new Customer
             {
-                var customer = new Customer { EntityType = EntityType.Business, CreatedAt = DateTime.UtcNow };
-                _db.Customers.Add(customer);
-                await _db.SaveChangesAsync();
-                request.Business.CustomerID = customer.CustomerID;
+                EntityType = EntityType.Business,
+                CIDNumber = request.Business.CIDNumber,
+                CreatedAt = DateTime.UtcNow
+            };
+            _db.Customers.Add(customer);
+            await _db.SaveChangesAsync(); // Generates CustomerID
+
+            long customerId = customer.CustomerID;
+
+            // 2. Map and Add Main Business Info
+            var bizInfo = _mapper.Map<BusinessInfo>(request.Business);
+            bizInfo.CustomerID = customerId;
+            _db.BusinessInfos.Add(bizInfo);
+
+            // 3. Save Address
+            var address = _mapper.Map<Address>(request.Address);
+            address.EntityID = customerId;
+            address.EntityType = EntityType.Business;
+            _db.Addresses.Add(address);
+
+            // 4. Save Contact (Using Phone/Email fields from Business model)
+            _db.Contacts.Add(new Contact
+            {
+                EntityID = customerId,
+                EntityType = EntityType.Business,
+                EmailAddress = request.Business.EmailAddress,
+                MobilePhoneNumber = request.Business.OfficePhoneNo,
+                ContactPerson = request.Business.ContactPerson
+            });
+
+            // 5. Save Beneficiary (if any)
+            if (!string.IsNullOrEmpty(request.Beneficiary.BeneficiaryName))
+            {
+                var beneficiary = _mapper.Map<Beneficiary>(request.Beneficiary);
+                beneficiary.CustomerID = customerId;
+                _db.Beneficiaries.Add(beneficiary);
             }
 
-            long customerId = request.Business.CustomerID;
+            // 6. Save Acknowledgement (Signature)
+            var ack = _mapper.Map<ClientAcknowlegdement>(request.Acknowledgement);
+            ack.CustomerID = customerId;
+            _db.ClientAcknowlegdements.Add(ack);
 
-            // 2. Sync IDs across the payload
-            request.Address.EntityID = customerId;
-            request.Address.EntityType = EntityType.Business;
-            request.Contact.EntityID = customerId;
-            request.Contact.EntityType = EntityType.Business;
-            request.Beneficiary.CustomerID = customerId;
-            request.Acknowledgement.CustomerID = customerId;
-            request.BankReview.CustomerID = customerId;
+            // 7. Save Bank Review
+            var review = _mapper.Map<BankReview>(request.BankReview);
+            review.CustomerID = customerId;
+            _db.BankReviews.Add(review);
 
-            // 3. Save Business Info
-            var biz = await _db.BusinessInfos.FirstOrDefaultAsync(e => e.CustomerID == customerId);
-            if (biz == null) _db.BusinessInfos.Add(_mapper.Map<BusinessInfo>(request.Business));
-            else _mapper.Map(request.Business, biz);
-
-            // 4. Save Address & Contact
-            var addr = await _db.Addresses.FirstOrDefaultAsync(e => e.EntityID == customerId && e.EntityType == EntityType.Business);
-            if (addr == null) _db.Addresses.Add(_mapper.Map<Address>(request.Address));
-            else _mapper.Map(request.Address, addr);
-
-            var contact = await _db.Contacts.FirstOrDefaultAsync(e => e.EntityID == customerId && e.EntityType == EntityType.Business);
-            if (contact == null) _db.Contacts.Add(_mapper.Map<Contact>(request.Contact));
-            else _mapper.Map(request.Contact, contact);
-
-            // 5. Save Beneficiary & Acknowledgement
-            var bene = await _db.Beneficiaries.FirstOrDefaultAsync(e => e.CustomerID == customerId);
-            if (bene == null) _db.Beneficiaries.Add(_mapper.Map<Beneficiary>(request.Beneficiary));
-            else _mapper.Map(request.Beneficiary, bene);
-
-            var ack = await _db.ClientAcknowlegdements.FirstOrDefaultAsync(e => e.CustomerID == customerId);
-            if (ack == null) _db.ClientAcknowlegdements.Add(_mapper.Map<ClientAcknowlegdement>(request.Acknowledgement));
-            else _mapper.Map(request.Acknowledgement, ack);
-
-            // 6. Save Bank Review (Audit)
-            var review = await _db.BankReviews.FirstOrDefaultAsync(e => e.CustomerID == customerId);
-            if (review == null) _db.BankReviews.Add(_mapper.Map<BankReview>(request.BankReview));
-            else _mapper.Map(request.BankReview, review);
+            // 8. Save Account Purpose
+            _db.AccountPurposes.Add(new AccountPurpose
+            {
+                EntityID = customerId,
+                EntityType = EntityType.Business,
+                PurposeOfAccount = request.Business.AccountPurpose,
+                PurposeOfAccountOther = request.Business.AccountPurposeOther,
+                ProductsAvailed = request.Business.ProductsAvailed
+            });
 
             await _db.SaveChangesAsync();
             if (tx != null) await tx.CommitAsync();
+
+            return customerId;
         }
-        catch { if (tx != null) await tx.RollbackAsync(); throw; }
+        catch (Exception)
+        {
+            if (tx != null) await tx.RollbackAsync();
+            throw;
+        }
     }
 }

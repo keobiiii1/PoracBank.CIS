@@ -39,9 +39,13 @@ public class BusinessService
         await _http.PostAsJsonAsync($"{BaseUrl}/bank-review", request);
     }
 
-    public async Task<bool> FinalizeRegistrationAsync(BusinessRegistrationRequest request)
+    public async Task<long> FinalizeRegistrationAsync(BusinessRegistrationRequest request)
     {
         var response = await _http.PostAsJsonAsync($"{BaseUrl}/submit", request);
-        return response.IsSuccessStatusCode;
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadFromJsonAsync<long>();
+        }
+        return 0;
     }
 }

@@ -6,9 +6,15 @@
     init: function (canvasId) {
         this.canvas = document.getElementById(canvasId);
         if (!this.canvas) return;
+
+        const rect = this.canvas.getBoundingClientRect();
+        this.canvas.width = rect.width;
+        this.canvas.height = rect.height;
+
         this.ctx = this.canvas.getContext('2d');
         this.ctx.lineWidth = 3;
         this.ctx.lineCap = 'round';
+        this.ctx.lineJoin = 'round';
         this.ctx.strokeStyle = '#000000';
 
         // MOUSE EVENTS (Fixes drawing on desktop)
