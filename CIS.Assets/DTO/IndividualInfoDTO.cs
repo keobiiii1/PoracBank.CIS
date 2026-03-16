@@ -114,8 +114,6 @@ public class IndividualInfoDTO
             public string? Relationship { get; set; }
             public decimal? OwnershipPercentage { get; set; }
             public string? PeriodCovered { get; set; }
-            public string? GovPosition { get; set; }
-            public string? GovPeriod { get; set; }
         }
 
         public class GovRelativeModel
