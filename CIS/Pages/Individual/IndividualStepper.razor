@@ -15,6 +15,11 @@
         <div class="progress-bar" style="width: @(CurrentStep * 14.28)%"></div>
     </div>
 
+    @if (submitError != null)
+    {
+        <div class="alert alert-danger">@submitError</div>
+    }
+
     @if (CurrentStep == 1)
     {
         customerModel.EntityType = EntityType.Individual;
@@ -25,7 +30,7 @@
         <PersonalInformation @bind-Model="personalModel" OnNext="HandleNext" OnBack="PrevStep" />
     }
     @* --- Step 3: Contact Information --- *@
-    @if (CurrentStep == 3)
+    else if (CurrentStep == 3)
     {
         <ContactInformation CustomerId="customerModel.CustomerID"
                             AddressModel="addressModel"
@@ -125,8 +130,11 @@
         await JS.InvokeVoidAsync("window.scrollTo", 0, 0);
     }
 
+    private string? submitError;
+
     private async Task HandleSubmit()
     {
+        submitError = null;
         personalModel.CustomerCategory = customerModel.CustomerCategory;
         personalModel.CustomerType = customerModel.CustomerType;
         personalModel.CIDNumber = customerModel.CIDNumber;
@@ -152,16 +160,11 @@
             AccountPurpose = accpurpModel
         };
 
-        var success = await IndividualService.FinalizeRegistrationAsync(request);
+        await IndividualService.FinalizeRegistrationAsync(request);
 
-        if (success)
-        {
-            CurrentStep = 8;
-
-            await Storage.ClearIndividualDraftAsync();
-
-            StateHasChanged();
-        }
+        CurrentStep = 8;
+        await Storage.ClearIndividualDraftAsync();
+        StateHasChanged();
     }
 
 

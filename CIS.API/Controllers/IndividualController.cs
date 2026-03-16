@@ -42,7 +42,7 @@ public class IndividualController : ControllerBase
     [HttpPost("submit")]
     public async Task<IActionResult> SubmitFullRegistration([FromBody] IndividualRegistrationRequest request)
     {
-        await _repository.SubmitFullRegistrationAsync(request);
-        return Ok();
+        var customerId = await _repository.SubmitFullRegistrationAsync(request);
+        return Ok(customerId);
     }
 }

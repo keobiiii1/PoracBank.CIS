@@ -265,7 +265,7 @@ public class IndividualRepository
             throw;
         }
     }
-    public async Task SubmitFullRegistrationAsync(IndividualRegistrationRequest request)
+    public async Task<long> SubmitFullRegistrationAsync(IndividualRegistrationRequest request)
     {
         using var _db = _dbContextFactory.CreateDbContext();
         using var tx = await _transactionPolicy.BeginSqlTransaction(_db);
@@ -285,31 +285,30 @@ public class IndividualRepository
 
             long customerId = customer.CustomerID;
 
-            // 2. Sync IDs to sub-models
+            // 2. Sync generated CustomerID to sub-models for correct Foreign Key mapping
             request.Individual.CustomerID = customerId;
             request.Identification.CustomerID = customerId;
             request.Employment.CustomerID = customerId;
 
             // 3. Save Core Info (IndividualInfo)
-            _db.IndividualInfos.Add(_mapper.Map<IndividualInfo>(request.Individual));
+            var individualInfo = _mapper.Map<IndividualInfo>(request.Individual);
+            _db.IndividualInfos.Add(individualInfo);
 
-            // 4. Save Modules (Identification & Employment)
+            // 4. Save Identification & Employment
             _db.IndividualIdentifications.Add(_mapper.Map<IndividualIdentification>(request.Identification));
             _db.IndividualEmployments.Add(_mapper.Map<IndividualEmployment>(request.Employment));
 
-            // 5. FIX: Save Family (Manual mapping to avoid AutoMapper error)
+            // 5. Save Family (Manual mapping ensures data is copied even if AutoMapper fails)
             _db.IndividualFamilies.Add(new IndividualFamily
             {
                 CustomerID = customerId,
                 SpouseGivenName = request.Family.SpouseGivenName,
-                SpouseMiddleName = request.Family.SpouseMiddleName,
                 SpouseLastName = request.Family.SpouseLastName,
                 MotherMaidenGivenName = request.Family.MotherMaidenGivenName,
-                MotherMaidenMiddleName = request.Family.MotherMaidenMiddleName,
                 MotherMaidenLastName = request.Family.MotherMaidenLastName
             });
 
-            // 6. FIX: Save Foreigner Info (Missing insert)
+            // 6. Save Foreigner Info (if applicable)
             if (request.Individual.IsForeigner)
             {
                 _db.IndividualForeigners.Add(new IndividualForeigner
@@ -348,7 +347,7 @@ public class IndividualRepository
                 ProductsAvailed = request.Individual.ProductsAvailed
             });
 
-            // 9. FIX: Save Business Interests List (Manual mapping fixes the Exception)
+            // 9. Save Business Interests List (Manual mapping prevents AutoMapper Exceptions)
             if (request.Individual.BusinessInterests != null)
             {
                 foreach (var biz in request.Individual.BusinessInterests)
@@ -362,7 +361,7 @@ public class IndividualRepository
                 }
             }
 
-            // 10. FIX: Save Government Relations List (Missing insert)
+            // 10. Save Government Relations List
             if (request.Individual.GovRelatives != null)
             {
                 foreach (var rel in request.Individual.GovRelatives)
@@ -379,6 +378,8 @@ public class IndividualRepository
 
             await _db.SaveChangesAsync();
             if (tx != null) await tx.CommitAsync();
+
+            return customerId;
         }
         catch (Exception)
         {

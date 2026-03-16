@@ -35,9 +35,15 @@ public class IndividualService
     public async Task UpsertIdentificationAsync(IndividualIdentificationDTO.PageModel request) =>
         await _http.PostAsJsonAsync($"{BaseUrl}/identification", request);
 
-    public async Task<bool> FinalizeRegistrationAsync(IndividualRegistrationRequest request)
+    public async Task<long> FinalizeRegistrationAsync(IndividualRegistrationRequest request)
     {
         var response = await _http.PostAsJsonAsync($"{BaseUrl}/submit", request);
-        return response.IsSuccessStatusCode;
+
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadFromJsonAsync<long>();
+        }
+
+        return 0;
     }
 }
