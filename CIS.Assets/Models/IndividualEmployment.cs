@@ -15,6 +15,8 @@ public class IndividualEmployment
     public string? EducationalAttainment { get; set; }
     public string? NatureOfWork { get; set; }
     public AverageMonthlyIncome AverageMonthlyIncome { get; set; } = AverageMonthlyIncome.None;
+    public SourceOfFunds SourceOfFunds { get; set; } = SourceOfFunds.None;
+    public string? SourceOfFundsOther { get; set; }
     public string? NameOfEmployer { get; set; }
     public string? EmployerBuildingNo { get; set; }
     public string? EmployerStreet { get; set; }

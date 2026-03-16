@@ -9,9 +9,18 @@
         <div class="review-section mb-4">
             <h6 class="text-primary fw-bold border-bottom pb-2 mb-3">CORPORATE IDENTITY</h6>
             <div class="row g-3">
-                <div class="col-md-6"><label class="small text-muted d-block">NAME</label><strong>@BusinessModel.NameOfBusiness</strong></div>
-                <div class="col-md-3"><label class="small text-muted d-block">TIN</label><strong>@BusinessModel.TaxIdentificationNumber</strong></div>
-                <div class="col-md-3"><label class="small text-muted d-block">REG. DATE</label><strong>@BusinessModel.DateOfRegistration?.ToString("MM/dd/yyyy")</strong></div>
+                <div class="col-md-6">
+                    <label class="small text-muted d-block">NAME</label>
+                    <strong>@BusinessModel.NameOfBusiness</strong>
+                </div>
+                <div class="col-md-3">
+                    <label class="small text-muted d-block">TIN</label>
+                    <strong>@BusinessModel.TaxIdentificationNumber</strong>
+                </div>
+                <div class="col-md-3">
+                    <label class="small text-muted d-block">REG. DATE</label>
+                    <strong>@BusinessModel.DateOfRegistration?.ToString("MM/dd/yyyy")</strong>
+                </div>
             </div>
         </div>
 
@@ -25,7 +34,6 @@
                     }
                     else
                     {
-
                         <span class="text-danger small">No signature captured.</span>
                     }
                 </div>
@@ -44,17 +52,29 @@
 </div>
 
 <div class="d-flex justify-content-between mb-5">
-    <button type="button" class="btn btn-outline-secondary px-5" @onclick="OnBack">Back</button>
-    <button type="button" class="btn btn-success px-5 fw-bold" @onclick="OnSubmit">FINALIZE REGISTRATION</button>
+    <button type="button" class="btn btn-outline-secondary px-5" @onclick="OnBack" disabled="@IsSubmitting">Back</button>
+
+    <button type="button" class="btn btn-success px-5 fw-bold" @onclick="SubmitAsync" disabled="@IsSubmitting">
+        @if (IsSubmitting)
+        {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+            <text>Loading...</text>
+        }
+        else
+        {
+            <text>FINALIZE REGISTRATION</text>
+        }
+    </button>
 </div>
 
 <style>
-.review-section {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    border-left: 4px solid #0d6efd;
-}</style>
+    .review-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border-left: 4px solid #0d6efd;
+    }
+</style>
 
 @code {
     [Parameter] public BusinessInfoDTO.PageModel BusinessModel { get; set; } = new();
@@ -64,4 +84,22 @@
     [Parameter] public BankReviewDTO.PageModel BankReviewModel { get; set; } = new();
     [Parameter] public EventCallback OnBack { get; set; }
     [Parameter] public EventCallback OnSubmit { get; set; }
+
+    private bool IsSubmitting { get; set; } = false;
+
+    private async Task SubmitAsync()
+    {
+        if (IsSubmitting) return;
+
+        IsSubmitting = true;
+
+        try
+        {
+            await OnSubmit.InvokeAsync();
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
 }

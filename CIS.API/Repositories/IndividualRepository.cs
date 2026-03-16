@@ -108,7 +108,8 @@ public class IndividualRepository
                     EntityType = EntityType.Individual,
                     PurposeOfAccount = request.AccountPurpose,
                     PurposeOfAccountOther = request.AccountPurposeOther,
-                    ProductsAvailed = request.ProductsAvailed
+                    ProductsAvailed = request.ProductsAvailed,
+                    ProductsAvailedOther = request.ProductsAvailedOther
                 };
                 _db.AccountPurposes.Add(acc);
             }
@@ -117,6 +118,7 @@ public class IndividualRepository
                 acc.PurposeOfAccount = request.AccountPurpose;
                 acc.PurposeOfAccountOther = request.AccountPurposeOther;
                 acc.ProductsAvailed = request.ProductsAvailed;
+                acc.ProductsAvailedOther = request.ProductsAvailedOther;
 
                 _db.Entry(acc).Property(x => x.AccountPurposeID).IsModified = false;
                 _db.AccountPurposes.Update(acc);
@@ -358,7 +360,7 @@ public class IndividualRepository
                     {
                         CustomerID = customerId,
                         BusinessName = biz.BusinessName,
-                        OwnershipPercentage = biz.OwnershipPercentage
+                        OwnershipPercentage = biz.OwnershipPercentage,
                     });
                 }
             }
@@ -373,7 +375,8 @@ public class IndividualRepository
                         CustomerID = customerId,
                         Name = rel.Name,
                         Relationship = rel.Relationship,
-                        HighestPositionOccupied = rel.Position
+                        HighestPositionOccupied = rel.Position,
+                        PeriodCovered = rel.PeriodCovered
                     });
                 }
             }
@@ -388,5 +391,89 @@ public class IndividualRepository
             if (tx != null) await tx.RollbackAsync();
             throw;
         }
+    }
+
+    public async Task<IndividualRegistrationRequest> GetFullRegistrationDetailsAsync(long customerId)
+    {
+        using var _db = _dbContextFactory.CreateDbContext();
+
+        // 1. Table: Customers (Master record for Meta-data)
+        var customer = await _db.Customers.AsNoTracking()
+            .FirstOrDefaultAsync(e => e.CustomerID == customerId);
+        if (customer == null) return null;
+
+        var response = new IndividualRegistrationRequest();
+
+        // 2. Table: IndividualInfos (Core Personal Data)
+        var infoModel = await _db.IndividualInfos.AsNoTracking()
+            .FirstOrDefaultAsync(e => e.CustomerID == customerId);
+        response.Individual = _mapper.Map<IndividualInfoDTO.PageModel>(infoModel);
+
+        if (response.Individual != null)
+        {
+            // Sync Step 1 & Meta Data from Customer Table
+            response.Individual.CustomerCategory = customer.CustomerCategory;
+            response.Individual.CustomerType = customer.CustomerType;
+            response.Individual.CIDNumber = customer.CIDNumber;
+
+            // 3. Table: BusinessInterests (Dynamic List)
+            response.Individual.BusinessInterests = await _db.BusinessInterests
+                .Where(x => x.CustomerID == customerId)
+                .Select(x => new IndividualInfoDTO.PageModel.BusinessInterestModel
+                {
+                    BusinessName = x.BusinessName,
+                    OwnershipPercentage = x.OwnershipPercentage
+                }).ToListAsync();
+
+            // 4. Table: GovernmentRelations (Dynamic List)
+            response.Individual.GovRelatives = await _db.GovernmentRelations
+                .Where(x => x.CustomerID == customerId)
+                .Select(x => new IndividualInfoDTO.PageModel.GovRelativeModel
+                {
+                    Name = x.Name,
+                    Relationship = x.Relationship,
+                    Position = x.HighestPositionOccupied,
+                    PeriodCovered = x.PeriodCovered
+                }).ToListAsync();
+        }
+
+        // 5. Table: Addresses
+        var addr = await _db.Addresses.AsNoTracking()
+            .FirstOrDefaultAsync(e => e.EntityID == customerId && e.EntityType == EntityType.Individual);
+        response.Address = _mapper.Map<AddressDTO.PageModel>(addr);
+
+        // 6. Table: IndividualIdentifications
+        var ident = await _db.IndividualIdentifications.AsNoTracking()
+            .FirstOrDefaultAsync(e => e.CustomerID == customerId);
+        response.Identification = _mapper.Map<IndividualIdentificationDTO.PageModel>(ident);
+
+        // 7. Table: IndividualEmployments
+        var employ = await _db.IndividualEmployments.AsNoTracking()
+            .FirstOrDefaultAsync(e => e.CustomerID == customerId);
+        response.Employment = _mapper.Map<IndividualEmploymentDTO.PageModel>(employ);
+
+        // 8. Table: IndividualFamilies
+        var family = await _db.IndividualFamilies.AsNoTracking()
+            .FirstOrDefaultAsync(e => e.CustomerID == customerId);
+        response.Family = _mapper.Map<IndividualFamilyDTO.PageModel>(family);
+
+        // 9. Table: IndividualForeigners (Optional)
+        var foreigner = await _db.IndividualForeigners.AsNoTracking()
+            .FirstOrDefaultAsync(e => e.CustomerID == customerId);
+        response.Foreigner = _mapper.Map<IndividualForeignerDTO.PageModel>(foreigner);
+
+        // 10. Table: Contacts & AccountPurposes (Combined logic)
+        var contact = await _db.Contacts.AsNoTracking()
+            .FirstOrDefaultAsync(e => e.EntityID == customerId && e.EntityType == EntityType.Individual);
+        response.Contact = _mapper.Map<ContactDTO.PageModel>(contact);
+
+        var purpose = await _db.AccountPurposes.AsNoTracking()
+            .FirstOrDefaultAsync(e => e.EntityID == customerId && e.EntityType == EntityType.Individual);
+        if (purpose != null)
+        {
+            response.AccountPurpose = _mapper.Map<AccountPurposeDTO.PageModel>(purpose);
+        }
+
+        return response;
     }
 }

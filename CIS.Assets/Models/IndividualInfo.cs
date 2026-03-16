@@ -13,6 +13,9 @@ public class IndividualInfo
     public string? MiddleName { get; set; }
     public string? LastName { get; set; }
     public bool IsResident { get; set; }
+    public bool IsGov { get; set; }
+    public string? GovPosition { get; set; }
+    public string? GovPeriod { get; set; }
     public Citizenship Citizenship { get; set; } = Citizenship.None;
     public string? CitizenshipOther { get; set; }
     public string? CountryOfOrigin { get; set; }

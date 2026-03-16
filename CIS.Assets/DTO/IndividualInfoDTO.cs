@@ -79,7 +79,7 @@ public class IndividualInfoDTO
         // PEP (Government Official) Details
         public bool IsGovOfficial { get; set; }
         public string? GovPosition { get; set; }
-        public string? GovPeriodCovered { get; set; }
+        public string? GovPeriod { get; set; }
 
         // Relative of Gov Official
         public bool HasGovRelative { get; set; }
@@ -111,7 +111,11 @@ public class IndividualInfoDTO
         public class BusinessInterestModel
         {
             public string? BusinessName { get; set; }
+            public string? Relationship { get; set; }
             public decimal? OwnershipPercentage { get; set; }
+            public string? PeriodCovered { get; set; }
+            public string? GovPosition { get; set; }
+            public string? GovPeriod { get; set; }
         }
 
         public class GovRelativeModel

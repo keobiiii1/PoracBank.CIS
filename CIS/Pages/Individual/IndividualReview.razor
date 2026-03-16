@@ -30,7 +30,7 @@
                 <div class="col-md-4"><strong>GSIS:</strong> @Identification.GSISNumber</div>
                 @if (!string.IsNullOrEmpty(Identification.DriversLicenseIDNo))
                 {
-                    <div class="col-md-4 mt-2"><strong>Driver's License:</strong> @Identification.DriversLicenseIDNo (Exp: @Identification.DriversLicenseExpiry)</div>
+                    <div class="col-md-4 mt-2"><strong>Driver's License:</strong> @Identification.DriversLicenseIDNo (Exp: @Identification.DriversLicenseExpiry?.ToString("MMMM dd, yyyy"))</div>
                 }
             </div>
         </div>
@@ -78,8 +78,18 @@
     }
 
     <div class="d-flex justify-content-between mt-5">
-        <button type="button" class="btn btn-outline-secondary btn-lg" @onclick="OnBack">Back to Edit</button>
-        <button type="button" class="btn btn-primary btn-lg px-5 shadow" @onclick="OnSubmit">Confirm & Submit Registration</button>
+        <button type="button" class="btn btn-outline-secondary btn-lg" @onclick="OnBack" disabled="@IsSubmitting">Back to Edit</button>
+        <button type="button" class="btn btn-primary btn-lg px-5 shadow" @onclick="SubmitAsync" disabled="@IsSubmitting">
+            @if (IsSubmitting)
+            {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                <text>Loading...</text>
+            }
+            else
+            {
+                <text>Confirm &amp; Submit Registration</text>
+            }
+        </button>
     </div>
 </div>
 
@@ -92,4 +102,21 @@
 
     [Parameter] public EventCallback OnBack { get; set; }
     [Parameter] public EventCallback OnSubmit { get; set; }
+
+    private bool IsSubmitting { get; set; } = false;
+
+    private async Task SubmitAsync()
+    {
+        if (IsSubmitting) return;
+        IsSubmitting = true;
+
+        try
+        {
+            await OnSubmit.InvokeAsync();
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
 }

@@ -20,9 +20,12 @@
                     </div>
 
                     <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                        @* <button type="button" class="btn btn-primary btn-lg px-4" @onclick="PrintApplication">
+                        @* New Print Button *@
+                        <button type="button" class="btn btn-primary btn-lg px-4" @onclick="PrintAndRedirect">
                             <i class="bi bi-printer me-2"></i> Print Application
-                        </button> *@
+                        </button>
+
+                        @* Existing Register Another Button *@
                         <button type="button" class="btn btn-outline-secondary btn-lg px-4" @onclick='() => Nav.NavigateTo("/")'>
                             Register Another @RegistrationType
                         </button>
@@ -42,4 +45,12 @@
     [Parameter] public long CustomerId { get; set; }
     [Parameter] public string RegistrationType { get; set; } = "Individual";
     [Parameter] public EventCallback OnReset { get; set; }
+
+    private async Task PrintAndRedirect()
+    {
+        var printUrl = $"/porac-bank-cis?customerId={CustomerId}";
+        await JS.InvokeVoidAsync("open", printUrl, "_blank");
+
+        //Nav.NavigateTo("/");
+    }
 }

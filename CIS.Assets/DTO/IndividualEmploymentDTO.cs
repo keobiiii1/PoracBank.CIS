@@ -18,14 +18,16 @@ public class IndividualEmploymentDTO
     {
         public long EmploymentID { get; set; }
         public long CustomerID { get; set; }
-        public string? EmploymentStatus { get; set; }
+        public EmploymentStatus EmploymentStatus { get; set; }
         public string? EmploymentStatusOther { get; set; }
-        public string? TypeOfEmployment { get; set; }
+        public TypeOfEmployment TypeOfEmployment { get; set; }
         public string? TypeOfEmploymentOther { get; set; }
         public string? OFWCountry { get; set; }
         public string? EducationalAttainment { get; set; }
         public string? NatureOfWork { get; set; }
         public AverageMonthlyIncome AverageMonthlyIncome { get; set; }
+        public SourceOfFunds SourceOfFunds { get; set; }
+        public string? SourceOfFundsOther { get; set; }
         public string? NameOfEmployer { get; set; }
         public string? EmployerBuildingNo { get; set; }
         public string? EmployerStreet { get; set; }

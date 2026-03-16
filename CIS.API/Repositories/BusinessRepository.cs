@@ -224,7 +224,8 @@ public class BusinessRepository
                 EntityType = EntityType.Business,
                 PurposeOfAccount = request.Business.AccountPurpose,
                 PurposeOfAccountOther = request.Business.AccountPurposeOther,
-                ProductsAvailed = request.Business.ProductsAvailed
+                ProductsAvailed = request.Business.ProductsAvailed,
+                ProductsAvailedOther = request.Business.ProductsAvailedOther
             });
 
             await _db.SaveChangesAsync();

@@ -46,4 +46,16 @@ public class IndividualService
 
         return 0;
     }
+
+    public async Task<IndividualRegistrationRequest?> GetRegistrationDetailsAsync(long customerId)
+    {
+        try
+        {
+            return await _http.GetFromJsonAsync<IndividualRegistrationRequest>($"{BaseUrl}/details/{customerId}");
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
 }

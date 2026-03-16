@@ -160,11 +160,20 @@
             AccountPurpose = accpurpModel
         };
 
-        await IndividualService.FinalizeRegistrationAsync(request);
+        var newCustomerId = await IndividualService.FinalizeRegistrationAsync(request);
 
-        CurrentStep = 8;
-        await Storage.ClearIndividualDraftAsync();
-        StateHasChanged();
+        if (newCustomerId > 0)
+        {
+            customerModel.CustomerID = newCustomerId;
+        
+            CurrentStep = 8;
+            await Storage.ClearIndividualDraftAsync();
+            StateHasChanged();
+        }
+        else
+        {
+            submitError = "Failed to finalize registration. Please try again.";
+        }
     }
 
 

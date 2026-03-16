@@ -20,6 +20,7 @@ public class GovernmentRelationDTO
         public string? Name { get; set; }
         public string? Relationship { get; set; }
         public string? HighestPositionOccupied { get; set; }
+        public string? PeriodCovered { get; set; }
 
         public class Validator : AbstractValidator<PageModel>
         {

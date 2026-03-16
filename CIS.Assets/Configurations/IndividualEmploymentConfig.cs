@@ -20,6 +20,8 @@ public static class IndividualEmploymentConfig
         entity.IsNvarchar(e => e.EducationalAttainment, 255);
         entity.IsNvarchar(e => e.NatureOfWork, 255);
         entity.IsNvarcharEnum(e => e.AverageMonthlyIncome, 50);
+        entity.IsNvarcharEnum(e => e.SourceOfFunds, 50);
+        entity.IsNvarchar(e => e.SourceOfFundsOther, 255);
         entity.IsNvarchar(e => e.NameOfEmployer, 255);
         entity.IsNvarchar(e => e.EmployerBuildingNo, 100);
         entity.IsNvarchar(e => e.EmployerStreet, 255);
