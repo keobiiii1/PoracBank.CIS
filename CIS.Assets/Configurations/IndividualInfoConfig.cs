@@ -15,11 +15,13 @@ public static class IndividualInfoConfig
         entity.IsNvarchar(e => e.FirstName, 100);
         entity.IsNvarchar(e => e.MiddleName, 100);
         entity.IsNvarchar(e => e.LastName, 100);
+        entity.IsNvarchar(e => e.MaidenName, 100);
+        entity.IsNvarchar(e => e.MaidenMiddleName, 100);
+        entity.IsNvarchar(e => e.MaidenLastName, 100);
         entity.IsBool(e => e.IsResident);
         entity.IsBool(e => e.IsGov);
         entity.IsNvarchar(e => e.GovPosition, 100);
         entity.IsNvarchar(e => e.GovPeriod, 100);
-        entity.IsNvarchar(e => e.LastName, 100);
         entity.IsNvarcharEnum(e => e.Citizenship, 50);
         entity.IsNvarchar(e => e.CitizenshipOther, 100);
         entity.IsNvarchar(e => e.CountryOfOrigin, 100);

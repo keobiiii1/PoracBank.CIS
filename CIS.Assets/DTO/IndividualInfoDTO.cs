@@ -35,7 +35,7 @@ public class IndividualInfoDTO
         public Gender Gender { get; set; }
 
         // --- Added for Female Maiden Name logic ---
-        public string? MaidenFirstName { get; set; }
+        public string? MaidenName { get; set; }
         public string? MaidenMiddleName { get; set; }
         public string? MaidenLastName { get; set; }
 

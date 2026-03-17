@@ -12,6 +12,9 @@ public class IndividualInfo
     public string? FirstName { get; set; }
     public string? MiddleName { get; set; }
     public string? LastName { get; set; }
+    public string? MaidenName { get; set; }
+    public string? MaidenMiddleName { get; set; }
+    public string? MaidenLastName { get; set; }
     public bool IsResident { get; set; }
     public bool IsGov { get; set; }
     public string? GovPosition { get; set; }
