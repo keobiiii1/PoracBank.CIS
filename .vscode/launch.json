@@ -1,0 +1,31 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "CIS.API",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/CIS.API/CIS.API.csproj",
+            "launchProfile": "http",
+            "preLaunchTask": "build: CIS.API"
+        },
+        {
+            "name": "CIS.Client",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/CIS/CIS.Client.csproj",
+            "launchProfile": "https",
+            "preLaunchTask": "build: CIS.Client"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "CIS.API + CIS.Client",
+            "configurations": ["CIS.API", "CIS.Client"],
+            "stopAll": true
+        }
+    ]
+}
