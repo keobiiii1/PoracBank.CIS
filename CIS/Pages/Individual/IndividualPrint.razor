@@ -99,8 +99,8 @@
     <div class="row-border flex-row">
         <div class="flex-grow-1 p-5">
             <span class="small-label">MAILING PREFERENCE*</span>
-            <div><span class="custom-check">@(Personal.MailingPreference == MailingPreference.PermanentAddress ? "X" : "")</span> <small>PERMANENT</small></div>
-            <div><span class="custom-check">@(Personal.MailingPreference == MailingPreference.PresentAddress ? "X" : "")</span> <small>PRESENT</small></div>
+            <div><span class="custom-check">@(Address.MailingPreference == MailingPreference.PermanentAddress ? "X" : "")</span> <small>PERMANENT</small></div>
+            <div><span class="custom-check">@(Address.MailingPreference == MailingPreference.PresentAddress ? "X" : "")</span> <small>PRESENT</small></div>
         </div>
         <div class="flex-grow-1 p-5 border-left">
             <span class="small-label">CITIZENSHIP*</span>

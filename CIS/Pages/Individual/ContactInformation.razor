@@ -63,7 +63,7 @@
 
     <div class="mt-4">
         <label>Mailing Preference</label>
-        <InputSelect @bind-Value="InfoModel.MailingPreference" class="form-select">
+        <InputSelect @bind-Value="AddressModel.MailingPreference" class="form-select">
             @foreach (var pref in Enum.GetValues<MailingPreference>())
             {
                 <option value="@pref">@pref Address</option>
@@ -80,11 +80,12 @@
 @code {
     [Parameter] public AddressDTO.PageModel AddressModel { get; set; } = new();
     [Parameter] public IndividualInfoDTO.PageModel InfoModel { get; set; } = new();
+    [Parameter] public ContactDTO.PageModel ContactModel { get; set; } = new();
+    [Parameter] public EventCallback<ContactDTO.PageModel> ContactModelChanged { get; set; }
     [Parameter] public long CustomerId { get; set; }
     [Parameter] public EventCallback OnNext { get; set; }
     [Parameter] public EventCallback OnBack { get; set; }
 
-    // FIX CS0103: Added missing method
     private void HandleAddressSync(ChangeEventArgs e)
     {
         AddressModel.IsPresentSameAsPermanent = (bool)(e.Value ?? false);
@@ -98,20 +99,18 @@
 
     private async Task Next()
     {
-        // 1. Prepare Address
+        // Prepare Address entity keys
         AddressModel.EntityID = CustomerId;
         AddressModel.EntityType = EntityType.Individual;
 
-        // 2. Prepare and Save specifically to the Contact table
-        var contactData = new ContactDTO.PageModel
-        {
-            EntityID = CustomerId,
-            EntityType = EntityType.Individual,
-            HomePhoneNumber = InfoModel.HomePhoneNumber,
-            MobilePhoneNumber = InfoModel.MobilePhoneNumber,
-            EmailAddress = InfoModel.EmailAddress
-        };
+        // Populate ContactModel and notify stepper so draft captures it
+        ContactModel.EntityID = CustomerId;
+        ContactModel.EntityType = EntityType.Individual;
+        ContactModel.HomePhoneNumber = InfoModel.HomePhoneNumber;
+        ContactModel.MobilePhoneNumber = InfoModel.MobilePhoneNumber;
+        ContactModel.EmailAddress = InfoModel.EmailAddress;
 
+        await ContactModelChanged.InvokeAsync(ContactModel);
         await OnNext.InvokeAsync();
     }
 }

@@ -158,11 +158,55 @@
 @code {
     [Parameter] public IndividualInfoDTO.PageModel Model { get; set; } = new();
     [Parameter] public EventCallback<IndividualInfoDTO.PageModel> ModelChanged { get; set; }
+    [Parameter] public IndividualForeignerDTO.PageModel ForeignerModel { get; set; } = new();
+    [Parameter] public EventCallback<IndividualForeignerDTO.PageModel> ForeignerModelChanged { get; set; }
     [Parameter] public EventCallback OnNext { get; set; }
     [Parameter] public EventCallback OnBack { get; set; }
 
     private async Task Next()
     {
+        // Clear conditional fields that are hidden in the UI
+        if (Model.Citizenship != Citizenship.Others)
+            Model.CitizenshipOther = null;
+
+        if (Model.MaritalStatus != MaritalStatus.Married && Model.MaritalStatus != MaritalStatus.Widowed)
+        {
+            Model.SpouseGivenName = null;
+            Model.SpouseMiddleName = null;
+            Model.SpouseLastName = null;
+        }
+
+        if (Model.Gender != Gender.Female)
+        {
+            Model.MaidenName = null;
+            Model.MaidenMiddleName = null;
+            Model.MaidenLastName = null;
+        }
+
+        // Map foreigner fields into the dedicated ForeignerModel DTO
+        if (Model.IsForeigner)
+        {
+            ForeignerModel.PassportIDNumber = Model.PassportIDNumber;
+            ForeignerModel.PassportExpiry = Model.PassportExpiry;
+            ForeignerModel.IsACR = Model.IsACR;
+            ForeignerModel.IsSIRV = Model.IsSIRV;
+            ForeignerModel.IsSRRV = Model.IsSRRV;
+        }
+        else
+        {
+            ForeignerModel.PassportIDNumber = null;
+            ForeignerModel.PassportExpiry = null;
+            ForeignerModel.IsACR = false;
+            ForeignerModel.IsSIRV = false;
+            ForeignerModel.IsSRRV = false;
+            Model.PassportIDNumber = null;
+            Model.PassportExpiry = null;
+            Model.IsACR = false;
+            Model.IsSIRV = false;
+            Model.IsSRRV = false;
+        }
+
+        await ForeignerModelChanged.InvokeAsync(ForeignerModel);
         await OnNext.InvokeAsync();
     }
 }

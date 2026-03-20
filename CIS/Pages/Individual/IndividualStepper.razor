@@ -29,7 +29,10 @@
     @* --- Step 2: Personal Information --- *@
     else if (CurrentStep == 2)
     {
-        <PersonalInformation @bind-Model="personalModel" OnNext="HandleNext" OnBack="PrevStep" />
+        <PersonalInformation @bind-Model="personalModel"
+                             @bind-ForeignerModel="foreignerModel"
+                             OnNext="HandleNext"
+                             OnBack="PrevStep" />
     }
     @* --- Step 3: Contact Information --- *@
     else if (CurrentStep == 3)
@@ -37,6 +40,7 @@
         <ContactInformation CustomerId="customerModel.CustomerID"
                             AddressModel="addressModel"
                             InfoModel="personalModel"
+                            @bind-ContactModel="contactModel"
                             OnNext="HandleNext"
                             OnBack="PrevStep" />
     }
@@ -61,6 +65,9 @@
     {
         <AccountBusiness InfoModel="personalModel"
                          CustomerId="customerModel.CustomerID"
+                         @bind-BusintModel="busintModel"
+                         @bind-GovRelModel="govrelModel"
+                         @bind-AccPurpModel="accpurpModel"
                          OnNext="HandleNext"
                          OnBack="PrevStep" />
     }
@@ -178,7 +185,6 @@
     private async Task HandleNext()
     {
         CurrentStep++;
-
         await Storage.SaveIndividualDraftAsync(
             customerModel, personalModel, addressModel, identificationModel,
             employmentModel, familyModel, contactModel, foreignerModel,
@@ -186,7 +192,6 @@
             businessInfoModel, accountContactModel, beneficiaryModel,
             acknowledgementModel, bankReviewModel, CurrentStep
         );
-
         StateHasChanged();
         await JS.InvokeVoidAsync("window.scrollTo", 0, 0);
     }
@@ -196,44 +201,20 @@
     private async Task HandleSubmit()
     {
         submitError = null;
-        personalModel.CustomerCategory = customerModel.CustomerCategory;
-        personalModel.CustomerType = customerModel.CustomerType;
-        personalModel.CIDNumber = customerModel.CIDNumber;
 
-        familyModel.SpouseGivenName = personalModel.SpouseGivenName;
-        familyModel.SpouseLastName = personalModel.SpouseLastName;
-        familyModel.SpouseMiddleName = personalModel.SpouseMiddleName;
-        familyModel.MotherMaidenGivenName = personalModel.MotherMaidenGivenName;
-        familyModel.MotherMaidenLastName = personalModel.MotherMaidenLastName;
-        familyModel.MotherMaidenMiddleName = personalModel.MotherMaidenMiddleName;
-
-        var request = new IndividualRegistrationRequest
-        {
-            Individual = personalModel,
-            Address = addressModel,
-            Identification = identificationModel,
-            Employment = employmentModel,
-            Family = familyModel,
-            Contact = contactModel,
-            Foreigner = foreignerModel,
-            BusinessInterest = busintModel,
-            GovernmentRelation = govrelModel,
-            AccountPurpose = accpurpModel,
-
-            // Business steps
-            Business = businessInfoModel,
-            AccountContact = accountContactModel,
-            Beneficiary = beneficiaryModel,
-            Acknowledgement = acknowledgementModel,
-            BankReview = bankReviewModel
-        };
+        var request = Storage.BuildRegistrationRequest(
+            customerModel, personalModel, addressModel, identificationModel,
+            employmentModel, familyModel, contactModel, foreignerModel,
+            busintModel, govrelModel, accpurpModel,
+            businessInfoModel, accountContactModel, beneficiaryModel,
+            acknowledgementModel, bankReviewModel
+        );
 
         var newCustomerId = await IndividualService.FinalizeRegistrationAsync(request);
 
         if (newCustomerId > 0)
         {
             customerModel.CustomerID = newCustomerId;
-
             CurrentStep = 13;
             await Storage.ClearIndividualDraftAsync();
             StateHasChanged();

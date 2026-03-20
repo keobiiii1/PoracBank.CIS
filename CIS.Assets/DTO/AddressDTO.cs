@@ -2,6 +2,7 @@
 using FluentValidation;
 using CIS.Assets.Enum;
 using CIS.Assets.Models;
+using CIS.Assets.DTO;
 
 namespace CIS.Assets.DTO;
 
@@ -34,6 +35,8 @@ public class AddressDTO
         public string? PrincipalAddress { get; set; }
 
         public bool IsPresentSameAsPermanent { get; set; }
+
+        public MailingPreference MailingPreference { get; set; }
 
         public class Validator : AbstractValidator<PageModel>
         {

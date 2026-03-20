@@ -21,4 +21,7 @@ public class Address
     // New Business Fields
     public string? BusinessAddress { get; set; }
     public string? PrincipalAddress { get; set; }
+
+    // Mailing preference (moved from IndividualInfo)
+    public MailingPreference MailingPreference { get; set; } = MailingPreference.None;
 }

@@ -25,5 +25,7 @@ public static class AddressConfig
         // New Business Mapping
         entity.IsNvarchar(e => e.BusinessAddress, 500);
         entity.IsNvarchar(e => e.PrincipalAddress, 500);
+
+        entity.IsNvarcharEnum(e => e.MailingPreference, 50);
     }
 }

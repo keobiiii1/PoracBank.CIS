@@ -61,7 +61,6 @@ public class IndividualInfoDTO
         public string? HomePhoneNumber { get; set; } // Added
         public string? MobilePhoneNumber { get; set; }
         public string? EmailAddress { get; set; }
-        public MailingPreference MailingPreference { get; set; }
 
         public string? TinNo { get; set; }
         public string? SssNo { get; set; }

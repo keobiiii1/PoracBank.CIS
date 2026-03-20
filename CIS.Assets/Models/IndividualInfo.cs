@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace CIS.Assets.Models;
 
 [Table("IndividualInfo")]
-public class IndividualInfo 
+public class IndividualInfo
 {
     public long IndividualInfoID { get; set; }
     public long CustomerID { get; set; }
@@ -26,6 +26,5 @@ public class IndividualInfo
     public string? PlaceOfBirth { get; set; }
     public Gender Gender { get; set; } = Gender.None;
     public MaritalStatus MaritalStatus { get; set; } = MaritalStatus.None;
-    public MailingPreference MailingPreference { get; set; } = MailingPreference.None;
     public Customer Customer { get; set; } = null!;
 }

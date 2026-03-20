@@ -29,7 +29,6 @@ public static class IndividualInfoConfig
         entity.IsNvarchar(e => e.PlaceOfBirth, 255);
         entity.IsNvarcharEnum(e => e.Gender, 20);
         entity.IsNvarcharEnum(e => e.MaritalStatus, 50);
-        entity.IsNvarcharEnum(e => e.MailingPreference, 50);
         entity.HasOne(e => e.Customer).WithOne(e => e.IndividualInfo).HasForeignKey<IndividualInfo>(e => e.CustomerID).OnDelete(DeleteBehavior.Cascade);
     }
 }

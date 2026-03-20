@@ -103,6 +103,16 @@
 @code {
     [Parameter] public IndividualInfoDTO.PageModel InfoModel { get; set; } = new();
     [Parameter] public long CustomerId { get; set; }
+
+    // Dedicated DTO parameters so each model in IndividualRegistrationRequest
+    // receives the correct data instead of staying as empty new() objects
+    [Parameter] public BusinessInterestDTO.PageModel BusintModel { get; set; } = new();
+    [Parameter] public EventCallback<BusinessInterestDTO.PageModel> BusintModelChanged { get; set; }
+    [Parameter] public GovernmentRelationDTO.PageModel GovRelModel { get; set; } = new();
+    [Parameter] public EventCallback<GovernmentRelationDTO.PageModel> GovRelModelChanged { get; set; }
+    [Parameter] public AccountPurposeDTO.PageModel AccPurpModel { get; set; } = new();
+    [Parameter] public EventCallback<AccountPurposeDTO.PageModel> AccPurpModelChanged { get; set; }
+
     [Parameter] public EventCallback OnNext { get; set; }
     [Parameter] public EventCallback OnBack { get; set; }
 
@@ -117,6 +127,33 @@
     private async Task Next()
     {
         InfoModel.CustomerID = CustomerId;
+
+        // Clear conditional fields when hidden
+        if (InfoModel.AccountPurpose != PurposeOfAccount.Others)
+            InfoModel.AccountPurposeOther = null;
+        if (!InfoModel.IsGovOfficial)
+        {
+            InfoModel.GovPosition = null;
+            InfoModel.GovPeriod = null;
+        }
+
+        // Mirror into dedicated DTOs so the submission request is fully populated
+        BusintModel.CustomerID = CustomerId;
+
+        GovRelModel.CustomerID = CustomerId;
+        GovRelModel.HighestPositionOccupied = InfoModel.GovPosition;
+        GovRelModel.PeriodCovered = InfoModel.GovPeriod;
+
+        AccPurpModel.EntityID = CustomerId;
+        AccPurpModel.EntityType = EntityType.Individual;
+        AccPurpModel.PurposeOfAccount = InfoModel.AccountPurpose;
+        AccPurpModel.PurposeOfAccountOther = InfoModel.AccountPurposeOther;
+        AccPurpModel.ProductsAvailed = InfoModel.ProductsAvailed;
+        AccPurpModel.ProductsAvailedOther = InfoModel.ProductsAvailedOther;
+
+        await BusintModelChanged.InvokeAsync(BusintModel);
+        await GovRelModelChanged.InvokeAsync(GovRelModel);
+        await AccPurpModelChanged.InvokeAsync(AccPurpModel);
         await OnNext.InvokeAsync();
     }
 }

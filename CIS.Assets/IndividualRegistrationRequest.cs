@@ -2,7 +2,7 @@
 
 public class IndividualRegistrationRequest
 {
-    public IndividualInfoDTO.PageModel Customer { get; set; } = new();
+    public CustomerDTO.PageModel Customer { get; set; } = new();
     public IndividualInfoDTO.PageModel Individual { get; set; } = new();
     public AddressDTO.PageModel Address { get; set; } = new();
     public IndividualIdentificationDTO.PageModel Identification { get; set; } = new();
