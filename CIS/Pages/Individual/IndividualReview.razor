@@ -1,4 +1,6 @@
 ﻿@using CIS.Client.Services
+@using CIS.Assets.Enum
+@using CIS.Assets.DTO
 
 <div class="container pb-5">
     <div class="alert alert-info shadow-sm mb-4">
@@ -77,6 +79,120 @@
         </div>
     }
 
+    @* Section: Business Information *@
+    @if (!string.IsNullOrEmpty(BusinessInfo.NameOfBusiness))
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">Business Information</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4"><strong>Business Name:</strong> @BusinessInfo.NameOfBusiness</div>
+                    <div class="col-md-4"><strong>Type:</strong> @BusinessInfo.TypeOfOrganization</div>
+                    <div class="col-md-4"><strong>Reg. Number:</strong> @BusinessInfo.BusinessRegNumber</div>
+                    <div class="col-md-4 mt-2"><strong>Nature:</strong> @BusinessInfo.NatureOfBusiness</div>
+                    <div class="col-md-4 mt-2"><strong>TIN:</strong> @BusinessInfo.TaxIdentificationNumber</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* Section: Account & Contact *@
+    @if (AccountContact.AccountPurpose != PurposeOfAccount.None || !string.IsNullOrEmpty(AccountContact.ProductsAvailed))
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-secondary text-white">Account & Contact</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4"><strong>Purpose:</strong> @AccountContact.AccountPurpose</div>
+                    @if (!string.IsNullOrEmpty(AccountContact.AccountPurposeOther))
+                    {
+                        <div class="col-md-4"><strong>Specify Purpose:</strong> @AccountContact.AccountPurposeOther</div>
+                    }
+                    <div class="col-md-4"><strong>Products:</strong> @AccountContact.ProductsAvailed</div>
+                    @if (!string.IsNullOrEmpty(AccountContact.ProductsAvailedOther))
+                    {
+                        <div class="col-md-4 mt-2"><strong>Other Products:</strong> @AccountContact.ProductsAvailedOther</div>
+                    }
+                    <div class="col-md-4 mt-2"><strong>Phone:</strong> @AccountContact.OfficePhoneNo</div>
+                    <div class="col-md-4 mt-2"><strong>Email:</strong> @AccountContact.EmailAddress</div>
+                    <div class="col-md-4 mt-2"><strong>Contact Person:</strong> @AccountContact.ContactPerson</div>
+                    <div class="col-md-4 mt-2"><strong>Size of Business:</strong> @AccountContact.SizeOfBusiness</div>
+                    <div class="col-md-4 mt-2"><strong>Avg. Annual Income:</strong> @AccountContact.AverageAnnualIncome</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* Section: Beneficiary *@
+    @if (!string.IsNullOrEmpty(Beneficiary.BeneficiaryName))
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">Beneficiary</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4"><strong>Name:</strong> @Beneficiary.BeneficiaryName</div>
+                    <div class="col-md-4"><strong>Trust Type:</strong> @Beneficiary.TrustType</div>
+                    <div class="col-md-4"><strong>Birthday:</strong> @Beneficiary.Birthday?.ToString("MMMM dd, yyyy")</div>
+                    <div class="col-md-4 mt-2"><strong>Nationality:</strong> @Beneficiary.Nationality</div>
+                    <div class="col-md-8 mt-2"><strong>Address:</strong> @Beneficiary.Address</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* Section: Acknowledgement *@
+    @if (!string.IsNullOrEmpty(Acknowledgement.PrintedName))
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">Client Acknowledgement</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6"><strong>Printed Name:</strong> @Acknowledgement.PrintedName</div>
+                    <div class="col-md-6"><strong>Date Signed:</strong> @Acknowledgement.DateSigned.ToString("MMMM dd, yyyy")</div>
+                    <div class="col-md-12 mt-2">
+                        <strong>Signature:</strong>
+                        @if (!string.IsNullOrEmpty(Acknowledgement.SignatureData))
+                        {
+                            <img src="@Acknowledgement.SignatureData" style="max-height:80px; display:block; margin-top:4px;" />
+                        }
+                        else
+                        {
+                            <span class="text-muted">No signature captured</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* Section: Bank Review *@
+    @if (!string.IsNullOrEmpty(BankReview.VerifiedBy) || BankReview.IsEmployee || BankReview.IsRelative)
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">Bank Review</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3"><strong>Is Employee:</strong> @(BankReview.IsEmployee ? "Yes" : "No")</div>
+                    <div class="col-md-3"><strong>Is DOSRI:</strong> @(BankReview.IsDosri ? "Yes" : "No")</div>
+                    <div class="col-md-3"><strong>Is Relative:</strong> @(BankReview.IsRelative ? "Yes" : "No")</div>
+                    <div class="col-md-3"><strong>Is PEP:</strong> @(BankReview.IsOwnedByPEP ? "Yes" : "No")</div>
+                    @if (!string.IsNullOrEmpty(BankReview.VerifiedBy))
+                    {
+                        <div class="col-md-4 mt-2"><strong>Verified By:</strong> @BankReview.VerifiedBy</div>
+                    }
+                    @if (!string.IsNullOrEmpty(BankReview.ApprovedBy))
+                    {
+                        <div class="col-md-4 mt-2"><strong>Approved By:</strong> @BankReview.ApprovedBy</div>
+                    }
+                    @if (!string.IsNullOrEmpty(BankReview.Remarks))
+                    {
+                        <div class="col-md-12 mt-2"><strong>Remarks:</strong> @BankReview.Remarks</div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
     <div class="d-flex justify-content-between mt-5">
         <button type="button" class="btn btn-outline-secondary btn-lg" @onclick="OnBack" disabled="@IsSubmitting">Back to Edit</button>
         <button type="button" class="btn btn-primary btn-lg px-5 shadow" @onclick="SubmitAsync" disabled="@IsSubmitting">
@@ -99,6 +215,11 @@
     [Parameter] public AddressDTO.PageModel Address { get; set; } = new();
     [Parameter] public IndividualIdentificationDTO.PageModel Identification { get; set; } = new();
     [Parameter] public IndividualEmploymentDTO.PageModel Employment { get; set; } = new();
+    [Parameter] public BusinessInfoDTO.PageModel BusinessInfo { get; set; } = new();
+    [Parameter] public BusinessInfoDTO.PageModel AccountContact { get; set; } = new();
+    [Parameter] public BeneficiaryDTO.PageModel Beneficiary { get; set; } = new();
+    [Parameter] public ClientAcknowlegdementDTO.PageModel Acknowledgement { get; set; } = new();
+    [Parameter] public BankReviewDTO.PageModel BankReview { get; set; } = new();
 
     [Parameter] public EventCallback OnBack { get; set; }
     [Parameter] public EventCallback OnSubmit { get; set; }

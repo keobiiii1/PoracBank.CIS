@@ -1,0 +1,92 @@
+﻿@using CIS.Assets.DTO
+@using CIS.Assets.Enum
+
+<EditForm Model="BeneficiaryModel" OnValidSubmit="Next">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Step 3: Beneficiary Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Trust Type</label>
+                    <InputSelect @bind-Value="BeneficiaryModel.TrustType" class="form-select">
+                        <option value="@TrustType.None">-- Select Trust Type --</option>
+                        <option value="@TrustType.ITF">In Trust For (ITF)</option>
+                        <option value="@TrustType.FAO">For the Account Of (FAO)</option>
+                    </InputSelect>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Beneficiary Name</label>
+                    <InputText @bind-Value="BeneficiaryModel.BeneficiaryName" class="form-control" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Birthday</label>
+                    <InputDate @bind-Value="BeneficiaryModel.Birthday" class="form-control" TValue="DateOnly?" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Place of Birth</label>
+                    <InputText @bind-Value="BeneficiaryModel.PlaceOfBirth" class="form-control" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Nationality</label>
+                    <InputText @bind-Value="BeneficiaryModel.Nationality" class="form-control" />
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Address</label>
+                    <InputTextArea @bind-Value="BeneficiaryModel.Address" class="form-control" rows="2" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Source of Funds</label>
+                    <InputSelect @bind-Value="BeneficiaryModel.SourceOfFunds" class="form-select">
+                        <option value="Salary">Salary</option>
+                        <option value="Business">Business</option>
+                        <option value="Inheritance">Inheritance</option>
+                        <option value="Others">Others</option>
+                    </InputSelect>
+                </div>
+
+                @if (BeneficiaryModel.SourceOfFunds == "Others")
+                {
+                    <div class="col-md-6">
+                        <label class="form-label">Specify Source</label>
+                        <InputText @bind-Value="BeneficiaryModel.SourceOfFundsOther" class="form-control" />
+                    </div>
+                }
+
+                <div class="col-md-6">
+                    <label class="form-label">Nature of Work</label>
+                    <InputText @bind-Value="BeneficiaryModel.NatureOfWork" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mb-5">
+        <button type="button" class="btn btn-outline-secondary px-5" @onclick="OnBack">Back</button>
+        <button type="submit" class="btn btn-primary px-5">Next</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public BeneficiaryDTO.PageModel BeneficiaryModel { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<BeneficiaryDTO.PageModel> BeneficiaryModelChanged { get; set; }
+
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+
+    private async Task Next()
+    {
+        await BeneficiaryModelChanged.InvokeAsync(BeneficiaryModel);
+        await OnNext.InvokeAsync();
+    }
+}

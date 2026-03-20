@@ -1,0 +1,130 @@
+﻿@using CIS.Assets.DTO
+@using CIS.Assets.Enum
+
+<EditForm Model="BusinessModel" OnValidSubmit="Next">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0">Step 1: Business Information</h5>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">CID Number</label>
+                    <InputText @bind-Value="BusinessModel.CIDNumber" class="form-control" placeholder="Enter CID" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Sector</label>
+                    <InputSelect @bind-Value="BusinessModel.IsGovernment" class="form-select">
+                        <option value="false">Private</option>
+                        <option value="true">Government</option>
+                    </InputSelect>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Name of Business</label>
+                    <InputText @bind-Value="BusinessModel.NameOfBusiness" class="form-control" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Type of Organization</label>
+                    <InputSelect @bind-Value="BusinessModel.TypeOfOrganization" class="form-select">
+                        <option value="">-- Select Type --</option>
+                        <option value="SoleProprietorship">Sole Proprietorship</option>
+                        <option value="Partnership">Partnership</option>
+                        <option value="Corporation">Corporation</option>
+                        <option value="Cooperative">Cooperative</option>
+                        <option value="Others">Others</option>
+                    </InputSelect>
+                </div>
+
+                @if (BusinessModel.TypeOfOrganization == TypeOfOrganization.Others)
+                {
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Please Specify Type</label>
+                        <InputText @bind-Value="BusinessModel.TypeOfOrganizationOther" class="form-control" />
+                    </div>
+                }
+
+                <div class="col-12">
+                    <label class="form-label fw-bold">Business Address</label>
+                    <InputTextArea @bind-Value="AddressModel.BusinessAddress" class="form-control" rows="2" />
+                </div>
+
+                <div class="col-12">
+                    <div class="form-check form-switch mb-2">
+                        <InputCheckbox @bind-Value="showPrincipalAddress" class="form-check-input" id="pAddr" />
+                        <label class="form-check-label fw-bold" for="pAddr">Principal Address is different</label>
+                    </div>
+                    @if (showPrincipalAddress)
+                    {
+                        <InputTextArea @bind-Value="AddressModel.PrincipalAddress" class="form-control" rows="2" placeholder="Enter Principal Address" />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light py-2 fw-bold">Registration Details</div>
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Date of Registration</label>
+                    <InputDate @bind-Value="BusinessModel.DateOfRegistration" class="form-control" TValue="DateOnly?" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Business Reg. Number</label>
+                    <InputText @bind-Value="BusinessModel.BusinessRegNumber" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Registration Expiry</label>
+                    <InputDate @bind-Value="BusinessModel.BusinessRegExpiry" class="form-control" TValue="DateOnly?" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Place of Registration / Origin</label>
+                    <InputText @bind-Value="BusinessModel.PlaceOfRegistration" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Nature of Business</label>
+                    <InputText @bind-Value="BusinessModel.NatureOfBusiness" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tax Identification Number (TIN)</label>
+                    <InputText @bind-Value="BusinessModel.TaxIdentificationNumber" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">DTI Cert Number</label>
+                    <InputText @bind-Value="BusinessModel.DTICertNumber" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">DTI Cert Expiry</label>
+                    <InputDate @bind-Value="BusinessModel.DTICertExpiry" class="form-control" TValue="DateOnly?" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end mb-5">
+        <button type="button" class="btn btn-outline-secondary px-5" @onclick="OnBack">Back</button>
+        <button type="submit" class="btn btn-primary px-5 btn-lg shadow">Next Step <i class="bi bi-arrow-right ms-2"></i></button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public BusinessInfoDTO.PageModel BusinessModel { get; set; } = new();
+    
+    [Parameter] public EventCallback<BusinessInfoDTO.PageModel> BusinessModelChanged { get; set; }
+
+    [Parameter] public AddressDTO.PageModel AddressModel { get; set; } = new();
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+
+    private bool showPrincipalAddress;
+
+    private async Task Next()
+    {
+        if (!showPrincipalAddress) AddressModel.PrincipalAddress = AddressModel.BusinessAddress;
+        
+        await BusinessModelChanged.InvokeAsync(BusinessModel);
+        await OnNext.InvokeAsync();
+    }
+}

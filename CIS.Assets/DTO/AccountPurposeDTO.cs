@@ -17,14 +17,11 @@ public class AccountPurposeDTO
     {
         public long AccountPurposeID { get; set; }
         public long EntityID { get; set; }
-        public PurposeOfAccount PurposeOfAccount { get; set; }
+        public EntityType EntityType { get; set; }
+        public PurposeOfAccount PurposeOfAccount { get; set; } = PurposeOfAccount.None;
         public string? PurposeOfAccountOther { get; set; }
-        public bool ProductSavings { get; set; }
-        public bool ProductTimeDeposit { get; set; }
-        public bool ProductSaleOfROPA { get; set; }
-        public bool ProductCurrent { get; set; }
-        public bool ProductLoan { get; set; }
-        public bool ProductOthers { get; set; }
+        public string? ProductsAvailed { get; set; }
+        public string? ProductsAvailedOther { get; set; }
 
         public class Validator : AbstractValidator<PageModel>
         {
@@ -39,12 +36,14 @@ public class AccountPurposeDTO
     {
         public MappingProfile()
         {
-            CreateMap<PageModel, AccountPurpose>().ReverseMap();
+            CreateMap<AccountPurpose, PageModel>().ReverseMap();
 
             CreateMap<BusinessInfoDTO.PageModel, AccountPurpose>()
                 .ForMember(d => d.AccountPurposeID, o => o.Ignore())
                 .ForMember(d => d.EntityID, o => o.MapFrom(s => s.CustomerID))
-                .ForMember(d => d.EntityType, o => o.MapFrom(s => EntityType.Business));
+                .ForMember(d => d.EntityType, o => o.MapFrom(s => EntityType.Business))
+                .ForMember(d => d.PurposeOfAccount, o => o.MapFrom(s => s.AccountPurpose))
+                .ForMember(d => d.PurposeOfAccountOther, o => o.MapFrom(s => s.AccountPurposeOther));
         }
     }
 }

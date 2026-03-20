@@ -12,12 +12,10 @@ public static class BusinessInterestConfig
         entity.AsTable("cis");
         entity.IsPrimaryKey(e => e.BusinessInterestID);
         entity.IsLong2(e => e.CustomerID);
+        entity.IsNvarcharEnum(e => e.EntityType, 50);
         entity.IsNvarchar(e => e.BusinessName, 255);
         entity.IsDecimal(e => e.OwnershipPercentage, 5, 2);
-        
-        
-        
-        
+
         entity.HasOne(e => e.Customer).WithMany(e => e.BusinessInterests).HasForeignKey(e => e.CustomerID).OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -8,11 +8,11 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Individual Account Registration</h2>
-        <span class="badge bg-primary">Step @CurrentStep of 8</span>
+        <span class="badge bg-primary">Step @CurrentStep of 13</span>
     </div>
 
     <div class="progress mb-4" style="height: 10px;">
-        <div class="progress-bar" style="width: @(CurrentStep * 14.28)%"></div>
+        <div class="progress-bar" style="width: @(CurrentStep * 7.69)%"></div>
     </div>
 
     @if (submitError != null)
@@ -20,11 +20,13 @@
         <div class="alert alert-danger">@submitError</div>
     }
 
+    @* --- Step 1: Basic Information --- *@
     @if (CurrentStep == 1)
     {
         customerModel.EntityType = EntityType.Individual;
         <BasicInformation @bind-Customer="customerModel" OnNext="HandleNext" />
     }
+    @* --- Step 2: Personal Information --- *@
     else if (CurrentStep == 2)
     {
         <PersonalInformation @bind-Model="personalModel" OnNext="HandleNext" OnBack="PrevStep" />
@@ -38,7 +40,7 @@
                             OnNext="HandleNext"
                             OnBack="PrevStep" />
     }
-    @* --- NEW Step 4: Identification --- *@
+    @* --- Step 4: Identification --- *@
     else if (CurrentStep == 4)
     {
         <IdentificationInformation IdModel="identificationModel"
@@ -46,7 +48,7 @@
                                    OnNext="HandleNext"
                                    OnBack="PrevStep" />
     }
-    @* --- Step 5: Employment (Shifted from 4 to 5) --- *@
+    @* --- Step 5: Employment --- *@
     else if (CurrentStep == 5)
     {
         <EmploymentInformation Model="employmentModel"
@@ -62,18 +64,60 @@
                          OnNext="HandleNext"
                          OnBack="PrevStep" />
     }
-    @* --- Step 7: Bank Review (Shifted from 6 to 7) --- *@
+    @* --- Step 7: Business Information --- *@
     else if (CurrentStep == 7)
+    {
+        <BusinessInformation @bind-BusinessModel="businessInfoModel"
+                             AddressModel="addressModel"
+                             OnNext="HandleNext"
+                             OnBack="PrevStep" />
+    }
+    @* --- Step 8: Account Contact --- *@
+    else if (CurrentStep == 8)
+    {
+        <AccountContact @bind-BusinessModel="accountContactModel"
+                        OnNext="HandleNext"
+                        OnBack="PrevStep" />
+    }
+    @* --- Step 9: Beneficiary Info --- *@
+    else if (CurrentStep == 9)
+    {
+        <BeneficiaryInfo @bind-BeneficiaryModel="beneficiaryModel"
+                         OnNext="HandleNext"
+                         OnBack="PrevStep" />
+    }
+    @* --- Step 10: Client Acknowledgement --- *@
+    else if (CurrentStep == 10)
+    {
+        <ClientAcknowlegdement @bind-AcknowledgementModel="acknowledgementModel"
+                               OnNext="HandleNext"
+                               OnBack="PrevStep" />
+    }
+    @* --- Step 11: Bank Review Info --- *@
+    else if (CurrentStep == 11)
+    {
+        <BankReviewInfo @bind-ReviewModel="bankReviewModel"
+                        OnNext="HandleNext"
+                        OnBack="PrevStep" />
+    }
+    @* --- Step 12: Individual Review --- *@
+    else if (CurrentStep == 12)
     {
         <IndividualReview Customer="customerModel"
                           Personal="personalModel"
                           Address="addressModel"
                           Identification="identificationModel"
                           Employment="employmentModel"
+                          BusinessInfo="businessInfoModel"
+                          AccountContact="accountContactModel"
+                          Beneficiary="beneficiaryModel"
+                          Acknowledgement="acknowledgementModel"
+                          BankReview="bankReviewModel"
                           OnBack="PrevStep"
                           OnSubmit="HandleSubmit" />
     }
-    else if (CurrentStep == 8)
+    @* --- Step 13: Registration Success --- *@
+    else if (CurrentStep == 13)
     {
         <RegistrationSuccess CustomerName="@($"{personalModel.FirstName} {personalModel.LastName}")"
                              CustomerId="customerModel.CustomerID"
@@ -96,6 +140,13 @@
     private GovernmentRelationDTO.PageModel govrelModel = new();
     private AccountPurposeDTO.PageModel accpurpModel = new();
 
+    // Business steps models
+    private BusinessInfoDTO.PageModel businessInfoModel = new();
+    private BusinessInfoDTO.PageModel accountContactModel = new();
+    private BeneficiaryDTO.PageModel beneficiaryModel = new();
+    private ClientAcknowlegdementDTO.PageModel acknowledgementModel = new();
+    private BankReviewDTO.PageModel bankReviewModel = new();
+
     protected override async Task OnInitializedAsync()
     {
         var draft = await Storage.GetIndividualDraftAsync();
@@ -112,6 +163,14 @@
             busintModel = draft.BusinessInterest ?? new();
             govrelModel = draft.GovernmentRelation ?? new();
             accpurpModel = draft.AccountPurpose ?? new();
+
+            // Business step drafts
+            businessInfoModel = draft.BusinessInfo ?? new();
+            accountContactModel = draft.AccountContact ?? new();
+            beneficiaryModel = draft.Beneficiary ?? new();
+            acknowledgementModel = draft.Acknowledgement ?? new();
+            bankReviewModel = draft.BankReview ?? new();
+
             CurrentStep = draft.CurrentStep;
         }
     }
@@ -123,7 +182,9 @@
         await Storage.SaveIndividualDraftAsync(
             customerModel, personalModel, addressModel, identificationModel,
             employmentModel, familyModel, contactModel, foreignerModel,
-            busintModel, govrelModel, accpurpModel, CurrentStep
+            busintModel, govrelModel, accpurpModel,
+            businessInfoModel, accountContactModel, beneficiaryModel,
+            acknowledgementModel, bankReviewModel, CurrentStep
         );
 
         StateHasChanged();
@@ -157,7 +218,14 @@
             Foreigner = foreignerModel,
             BusinessInterest = busintModel,
             GovernmentRelation = govrelModel,
-            AccountPurpose = accpurpModel
+            AccountPurpose = accpurpModel,
+
+            // Business steps
+            Business = businessInfoModel,
+            AccountContact = accountContactModel,
+            Beneficiary = beneficiaryModel,
+            Acknowledgement = acknowledgementModel,
+            BankReview = bankReviewModel
         };
 
         var newCustomerId = await IndividualService.FinalizeRegistrationAsync(request);
@@ -165,8 +233,8 @@
         if (newCustomerId > 0)
         {
             customerModel.CustomerID = newCustomerId;
-        
-            CurrentStep = 8;
+
+            CurrentStep = 13;
             await Storage.ClearIndividualDraftAsync();
             StateHasChanged();
         }
@@ -175,7 +243,6 @@
             submitError = "Failed to finalize registration. Please try again.";
         }
     }
-
 
     private void PrevStep()
     {
@@ -201,6 +268,11 @@
         busintModel = new();
         govrelModel = new();
         accpurpModel = new();
+        businessInfoModel = new();
+        accountContactModel = new();
+        beneficiaryModel = new();
+        acknowledgementModel = new();
+        bankReviewModel = new();
         StateHasChanged();
     }
 }

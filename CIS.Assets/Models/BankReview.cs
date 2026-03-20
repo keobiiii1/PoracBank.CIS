@@ -6,6 +6,7 @@ public class BankReview
 {
     public long BankReviewID { get; set; }
     public long CustomerID { get; set; }
+    public EntityType EntityType { get; set; } = EntityType.Individual;
     public string? CheckedAgainst { get; set; }
     public bool IsEmployee { get; set; }
     public bool IsDosri { get; set; }
@@ -15,7 +16,6 @@ public class BankReview
     public string? RelativeEmployeeName { get; set; }
     public string? RelativePosition { get; set; }
     public string? RelativeRelationship { get; set; }
-
     public bool IsEntityOwnedByEmployee { get; set; }
     public string? NatureOfWorkBusiness { get; set; }
     public string? NatureOfWorkBusinessOther { get; set; }

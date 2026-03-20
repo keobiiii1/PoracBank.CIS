@@ -361,3 +361,10 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Ignore actual configuration files containing secrets
+appsettings.json
+appsettings.Development.json
+
+# Do NOT ignore the template (the ! prefix negates the ignore)
+!appsettings.Example.json

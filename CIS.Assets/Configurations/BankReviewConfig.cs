@@ -12,6 +12,7 @@ public static class BankReviewConfig
         entity.AsTable("cis");
         entity.IsPrimaryKey(e => e.BankReviewID);
         entity.IsLong2(e => e.CustomerID);
+        entity.IsNvarcharEnum(e => e.EntityType, 50);
 
         entity.IsNvarchar(e => e.CheckedAgainst, 250);
 

@@ -12,6 +12,7 @@ public static class BeneficiaryConfig
         entity.AsTable("cis");
         entity.IsPrimaryKey(e => e.BeneficiaryID);
         entity.IsLong2(e => e.CustomerID);
+        entity.IsNvarcharEnum(e => e.EntityType, 50);
         entity.IsNvarcharEnum(e => e.TrustType, 50);
         entity.IsNvarchar(e => e.BeneficiaryName, 255);
         entity.IsDateOnly(e => e.Birthday);
@@ -19,10 +20,7 @@ public static class BeneficiaryConfig
         entity.IsNvarchar(e => e.Nationality, 100);
         entity.IsNvarchar(e => e.Address, 500);
         entity.IsNvarchar(e => e.NatureOfWork, 255);
-        
-        
-        
-        
+
         entity.HasOne(e => e.Customer).WithOne(e => e.Beneficiary).HasForeignKey<Beneficiary>(e => e.CustomerID).OnDelete(DeleteBehavior.Cascade);
     }
 }

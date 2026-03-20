@@ -40,6 +40,11 @@ public class RegistrationStorageService
         BusinessInterestDTO.PageModel busint,
         GovernmentRelationDTO.PageModel govrel,
         AccountPurposeDTO.PageModel accpurp,
+        BusinessInfoDTO.PageModel businessInfo,
+        BusinessInfoDTO.PageModel accountContact,
+        BeneficiaryDTO.PageModel beneficiary,
+        ClientAcknowlegdementDTO.PageModel acknowledgement,
+        BankReviewDTO.PageModel bankReview,
         int step)
     {
         var draft = new IndividualDraft
@@ -55,6 +60,11 @@ public class RegistrationStorageService
             BusinessInterest = busint,
             GovernmentRelation = govrel,
             AccountPurpose = accpurp,
+            BusinessInfo = businessInfo,
+            AccountContact = accountContact,
+            Beneficiary = beneficiary,
+            Acknowledgement = acknowledgement,
+            BankReview = bankReview,
             CurrentStep = step,
             LastSaved = DateTime.Now
         };
@@ -83,7 +93,12 @@ public class RegistrationStorageService
         public IndividualForeignerDTO.PageModel? Foreigner { get; set; }
         public BusinessInterestDTO.PageModel? BusinessInterest { get; set; }
         public GovernmentRelationDTO.PageModel? GovernmentRelation { get; set; }
-        public AccountPurposeDTO.PageModel? AccountPurpose { get; set; } = null;
+        public AccountPurposeDTO.PageModel? AccountPurpose { get; set; }
+        public BusinessInfoDTO.PageModel? BusinessInfo { get; set; }
+        public BusinessInfoDTO.PageModel? AccountContact { get; set; }
+        public BeneficiaryDTO.PageModel? Beneficiary { get; set; }
+        public ClientAcknowlegdementDTO.PageModel? Acknowledgement { get; set; }
+        public BankReviewDTO.PageModel? BankReview { get; set; }
         public int CurrentStep { get; set; }
         public DateTime LastSaved { get; set; }
     }

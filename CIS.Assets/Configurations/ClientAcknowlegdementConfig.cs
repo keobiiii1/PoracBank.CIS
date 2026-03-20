@@ -12,9 +12,9 @@ public static class ClientAcknowlegdementConfig
         entity.AsTable("cis");
         entity.IsPrimaryKey(e => e.ClientAcknowlegdementID);
         entity.IsLong2(e => e.CustomerID);
+        entity.IsNvarcharEnum(e => e.EntityType, 50);
 
         entity.IsNvarcharMax(e => e.SignatureData);
-
         entity.IsNvarchar(e => e.PrintedName, 250);
 
         entity.Property(e => e.DateSigned).HasDefaultValueSql("GETDATE()");
