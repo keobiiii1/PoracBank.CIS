@@ -3,47 +3,469 @@
 @using CIS.Client.Services
 @inject RegistrationStorageService Storage
 
-<div class="selection-container shadow-sm mt-4">
-    <div class="header-border mb-5">
-        <div class="d-flex align-items-center text-success fw-bold pb-2">
-            <i class="bi bi-card-heading me-2"></i> Select Account Type
+<div class="asel-page">
+
+    @* ── Left hero panel ── *@
+    <div class="asel-hero">
+        <div class="asel-hero-blob asel-blob-1"></div>
+        <div class="asel-hero-blob asel-blob-2"></div>
+        <div class="asel-hero-content">
+            <div class="asel-hero-badge">
+                <i class="bi bi-shield-check-fill me-1"></i> Secure &amp; Trusted
+            </div>
+            <h2 class="asel-hero-heading">Start your banking journey with us</h2>
+            <p class="asel-hero-sub">Open a new account in minutes. Safe, simple, and built around you.</p>
+            <div class="asel-hero-features">
+                <div class="asel-feature">
+                    <div class="asel-feature-icon"><i class="bi bi-lock-fill"></i></div>
+                    <span>Bank-grade security</span>
+                </div>
+                <div class="asel-feature">
+                    <div class="asel-feature-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+                    <span>Fast onboarding</span>
+                </div>
+                <div class="asel-feature">
+                    <div class="asel-feature-icon"><i class="bi bi-headset"></i></div>
+                    <span>Dedicated support</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row justify-content-center mb-5">
-        <div class="col-12 col-md-8 col-lg-6">
-            <div class="account-card active" @onclick='() => selectedType = "individual"'>
-                
-                <div class="icon-circle bg-info-subtle text-info mb-3">
-                    <i class="bi bi-person-fill"></i>
-                </div>
-                <h5 class="fw-bold mb-1">Individual Account</h5>
-                <p class="text-muted small">For personal savings, checking, or time deposit accounts</p>          
-            </div>
-        </div>
+    @* ── Right form panel ── *@
+    <div class="asel-panel">
+        <div class="asel-form-wrap">
 
-        @* <div class="col-md-6">
-            <div class="account-card @(selectedType == "business" ? "active" : "")" 
-                 @onclick='() => selectedType = "business"'>
-                <div class="icon-circle bg-primary-subtle text-primary mb-3">
-                    <i class="bi bi-building-fill"></i>
-                </div>
-                <h5 class="fw-bold mb-1">Business Account</h5>
-                <p class="text-muted small">For companies, partnerships, or corporations</p>
-                <div class="badge-container">
-                    <span class="badge rounded-pill bg-primary-subtle text-primary">
-                        <i class="bi bi-star-fill me-1"></i> Enterprise Ready
-                    </span>
-                </div>
+            @* Step label *@
+            <div class="asel-step-label">
+                <span class="asel-step-num">Hi!</span>
+                <span class="asel-step-text">Choose Account Type</span>
             </div>
-        </div> 
-        *@
+
+            <h1 class="asel-form-title">What type of account<br />are you opening?</h1>
+            <p class="asel-form-sub">Select the option that best describes you.</p>
+
+            @* Options *@
+            <div class="asel-options">
+
+                <div class="asel-opt @(selectedType == "individual" ? "selected" : "")"
+                     @onclick='() => selectedType = "individual"'>
+                    <div class="asel-opt-check @(selectedType == "individual" ? "active" : "")">
+                        <i class="bi bi-check2"></i>
+                    </div>
+                    <div class="asel-opt-icon indiv">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div class="asel-opt-body">
+                        <div class="asel-opt-title">Individual Account</div>
+                        <div class="asel-opt-desc">Personal savings, checking, or time deposit</div>
+                    </div>
+                    <div class="asel-opt-arrow">
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
+                </div>
+
+                @* Business — uncomment to re-enable *@
+                @* <div class="asel-opt @(selectedType == "business" ? "selected" : "")"
+                     @onclick='() => selectedType = "business"'>
+                    <div class="asel-opt-check @(selectedType == "business" ? "active" : "")">
+                        <i class="bi bi-check2"></i>
+                    </div>
+                    <div class="asel-opt-icon biz">
+                        <i class="bi bi-building-fill"></i>
+                    </div>
+                    <div class="asel-opt-body">
+                        <div class="asel-opt-title">Business Account</div>
+                        <div class="asel-opt-desc">Companies, partnerships, or corporations</div>
+                    </div>
+                    <div class="asel-opt-arrow">
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
+                </div> *@
+
+            </div>
+
+            @* CTA *@
+            <button class="asel-cta" @onclick="HandleStart">
+                <span>Continue</span>
+                <div class="asel-cta-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </button>
+
+            <p class="asel-disclaimer">
+                <i class="bi bi-info-circle me-1"></i>
+                Your information is encrypted and never shared.
+            </p>
+
+        </div>
     </div>
 
-    <button class="btn start-btn w-100 py-3 fw-bold shadow" @onclick="HandleStart">
-        <i class="bi bi-rocket-takeoff-fill me-2"></i> Start Application <i class="bi bi-arrow-right ms-2"></i>
-    </button>
 </div>
+
+<style>
+    /* ══════════════════════════════════════
+           Page shell
+        ══════════════════════════════════════ */
+    .asel-page {
+        display: flex;
+        min-height: calc(100vh - 60px);
+        gap: 0;
+    }
+
+    /* ══════════════════════════════════════
+           LEFT — Hero (hidden on mobile)
+        ══════════════════════════════════════ */
+    .asel-hero {
+        display: none;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(145deg, #00a859 0%, #007a40 40%, #0056b3 100%);
+        border-radius: 20px;
+        padding: 48px 40px;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .asel-hero-blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.22;
+        pointer-events: none;
+    }
+
+    .asel-blob-1 {
+        width: 300px;
+        height: 300px;
+        background: #fff;
+        top: -80px;
+        left: -80px;
+    }
+
+    .asel-blob-2 {
+        width: 250px;
+        height: 250px;
+        background: #a8edcc;
+        bottom: -60px;
+        right: -60px;
+    }
+
+    .asel-hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .asel-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(255,255,255,0.18);
+        color: #d4f7e7;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        margin-bottom: 24px;
+        border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    .asel-hero-heading {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1.25;
+        margin-bottom: 14px;
+    }
+
+    .asel-hero-sub {
+        font-size: 0.88rem;
+        color: rgba(255,255,255,0.75);
+        line-height: 1.6;
+        margin-bottom: 36px;
+    }
+
+    .asel-hero-features {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .asel-feature {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: rgba(255,255,255,0.9);
+        font-size: 0.84rem;
+        font-weight: 500;
+    }
+
+    .asel-feature-icon {
+        width: 32px;
+        height: 32px;
+        background: rgba(255,255,255,0.15);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        color: #fff;
+        flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════════════
+           RIGHT — Form panel
+        ══════════════════════════════════════ */
+    .asel-panel {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 16px;
+    }
+
+    .asel-form-wrap {
+        width: 100%;
+        max-width: 460px;
+    }
+
+    /* Step label */
+    .asel-step-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .asel-step-num {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #fff;
+        background: linear-gradient(135deg, #00a859, #0056b3);
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
+    }
+
+    .asel-step-text {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #00a859;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .asel-form-title {
+        font-size: 1.55rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.2;
+        margin-bottom: 8px;
+    }
+
+    .asel-form-sub {
+        font-size: 0.83rem;
+        color: #64748b;
+        margin-bottom: 28px;
+    }
+
+    /* ── Option cards ── */
+    .asel-options {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 28px;
+    }
+
+    .asel-opt {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 18px;
+        border-radius: 16px;
+        border: 2px solid #e8ecf0;
+        background: #fff;
+        cursor: pointer;
+        transition: border-color 0.2s, box-shadow 0.2s, background 0.2s, transform 0.15s;
+    }
+
+        .asel-opt:hover {
+            border-color: #00a859;
+            box-shadow: 0 4px 20px rgba(0,168,89,0.1);
+            transform: translateY(-1px);
+        }
+
+        .asel-opt.selected {
+            border-color: #00a859;
+            background: linear-gradient(135deg, #f0fdf8 0%, #eff6ff 100%);
+            box-shadow: 0 6px 24px rgba(0,168,89,0.13);
+        }
+
+    .asel-opt-check {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        color: transparent;
+        flex-shrink: 0;
+        transition: all 0.2s;
+    }
+
+        .asel-opt-check.active {
+            background: #00a859;
+            border-color: #00a859;
+            color: #fff;
+        }
+
+    .asel-opt-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+
+        .asel-opt-icon.indiv {
+            background: linear-gradient(135deg, #dcfdf0, #dbeafe);
+            color: #00a859;
+        }
+
+        .asel-opt-icon.biz {
+            background: linear-gradient(135deg, #dbeafe, #ede9fe);
+            color: #0056b3;
+        }
+
+    .asel-opt-body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .asel-opt-title {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 2px;
+    }
+
+    .asel-opt-desc {
+        font-size: 0.76rem;
+        color: #64748b;
+    }
+
+    .asel-opt-arrow {
+        color: #cbd5e1;
+        font-size: 0.8rem;
+        transition: color 0.2s, transform 0.2s;
+    }
+
+    .asel-opt.selected .asel-opt-arrow,
+    .asel-opt:hover .asel-opt-arrow {
+        color: #00a859;
+        transform: translateX(2px);
+    }
+
+    /* ── CTA ── */
+    .asel-cta {
+        width: 100%;
+        padding: 15px 20px;
+        background: linear-gradient(90deg, #00a859 0%, #0056b3 100%);
+        color: #fff;
+        border: none;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: filter 0.2s, transform 0.15s, box-shadow 0.2s;
+        box-shadow: 0 4px 20px rgba(0,168,89,0.28);
+        margin-bottom: 16px;
+    }
+
+        .asel-cta:hover {
+            filter: brightness(1.07);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 28px rgba(0,168,89,0.35);
+        }
+
+        .asel-cta:active {
+            transform: translateY(0);
+            filter: brightness(0.97);
+        }
+
+    .asel-cta-arrow {
+        width: 30px;
+        height: 30px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+    }
+
+    .asel-disclaimer {
+        font-size: 0.72rem;
+        color: #94a3b8;
+        text-align: center;
+        margin: 0;
+    }
+
+    /* ══════════════════════════════════════
+           Responsive
+        ══════════════════════════════════════ */
+    @@media (min-width: 768px) {
+        .asel-page {
+            gap: 24px;
+            align-items: stretch;
+        }
+
+        .asel-hero {
+            display: flex;
+            flex: 0 0 320px;
+        }
+    }
+
+    @@media (min-width: 1024px) {
+        .asel-hero {
+            flex: 0 0 400px;
+        }
+
+        .asel-hero-heading {
+            font-size: 2rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .asel-form-title {
+            font-size: 1.3rem;
+        }
+
+        .asel-opt {
+            padding: 14px;
+            gap: 10px;
+        }
+
+        .asel-opt-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.1rem;
+        }
+    }
+</style>
 
 @code {
     private string selectedType = "individual";
@@ -57,59 +479,3 @@
         Nav.NavigateTo($"/cis/{selectedType}");
     }
 }
-
-<style>
-    .selection-container {
-        background: white;
-        border-radius: 24px;
-        padding: 40px;
-        border: 1px solid #eef2f7;
-        max-width: 700px;
-        margin: auto;
-    }
-
-    .header-border {
-        border-bottom: 2px solid;
-        border-image: linear-gradient(to right, #00a859 30%, #2563eb 100%) 1;
-    }
-
-    .account-card {
-        border: 2px solid transparent;
-        border-radius: 20px;
-        padding: 40px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        background: linear-gradient(white, white) padding-box, linear-gradient(to right, #00a859, #2563eb) border-box;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-    }
-
-        .account-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-        }
-
-    .icon-circle {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2rem;
-    }
-
-    .start-btn {
-        background: linear-gradient(90deg, #00c853 0%, #2962ff 100%);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        transition: all 0.2s;
-    }
-
-        .start-btn:hover {
-            transform: scale(1.01);
-            filter: brightness(1.1);
-            color: white;
-        }
-</style>

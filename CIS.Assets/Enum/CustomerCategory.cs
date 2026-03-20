@@ -6,8 +6,10 @@ public enum CustomerCategory
 {
     [Description("None")]
     None,
-    [Description("Borrower")]
-    Borrower,
-    [Description("Non-Borrower")]
-    NonBorrower,
+    [Description("Loan Borrower")]
+    LoanBorrower,
+    [Description("Loan Co-Maker")]
+    LoanCoMaker,
+    [Description("Depositor")]
+    Depositor,
 }

@@ -13,8 +13,7 @@ public class CustomerDTO
         public long CustomerID { get; set; }
         public string? CIDNumber { get; set; }
         public EntityType EntityType { get; set; }
-        public CustomerCategory CustomerCategory { get; set; }
-        public CustomerType CustomerType { get; set; }
+        public List<CustomerCategory> CustomerCategories { get; set; } = new();
     }
 
     public class Filter
@@ -28,16 +27,13 @@ public class CustomerDTO
     {
         public long CustomerID { get; set; }
         public EntityType EntityType { get; set; }
-        public CustomerCategory CustomerCategory { get; set; }
-        public CustomerType CustomerType { get; set; }
+        public List<CustomerCategory> CustomerCategories { get; set; } = new();
         public string? CIDNumber { get; set; }
 
         public class Validator : AbstractValidator<PageModel>
         {
             public Validator()
             {
-                RuleFor(x => x.CustomerCategory).NotEqual(CustomerCategory.None).WithMessage("Category is required.");
-                RuleFor(x => x.CustomerType).NotEqual(CustomerType.None).WithMessage("Type is required.");
                 RuleFor(x => x.CIDNumber).MaximumLength(50);
             }
         }

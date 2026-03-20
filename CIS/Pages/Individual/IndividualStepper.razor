@@ -5,37 +5,107 @@
 @inject RegistrationStorageService Storage
 @inject IJSRuntime JS
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Individual Account Registration</h2>
-        <span class="badge bg-primary">Step @CurrentStep of 13</span>
-    </div>
+@* ══════════════════════════════════════════
+   STEPPER HEADER  (hidden on success screen)
+══════════════════════════════════════════ *@
+@if (CurrentStep < 12)
+{
+    <div class="ist-shell">
 
-    <div class="progress mb-4" style="height: 10px;">
-        <div class="progress-bar" style="width: @(CurrentStep * 7.69)%"></div>
-    </div>
+        @* ── Top bar: brand + progress ── *@
+        <div class="ist-topbar">
+            <div class="ist-brand">
+                <div class="ist-brand-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 12C14.76 12 17 9.76 17 7s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5z" fill="white" />
+                        <path d="M12 14c-4.42 0-8 3.58-8 8h16c0-4.42-3.58-8-8-8z" fill="white" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="ist-brand-name">Individual Account</div>
+                    <div class="ist-brand-sub">New Registration</div>
+                </div>
+            </div>
+            <div class="ist-progress-info">
+                <div class="ist-step-fraction">
+                    <span class="ist-step-current">@CurrentStep</span>
+                    <span class="ist-step-sep">/</span>
+                    <span class="ist-step-total">@TotalSteps</span>
+                </div>
+                <div class="ist-progress-bar-wrap">
+                    <div class="ist-progress-bar-fill" style="width: @(CurrentStep * 100 / TotalSteps)%"></div>
+                </div>
+                <div class="ist-progress-pct">@(CurrentStep * 100 / TotalSteps)%</div>
+            </div>
+        </div>
 
+        @* ── Step track (full-width, flex connectors) ── *@
+        <div class="ist-track-wrap">
+            <div class="ist-track">
+                @for (int i = 1; i <= TotalSteps; i++)
+                {
+                    var idx = i;
+                    var state = idx < CurrentStep ? "done"
+                              : idx == CurrentStep ? "active"
+                              : "todo";
+                    var label = StepLabels[idx - 1];
+
+                    <div class="ist-step ist-step-@state @(idx < CurrentStep ? "ist-step-clickable" : "")"
+                         @onclick="() => GoToStep(idx)">
+                        <div class="ist-step-circle">
+                            @if (state == "done")
+                            {
+                                <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                                    <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2"
+                                          stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            }
+                            else
+                            {
+                                <span>@idx</span>
+                            }
+                        </div>
+                        <span class="ist-step-label">@label</span>
+                    </div>
+
+                    @if (idx < TotalSteps)
+                    {
+                        <div class="ist-connector @(idx < CurrentStep ? "done" : "")"></div>
+                    }
+                }
+            </div>
+        </div>
+
+        @* ── Active step name banner ── *@
+        <div class="ist-current-banner">
+            <div class="ist-banner-dot"></div>
+            <span>@StepLabels[CurrentStep - 1]</span>
+        </div>
+
+    </div>
+}
+
+@* ══════════════════════════════════════════
+   STEP CONTENT
+══════════════════════════════════════════ *@
+<div class="ist-content">
     @if (submitError != null)
     {
-        <div class="alert alert-danger">@submitError</div>
+        <div class="alert alert-danger d-flex align-items-center gap-2 mb-4">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            @submitError
+        </div>
     }
 
-    @* --- Step 1: Basic Information --- *@
     @if (CurrentStep == 1)
     {
         customerModel.EntityType = EntityType.Individual;
-        <BasicInformation @bind-Customer="customerModel" OnNext="HandleNext" />
-    }
-    @* --- Step 2: Personal Information --- *@
-    else if (CurrentStep == 2)
-    {
-        <PersonalInformation @bind-Model="personalModel"
+        <PersonalInformation @bind-Customer="customerModel"
+                             @bind-Model="personalModel"
                              @bind-ForeignerModel="foreignerModel"
-                             OnNext="HandleNext"
-                             OnBack="PrevStep" />
+                             OnNext="HandleNext" />
     }
-    @* --- Step 3: Contact Information --- *@
-    else if (CurrentStep == 3)
+    else if (CurrentStep == 2)
     {
         <ContactInformation CustomerId="customerModel.CustomerID"
                             AddressModel="addressModel"
@@ -44,24 +114,21 @@
                             OnNext="HandleNext"
                             OnBack="PrevStep" />
     }
-    @* --- Step 4: Identification --- *@
-    else if (CurrentStep == 4)
+    else if (CurrentStep == 3)
     {
         <IdentificationInformation IdModel="identificationModel"
                                    CustomerId="customerModel.CustomerID"
                                    OnNext="HandleNext"
                                    OnBack="PrevStep" />
     }
-    @* --- Step 5: Employment --- *@
-    else if (CurrentStep == 5)
+    else if (CurrentStep == 4)
     {
         <EmploymentInformation Model="employmentModel"
                                CustomerId="customerModel.CustomerID"
                                OnNext="HandleNext"
                                OnBack="PrevStep" />
     }
-    @* --- Step 6: Account & Business --- *@
-    else if (CurrentStep == 6)
+    else if (CurrentStep == 5)
     {
         <AccountBusiness InfoModel="personalModel"
                          CustomerId="customerModel.CustomerID"
@@ -71,44 +138,38 @@
                          OnNext="HandleNext"
                          OnBack="PrevStep" />
     }
-    @* --- Step 7: Business Information --- *@
-    else if (CurrentStep == 7)
+    else if (CurrentStep == 6)
     {
         <BusinessInformation @bind-BusinessModel="businessInfoModel"
                              AddressModel="addressModel"
                              OnNext="HandleNext"
                              OnBack="PrevStep" />
     }
-    @* --- Step 8: Account Contact --- *@
-    else if (CurrentStep == 8)
+    else if (CurrentStep == 7)
     {
         <AccountContact @bind-BusinessModel="accountContactModel"
                         OnNext="HandleNext"
                         OnBack="PrevStep" />
     }
-    @* --- Step 9: Beneficiary Info --- *@
-    else if (CurrentStep == 9)
+    else if (CurrentStep == 8)
     {
         <BeneficiaryInfo @bind-BeneficiaryModel="beneficiaryModel"
                          OnNext="HandleNext"
                          OnBack="PrevStep" />
     }
-    @* --- Step 10: Client Acknowledgement --- *@
-    else if (CurrentStep == 10)
+    else if (CurrentStep == 9)
     {
-        <ClientAcknowlegdement @bind-AcknowledgementModel="acknowledgementModel"
+        <ClientAcknowledgement @bind-AcknowledgementModel="acknowledgementModel"
                                OnNext="HandleNext"
                                OnBack="PrevStep" />
     }
-    @* --- Step 11: Bank Review Info --- *@
-    else if (CurrentStep == 11)
+    else if (CurrentStep == 10)
     {
         <BankReviewInfo @bind-ReviewModel="bankReviewModel"
                         OnNext="HandleNext"
                         OnBack="PrevStep" />
     }
-    @* --- Step 12: Individual Review --- *@
-    else if (CurrentStep == 12)
+    else if (CurrentStep == 11)
     {
         <IndividualReview Customer="customerModel"
                           Personal="personalModel"
@@ -123,8 +184,7 @@
                           OnBack="PrevStep"
                           OnSubmit="HandleSubmit" />
     }
-    @* --- Step 13: Registration Success --- *@
-    else if (CurrentStep == 13)
+    else if (CurrentStep == 12)
     {
         <RegistrationSuccess CustomerName="@($"{personalModel.FirstName} {personalModel.LastName}")"
                              CustomerId="customerModel.CustomerID"
@@ -133,8 +193,354 @@
     }
 </div>
 
+<style>
+    /* ══════════════════════════════════════
+       Shell card
+    ══════════════════════════════════════ */
+    .ist-shell {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+        border: 1px solid #e8ecf0;
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    /* ══════════════════════════════════════
+       Top bar
+    ══════════════════════════════════════ */
+    .ist-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        flex-wrap: wrap;
+    }
+
+    .ist-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .ist-brand-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #00a859, #0056b3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .ist-brand-name {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+
+    .ist-brand-sub {
+        font-size: 0.67rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .ist-progress-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .ist-step-fraction {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #475569;
+        white-space: nowrap;
+    }
+
+    .ist-step-current {
+        color: #00a859;
+        font-size: 0.9rem;
+    }
+
+    .ist-step-sep {
+        color: #cbd5e1;
+        margin: 0 1px;
+    }
+
+    .ist-step-total {
+        color: #94a3b8;
+    }
+
+    .ist-progress-bar-wrap {
+        width: 100px;
+        height: 5px;
+        background: #f1f5f9;
+        border-radius: 99px;
+        overflow: hidden;
+    }
+
+    .ist-progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #00a859, #0056b3);
+        border-radius: 99px;
+        transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .ist-progress-pct {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #00a859;
+        white-space: nowrap;
+        min-width: 32px;
+        text-align: right;
+    }
+
+    /* ══════════════════════════════════════
+       Full-width step track
+    ══════════════════════════════════════ */
+    .ist-track-wrap {
+        padding: 16px 20px 0;
+    }
+
+    .ist-track {
+        display: flex;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    /* Each step node */
+    .ist-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        flex-shrink: 0;
+        gap: 5px;
+        text-align: center;
+    }
+
+    .ist-step-circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 700;
+        transition: all 0.25s;
+        position: relative;
+        z-index: 1;
+    }
+
+    .ist-step-todo .ist-step-circle {
+        background: #f1f5f9;
+        color: #94a3b8;
+        border: 1.5px solid #e2e8f0;
+    }
+
+    .ist-step-active .ist-step-circle {
+        background: linear-gradient(135deg, #00a859, #0056b3);
+        color: #fff;
+        border: none;
+        box-shadow: 0 0 0 4px rgba(0,168,89,0.15);
+    }
+
+    .ist-step-done .ist-step-circle {
+        background: linear-gradient(135deg, #00a859, #00c472);
+        color: #fff;
+        border: none;
+    }
+
+    .ist-step-label {
+        font-size: 0.58rem;
+        font-weight: 500;
+        white-space: normal;
+        word-break: normal;
+        max-width: 70px;
+        text-align: center;
+        line-height: 1.25;
+        transition: color 0.2s;
+    }
+
+    .ist-step-todo .ist-step-label {
+        color: #b0bec5;
+    }
+
+    .ist-step-active .ist-step-label {
+        color: #00a859;
+        font-weight: 700;
+    }
+
+    .ist-step-done .ist-step-label {
+        color: #64748b;
+    }
+
+    /* Clickable (done) steps */
+    .ist-step-clickable {
+        cursor: pointer;
+    }
+
+        .ist-step-clickable:hover .ist-step-circle {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 4px rgba(0,168,89,0.18);
+        }
+
+        .ist-step-clickable:hover .ist-step-label {
+            color: #00a859;
+        }
+
+    .ist-step {
+        transition: transform 0.15s;
+    }
+
+    /* Connector — flex:1 so it fills remaining space */
+    .ist-connector {
+        flex: 1;
+        height: 2px;
+        background: #e2e8f0;
+        border-radius: 99px;
+        margin-top: 15px; /* vertically aligns with circle centre */
+        min-width: 4px;
+        transition: background 0.3s;
+    }
+
+        .ist-connector.done {
+            background: linear-gradient(90deg, #00a859, #00c472);
+        }
+
+    /* ══════════════════════════════════════
+       Current step banner
+    ══════════════════════════════════════ */
+    .ist-current-banner {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 20px;
+        background: linear-gradient(90deg, #f0fdf8 0%, #eff6ff 100%);
+        border-top: 1px solid #e8f5ee;
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: #0f172a;
+        margin-top: 10px;
+    }
+
+    .ist-banner-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00a859, #0056b3);
+        flex-shrink: 0;
+        animation: ist-dot-pulse 1.8s ease-in-out infinite;
+    }
+
+    @@keyframes ist-dot-pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(0,168,89,0.45);
+        }
+
+        50% {
+            box-shadow: 0 0 0 5px rgba(0,168,89,0);
+        }
+    }
+
+    /* ══════════════════════════════════════
+       Tablet (≤ 768px) — tighter circles, smaller labels
+    ══════════════════════════════════════ */
+    @@media (max-width: 768px) {
+        .ist-track-wrap {
+            padding: 14px 14px 0;
+        }
+
+        .ist-topbar {
+            padding: 12px 14px;
+        }
+
+        .ist-current-banner {
+            padding: 8px 14px;
+        }
+
+        .ist-step-circle {
+            width: 26px;
+            height: 26px;
+            font-size: 0.68rem;
+        }
+
+        .ist-step-label {
+            font-size: 0.55rem;
+            max-width: 44px;
+            white-space: nowrap;
+        }
+
+        .ist-connector {
+            margin-top: 13px;
+        }
+
+        .ist-progress-bar-wrap {
+            width: 72px;
+        }
+    }
+
+    /* ══════════════════════════════════════
+       Mobile (≤ 480px) — hide labels, smallest circles
+    ══════════════════════════════════════ */
+    @@media (max-width: 480px) {
+        .ist-track-wrap {
+            padding: 12px 10px 0;
+        }
+
+        .ist-topbar {
+            padding: 10px 12px;
+        }
+
+        .ist-step-circle {
+            width: 22px;
+            height: 22px;
+            font-size: 0.62rem;
+        }
+
+        .ist-step-label {
+            display: none;
+        }
+
+        .ist-connector {
+            margin-top: 11px;
+        }
+
+        .ist-progress-bar-wrap {
+            width: 56px;
+        }
+
+        .ist-progress-pct {
+            display: none;
+        }
+
+        .ist-current-banner {
+            padding: 7px 12px;
+            font-size: 0.72rem;
+        }
+    }
+</style>
+
 @code {
     private int CurrentStep = 1;
+    private const int TotalSteps = 11;
+
+    // Tracks steps that have passed validation (OnValidSubmit fired)
+    private readonly HashSet<int> validatedSteps = new();
+
+    private static readonly string[] StepLabels =
+    [
+        "Personal", "Contact", "IDs", "Employment",
+        "Account & Business", "Business", "Account Contact",
+        "Beneficiary", "Acknowledgement", "Bank Review", "Review"
+    ];
+
     private CustomerDTO.PageModel customerModel = new();
     private IndividualInfoDTO.PageModel personalModel = new();
     private AddressDTO.PageModel addressModel = new();
@@ -146,12 +552,10 @@
     private BusinessInterestDTO.PageModel busintModel = new();
     private GovernmentRelationDTO.PageModel govrelModel = new();
     private AccountPurposeDTO.PageModel accpurpModel = new();
-
-    // Business steps models
     private BusinessInfoDTO.PageModel businessInfoModel = new();
     private BusinessInfoDTO.PageModel accountContactModel = new();
     private BeneficiaryDTO.PageModel beneficiaryModel = new();
-    private ClientAcknowlegdementDTO.PageModel acknowledgementModel = new();
+    private ClientAcknowledgementDTO.PageModel acknowledgementModel = new();
     private BankReviewDTO.PageModel bankReviewModel = new();
 
     protected override async Task OnInitializedAsync()
@@ -170,8 +574,6 @@
             busintModel = draft.BusinessInterest ?? new();
             govrelModel = draft.GovernmentRelation ?? new();
             accpurpModel = draft.AccountPurpose ?? new();
-
-            // Business step drafts
             businessInfoModel = draft.BusinessInfo ?? new();
             accountContactModel = draft.AccountContact ?? new();
             beneficiaryModel = draft.Beneficiary ?? new();
@@ -179,11 +581,17 @@
             bankReviewModel = draft.BankReview ?? new();
 
             CurrentStep = draft.CurrentStep;
+
+            // All steps before CurrentStep were already validated
+            for (int s = 1; s < draft.CurrentStep; s++)
+                validatedSteps.Add(s);
         }
     }
 
     private async Task HandleNext()
     {
+        // Current step passed validation — mark it before advancing
+        validatedSteps.Add(CurrentStep);
         CurrentStep++;
         await Storage.SaveIndividualDraftAsync(
             customerModel, personalModel, addressModel, identificationModel,
@@ -215,13 +623,22 @@
         if (newCustomerId > 0)
         {
             customerModel.CustomerID = newCustomerId;
-            CurrentStep = 13;
+            CurrentStep = 12;
             await Storage.ClearIndividualDraftAsync();
             StateHasChanged();
         }
         else
         {
             submitError = "Failed to finalize registration. Please try again.";
+        }
+    }
+
+    private void GoToStep(int step)
+    {
+        if (step >= 1 && step < CurrentStep && validatedSteps.Contains(step))
+        {
+            CurrentStep = step;
+            StateHasChanged();
         }
     }
 

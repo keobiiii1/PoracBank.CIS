@@ -22,14 +22,9 @@
         <div class="meta-row">
             <div class="meta-col">
                 <span class="small-label">CUSTOMER CATEGORY</span>
-                <span class="custom-check">@(Customer.CustomerCategory == CustomerCategory.Borrower ? "X" : "")</span> <span class="check-label">Borrower</span>
-                <span class="custom-check">@(Customer.CustomerCategory == CustomerCategory.NonBorrower ? "X" : "")</span> <span class="check-label">Non-borrower</span>
-            </div>
-            <div class="meta-col">
-                <span class="small-label">CUSTOMER TYPE</span>
-                <span class="custom-check">@(Customer.CustomerType == CustomerType.WalkIn ? "X" : "")</span> <span class="check-label">Walk-in</span>
-                <span class="custom-check">@(Customer.CustomerType == CustomerType.Solicited ? "X" : "")</span> <span class="check-label">Solicited</span>
-                <span class="custom-check">@(Customer.CustomerType == CustomerType.Referred ? "X" : "")</span> <span class="check-label">Referred</span>
+                <span class="custom-check">@(Customer.CustomerCategories.Contains(CustomerCategory.LoanBorrower) ? "X" : "")</span> <span class="check-label">Loan Borrower</span>
+                <span class="custom-check">@(Customer.CustomerCategories.Contains(CustomerCategory.LoanCoMaker) ? "X" : "")</span> <span class="check-label">Loan Co-Maker</span>
+                <span class="custom-check">@(Customer.CustomerCategories.Contains(CustomerCategory.Depositor) ? "X" : "")</span> <span class="check-label">Depositor</span>
             </div>
             <div class="meta-col cid-field">
                 <span class="small-label">CID NO.</span>
@@ -355,8 +350,7 @@
                 Personal = data.Individual ?? new();
 
                 Customer.CIDNumber = Personal.CIDNumber;
-                Customer.CustomerCategory = Personal.CustomerCategory;
-                Customer.CustomerType = Personal.CustomerType;
+                Customer.CustomerCategories = Personal.CustomerCategories;
                 Address = data.Address ?? new();
                 Identification = data.Identification ?? new();
                 Employment = data.Employment ?? new();

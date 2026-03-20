@@ -42,8 +42,7 @@ public class CustomerRepository
             {
                 CustomerID = e.CustomerID,
                 CIDNumber = e.CIDNumber,
-                CustomerCategory = e.CustomerCategory,
-                CustomerType = e.CustomerType
+                CustomerCategories = e.CustomerCategories,
             })
             .Skip((filter.CurrentPage - 1) * filter.PageSize)
             .Take(filter.PageSize)
@@ -68,8 +67,7 @@ public class CustomerRepository
             var old = await _dbcontext.Customers.FirstOrDefaultAsync(e => e.CustomerID == request.CustomerID);
             if (old == null) throw new XNotAcceptableException("Customer record not found for update.");
 
-            old.CustomerCategory = request.CustomerCategory;
-            old.CustomerType = request.CustomerType;
+            old.CustomerCategories = request.CustomerCategories;
             old.CIDNumber = request.CIDNumber;
 
             _dbcontext.Customers.Update(old);

@@ -1,83 +1,122 @@
-.page {
-    position: relative;
+::deep body {
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5;
+}
+/* ── Shell ── */
+.pb-app-shell {
+    min-height: 100vh;
+    background-color: #f0f2f5;
     display: flex;
     flex-direction: column;
 }
 
-::deep body {
-    margin: 0;
-    padding: 0;
+/* ── Top Bar ── */
+.pb-topbar {
+    background: linear-gradient(135deg, #00a859 0%, #0056b3 100%);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
-main {
-    display: block;
-    width: 100%;
-}
-
-.sidebar {
-    background-image: linear-gradient(180deg, #00a859 0%, #0056b3 100%);
-}
-
-.top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
-    justify-content: flex-end;
-    height: 3.5rem;
+.pb-topbar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    height: 56px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
 }
 
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        white-space: nowrap;
-        margin-left: 1.5rem;
-        text-decoration: none;
+.pb-topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pb-logo {
+    height: 36px;
+    width: auto;
+    /* Keep the logo visible over the gradient */
+    filter: brightness(0) invert(1);
+}
+
+.pb-bank-name {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.pb-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Connectivity pill */
+.pb-connectivity {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+    .pb-connectivity.online {
+        background: rgba(255,255,255,0.18);
+        color: #d4f7e7;
     }
 
-    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
-        text-decoration: underline;
+    .pb-connectivity.offline {
+        background: rgba(255,80,80,0.2);
+        color: #ffd4d4;
     }
 
-    .top-row ::deep a:first-child {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+.pb-conn-label {
+    display: none; /* hidden on very small screens, icon only */
+}
 
-@media (max-width: 640.98px) {
-    .top-row {
-        justify-content: space-between;
-    }
+/* ── Main ── */
+.pb-main {
+    flex: 1;
+    padding: 1.25rem 1rem;
+}
 
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        margin-left: 0;
+.pb-content-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ── Responsive ── */
+@media (min-width: 480px) {
+    .pb-conn-label {
+        display: inline;
     }
 }
 
 @media (min-width: 641px) {
-    .page {
-        flex-direction: row;
+    .pb-topbar-inner {
+        padding: 0 1.5rem;
+        height: 60px;
     }
 
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        position: sticky;
-        top: 0;
+    .pb-logo {
+        height: 40px;
     }
 
-    .top-row {
-        position: sticky;
-        top: 0;
-        z-index: 1;
+    .pb-main {
+        padding: 2rem 1.5rem;
     }
+}
 
-    .top-row.auth ::deep a:first-child {
-        flex: 1;
-        text-align: right;
-        width: 0;
-    }
-
-    .top-row, article {
-        padding-left: 2rem !important;
-        padding-right: 1.5rem !important;
+@media (min-width: 1024px) {
+    .pb-main {
+        padding: 2rem 2rem;
     }
 }

@@ -30,7 +30,7 @@ public class BusinessService
     public async Task UpsertInterestAsync(BusinessInterestDTO.PageModel request) =>
         await _http.PostAsJsonAsync($"{BaseUrl}/interest", request);
 
-    public async Task UpsertAcknowledgementAsync(ClientAcknowlegdementDTO.PageModel request)
+    public async Task UpsertAcknowledgementAsync(ClientAcknowledgementDTO.PageModel request)
     {
         await _http.PostAsJsonAsync($"{BaseUrl}/acknowledgement", request);
     }

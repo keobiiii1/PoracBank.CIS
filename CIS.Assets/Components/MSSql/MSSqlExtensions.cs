@@ -60,6 +60,17 @@ public static class MSSqlExtensions
         return builder.Property(propertyExpression);
     }
 
+    public static PropertyBuilder<List<TEnum>> IsNvarcharJsonList<TEntity, TEnum>(this EntityTypeBuilder<TEntity> builder, System.Linq.Expressions.Expression<Func<TEntity, List<TEnum>>> propertyExpression, int length) where TEntity : class where TEnum : struct
+    {
+        return builder.Property(propertyExpression)
+            .HasConversion(
+                v => string.Join(",", v.Select(e => e.ToString())),
+                v => v.Split(",", StringSplitOptions.RemoveEmptyEntries).Select(e => System.Enum.Parse<TEnum>(e)).ToList()
+            )
+            .HasMaxLength(length)
+            .HasColumnType($"nvarchar({length})");
+    }
+
     public static PropertyBuilder<decimal?> IsDecimal<TEntity>(this EntityTypeBuilder<TEntity> builder, System.Linq.Expressions.Expression<Func<TEntity, decimal?>> propertyExpression, int precision, int scale) where TEntity : class
     {
         return builder.Property(propertyExpression).HasPrecision(precision, scale);

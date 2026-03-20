@@ -3,11 +3,11 @@ using CIS.Assets.Models;
 
 namespace CIS.Assets.DTO;
 
-public class ClientAcknowlegdementDTO
+public class ClientAcknowledgementDTO
 {
     public class PageModel
     {
-        public long ClientAcknowlegdementID { get; set; }
+        public long ClientAcknowledgementID { get; set; }
         public long CustomerID { get; set; }
         public string? SignatureData { get; set; }
         public string? PrintedName { get; set; }
@@ -18,8 +18,8 @@ public class ClientAcknowlegdementDTO
     {
         public MappingProfile()
         {
-            CreateMap<ClientAcknowlegdement, PageModel>().ReverseMap()
-                .ForMember(dest => dest.ClientAcknowlegdementID, opt => opt.Ignore());
+            CreateMap<ClientAcknowledgement, PageModel>().ReverseMap()
+                .ForMember(dest => dest.ClientAcknowledgementID, opt => opt.Ignore());
         }
     }
 }

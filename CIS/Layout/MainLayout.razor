@@ -2,28 +2,30 @@
 @inject IJSRuntime JSRuntime
 @implements IDisposable
 
-<div class="min-vh-100" style="background-color: #f3f4f6;">
-    <div class="container-fluid px-3 px-sm-4 py-3 py-sm-4">
-        <div class="mx-auto" style="max-width: 1200px;">
-            
-            <div class="d-flex align-items-center justify-content-between mb-4">
-                <div class="d-flex align-items-center">
-                    <img src="images/poracbank.png" alt="Porac Bank" style="height: 40px; width: auto;" /> 
-                </div>
-                
-@*                 <span class="badge @(isOnline ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger") px-3 py-2 rounded-pill shadow-sm border">
-                    <i class="bi @(isOnline ? "bi-wifi" : "bi-wifi-off") me-1"></i> 
-                    @(isOnline ? "Online" : "Offline")
-                </span> *@
+<div class="pb-app-shell">
+
+    @* ── Top Bar ── *@
+    <header class="pb-topbar">
+        <div class="pb-topbar-inner">
+            <div class="pb-topbar-brand">
+                <img src="images/poracbank.png" alt="Porac Bank" class="pb-logo" />
             </div>
-
-            <hr class="mb-4" style="opacity: 0.1;" />
-
-            <main role="main">
-                @Body
-            </main>
+            @* <div class="pb-topbar-right">
+                <span class="pb-connectivity @(isOnline ? "online" : "offline")">
+                    <i class="bi @(isOnline ? "bi-wifi" : "bi-wifi-off")"></i>
+                    <span class="pb-conn-label">@(isOnline ? "Online" : "Offline")</span>
+                </span>
+            </div> *@
         </div>
-    </div>
+    </header>
+
+    @* ── Page Body ── *@
+    <main class="pb-main" role="main">
+        <div class="pb-content-wrap">
+            @Body
+        </div>
+    </main>
+
 </div>
 
 @code {
@@ -34,13 +36,9 @@
     {
         if (firstRender)
         {
-            // Initial check from the window.connectivityStatus in index.html
             isOnline = await JSRuntime.InvokeAsync<bool>("connectivityStatus.checkStatus");
-            
-            // Register listener for real-time updates
             objRef = DotNetObjectReference.Create(this);
             await JSRuntime.InvokeVoidAsync("connectivityStatus.registerHandler", objRef);
-            
             StateHasChanged();
         }
     }

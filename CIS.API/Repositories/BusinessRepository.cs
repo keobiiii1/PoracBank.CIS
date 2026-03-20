@@ -69,10 +69,10 @@ public class BusinessRepository
             }
 
             // 6. Save Acknowledgement (Signature)
-            var ack = _mapper.Map<ClientAcknowlegdement>(request.Acknowledgement);
+            var ack = _mapper.Map<ClientAcknowledgement>(request.Acknowledgement);
             ack.CustomerID = customerId;
             ack.EntityType = EntityType.Business;
-            _db.ClientAcknowlegdements.Add(ack);
+            _db.ClientAcknowledgements.Add(ack);
 
             // 7. Save Bank Review
             var review = _mapper.Map<BankReview>(request.BankReview);

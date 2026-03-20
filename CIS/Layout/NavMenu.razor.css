@@ -1,24 +1,37 @@
+/* ─────────────────────────────────────────
+   NavMenu — Porac Bank palette
+   Primary green : #00a859
+   Primary blue  : #0056b3
+   ───────────────────────────────────────── */
+
 .navbar-brand {
-    font-size: 1.1rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
     display: flex;
     align-items: center;
+    gap: 10px;
+    color: #fff;
 }
 
 .navbar-toggler {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.15);
+    border: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+/* Sidebar gradient — brand palette */
+.sidebar {
+    background: linear-gradient(180deg, #00a859 0%, #0056b3 100%);
 }
 
 .top-row {
     min-height: 3.5rem;
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0, 0, 0, 0.25);
 }
 
-.navbar-brand {
-    font-size: 1.1rem;
-}
-
+/* Bootstrap icon sprites */
 .bi {
     display: inline-block;
     position: relative;
@@ -27,6 +40,7 @@
     margin-right: 0.75rem;
     top: -1px;
     background-size: cover;
+    flex-shrink: 0;
 }
 
 .bi-house-door-fill-nav-menu {
@@ -41,50 +55,53 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-list-nested' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M4.5 11.5A.5.5 0 0 1 5 11h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 1 3h10a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5z'/%3E%3C/svg%3E");
 }
 
+/* Nav items */
 .nav-item {
-    font-size: 0.9rem;
-    padding-bottom: 0.5rem;
+    font-size: 0.875rem;
+    padding-bottom: 0.25rem;
 }
 
     .nav-item:first-of-type {
-        padding-top: 1rem;
+        padding-top: 0.75rem;
     }
 
     .nav-item:last-of-type {
-        padding-bottom: 1rem;
+        padding-bottom: 0.75rem;
     }
 
     .nav-item ::deep a {
-        color: #d7d7d7;
-        border-radius: 4px;
-        height: 3rem;
+        color: rgba(255, 255, 255, 0.8);
+        border-radius: 8px;
+        height: 2.75rem;
         display: flex;
         align-items: center;
-        line-height: 3rem;
+        padding: 0 0.75rem;
+        transition: background 0.15s, color 0.15s;
+        text-decoration: none;
     }
 
-.nav-item ::deep a.active {
-    background-color: rgba(255,255,255,0.37);
-    color: white;
-}
+        .nav-item ::deep a.active {
+            background-color: rgba(255, 255, 255, 0.22);
+            color: #fff;
+            font-weight: 600;
+        }
 
-.nav-item ::deep a:hover {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
-}
+        .nav-item ::deep a:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+            color: #fff;
+        }
 
+/* Responsive */
 @media (min-width: 641px) {
     .navbar-toggler {
         display: none;
     }
 
     .collapse {
-        /* Never collapse the sidebar for wide screens */
         display: block;
     }
 
     .nav-scrollable {
-        /* Allow sidebar to scroll for tall menus */
         height: calc(100vh - 3.5rem);
         overflow-y: auto;
     }

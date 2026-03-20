@@ -34,8 +34,7 @@ public class IndividualRepository
             var customer = new Customer
             {
                 EntityType = EntityType.Individual,
-                CustomerCategory = request.Individual.CustomerCategory,
-                CustomerType = request.Individual.CustomerType,
+                CustomerCategories = request.Individual.CustomerCategories,
                 CIDNumber = request.Individual.CIDNumber,
                 CreatedAt = DateTime.UtcNow
             };
@@ -165,10 +164,10 @@ public class IndividualRepository
             }
 
             // 13. Save Acknowledgement (Signature)
-            var ack = _mapper.Map<ClientAcknowlegdement>(request.Acknowledgement);
+            var ack = _mapper.Map<ClientAcknowledgement>(request.Acknowledgement);
             ack.CustomerID = customerId;
             ack.EntityType = EntityType.Individual;
-            _db.ClientAcknowlegdements.Add(ack);
+            _db.ClientAcknowledgements.Add(ack);
 
             // 14. Save Bank Review
             var bankReview = _mapper.Map<BankReview>(request.BankReview);
@@ -207,8 +206,7 @@ public class IndividualRepository
         if (response.Individual != null)
         {
             // Sync Step 1 & Meta Data from Customer Table
-            response.Individual.CustomerCategory = customer.CustomerCategory;
-            response.Individual.CustomerType = customer.CustomerType;
+            response.Individual.CustomerCategories = customer.CustomerCategories;
             response.Individual.CIDNumber = customer.CIDNumber;
 
             // 3. Table: BusinessInterests (Dynamic List)

@@ -42,7 +42,7 @@ public class RegistrationStorageService
         BusinessInfoDTO.PageModel businessInfo,
         BusinessInfoDTO.PageModel accountContact,
         BeneficiaryDTO.PageModel beneficiary,
-        ClientAcknowlegdementDTO.PageModel acknowledgement,
+        ClientAcknowledgementDTO.PageModel acknowledgement,
         BankReviewDTO.PageModel bankReview,
         int step)
     {
@@ -93,11 +93,10 @@ public class RegistrationStorageService
         BusinessInfoDTO.PageModel businessInfo,
         BusinessInfoDTO.PageModel accountContact,
         BeneficiaryDTO.PageModel beneficiary,
-        ClientAcknowlegdementDTO.PageModel acknowledgement,
+        ClientAcknowledgementDTO.PageModel acknowledgement,
         BankReviewDTO.PageModel bankReview)
     {
-        individual.CustomerCategory = customer.CustomerCategory;
-        individual.CustomerType = customer.CustomerType;
+        individual.CustomerCategories = customer.CustomerCategories;
         individual.CIDNumber = customer.CIDNumber;
 
         SyncFamilyFromPersonal(customer, individual, family);
@@ -142,7 +141,7 @@ public class RegistrationStorageService
         AddressDTO.PageModel address,
         ContactDTO.PageModel contact,
         BeneficiaryDTO.PageModel beneficiary,
-        ClientAcknowlegdementDTO.PageModel acknowledgement,
+        ClientAcknowledgementDTO.PageModel acknowledgement,
         BankReviewDTO.PageModel review,
         int step)
     {
@@ -201,7 +200,7 @@ public class RegistrationStorageService
         public BusinessInfoDTO.PageModel? BusinessInfo { get; set; }
         public BusinessInfoDTO.PageModel? AccountContact { get; set; }
         public BeneficiaryDTO.PageModel? Beneficiary { get; set; }
-        public ClientAcknowlegdementDTO.PageModel? Acknowledgement { get; set; }
+        public ClientAcknowledgementDTO.PageModel? Acknowledgement { get; set; }
         public BankReviewDTO.PageModel? BankReview { get; set; }
         public int CurrentStep { get; set; }
         public DateTime LastSaved { get; set; }
@@ -214,7 +213,7 @@ public class RegistrationStorageService
         public AddressDTO.PageModel? Address { get; set; }
         public ContactDTO.PageModel? Contact { get; set; }
         public BeneficiaryDTO.PageModel? Beneficiary { get; set; }
-        public ClientAcknowlegdementDTO.PageModel? Acknowledgement { get; set; }
+        public ClientAcknowledgementDTO.PageModel? Acknowledgement { get; set; }
         public BankReviewDTO.PageModel? Review { get; set; }
         public int CurrentStep { get; set; }
         public DateTime LastSaved { get; set; }

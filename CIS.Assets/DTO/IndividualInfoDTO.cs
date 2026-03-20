@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 using CIS.Assets.Enum;
 using CIS.Assets.Models;
 
@@ -21,92 +21,85 @@ public class IndividualInfoDTO
         public long CustomerID { get; set; }
         public string? CIDNumber { get; set; }
         public EntityType EntityType { get; set; } = EntityType.Individual;
-        public CustomerCategory CustomerCategory { get; set; } = CustomerCategory.None;
-        public CustomerType CustomerType { get; set; } = CustomerType.None;
+        public List<CustomerCategory> CustomerCategories { get; set; } = new();
+
+        [Required(ErrorMessage = "First name is required.")]
+        [MaxLength(100, ErrorMessage = "First name cannot exceed 100 characters.")]
         public string? FirstName { get; set; }
+
+        [MaxLength(100, ErrorMessage = "Middle name cannot exceed 100 characters.")]
         public string? MiddleName { get; set; }
+
+        [Required(ErrorMessage = "Last name is required.")]
+        [MaxLength(100, ErrorMessage = "Last name cannot exceed 100 characters.")]
         public string? LastName { get; set; }
-        public bool IsResident { get; set; }
+
+        public bool IsResident { get; set; } = true;
+        [Range(1, int.MaxValue, ErrorMessage = "Citizenship is required.")]
         public Citizenship Citizenship { get; set; }
         public string? CitizenshipOther { get; set; }
+        [Required(ErrorMessage = "Country of origin is required.")]
+        [MaxLength(100)]
         public string? CountryOfOrigin { get; set; }
+        [Required(ErrorMessage = "Date of birth is required.")]
+        [DateOfBirthValidation]
         public DateOnly? DateOfBirth { get; set; }
         public string? PlaceOfBirth { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Gender is required.")]
         public Gender Gender { get; set; }
 
-        // --- Added for Female Maiden Name logic ---
+        // Female + Married maiden name
         public string? MaidenName { get; set; }
         public string? MaidenMiddleName { get; set; }
+        [MaxLength(100)]
         public string? MaidenLastName { get; set; }
 
         public MaritalStatus MaritalStatus { get; set; }
-        // --- Spouse Details (Separated) ---
+
+        // Spouse Details
+        [MaxLength(100)]
         public string? SpouseGivenName { get; set; }
         public string? SpouseMiddleName { get; set; }
+        [MaxLength(100)]
         public string? SpouseLastName { get; set; }
 
-        // --- Mother's Details (Separated) ---
+        // Mother's Maiden Name
+        [Required(ErrorMessage = "Mother's given name is required.")]
+        [MaxLength(100)]
         public string? MotherMaidenGivenName { get; set; }
         public string? MotherMaidenMiddleName { get; set; }
+        [Required(ErrorMessage = "Mother's last name is required.")]
+        [MaxLength(100)]
         public string? MotherMaidenLastName { get; set; }
 
-        // --- Added for Foreigner logic ---
+        // Foreigner
         public bool IsForeigner { get; set; }
+        [MaxLength(50)]
         public string? PassportIDNumber { get; set; }
         public DateOnly? PassportExpiry { get; set; }
         public bool IsACR { get; set; }
         public bool IsSIRV { get; set; }
         public bool IsSRRV { get; set; }
 
-        public string? HomePhoneNumber { get; set; } // Added
+        public string? HomePhoneNumber { get; set; }
         public string? MobilePhoneNumber { get; set; }
         public string? EmailAddress { get; set; }
-
-        public string? TinNo { get; set; }
-        public string? SssNo { get; set; }
-        public string? GsisNo { get; set; }
 
         public PurposeOfAccount AccountPurpose { get; set; }
         public string? AccountPurposeOther { get; set; }
         public string? ProductsAvailed { get; set; }
         public string? ProductsAvailedOther { get; set; }
 
-        // Business Interest
-        public string? BusinessName { get; set; }
-        public decimal? OwnershipPercentage { get; set; }
-
-        // PEP (Government Official) Details
+        // PEP
         public bool IsGovOfficial { get; set; }
         public string? GovPosition { get; set; }
         public string? GovPeriod { get; set; }
-
-        // Relative of Gov Official
         public bool HasGovRelative { get; set; }
-        public string? GovRelativeName { get; set; }
-        public string? GovRelativeRelationship { get; set; }
-        public string? GovRelativePosition { get; set; }
-        public string? GovRelativePeriod { get; set; }
 
-        // Business Interest List
         public List<BusinessInterestModel> BusinessInterests { get; set; } = new();
         public List<GovRelativeModel> GovRelatives { get; set; } = new();
 
-        public List<string> SelectedProducts { get; set; } = new();
 
-        public class Validator : AbstractValidator<PageModel>
-        {
-            public Validator()
-            {
-                RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
-                RuleFor(x => x.LastName).NotEmpty().MaximumLength(100);
-                RuleFor(x => x.DateOfBirth).NotEmpty();
-
-                // Example of conditional validation
-                RuleFor(x => x.MaidenLastName).NotEmpty()
-                    .When(x => x.Gender == Gender.Female)
-                    .WithMessage("Maiden Name is required for female applicants.");
-            }
-        }
         public class BusinessInterestModel
         {
             public string? BusinessName { get; set; }
@@ -124,6 +117,25 @@ public class IndividualInfoDTO
         }
     }
 
+    public class DateOfBirthValidationAttribute : ValidationAttribute
+    {
+        protected override ValidationResult? IsValid(object? value, ValidationContext context)
+        {
+            if (value is not DateOnly date)
+                return ValidationResult.Success;
+
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+            if (date > today)
+                return new ValidationResult("Date of birth cannot be a future date.");
+
+            if (date > today.AddYears(-21))
+                return new ValidationResult("Applicant must be at least 21 years old.");
+
+            return ValidationResult.Success;
+        }
+    }
+
     public class MappingProfile : Profile
     {
         public MappingProfile()
@@ -131,13 +143,14 @@ public class IndividualInfoDTO
             CreateMap<IndividualInfo, Browse>().ReverseMap();
 
             CreateMap<PageModel, IndividualFamily>().ReverseMap()
-            .ForMember(dest => dest.IndividualInfoID, opt => opt.Ignore());
+                .ForMember(dest => dest.IndividualInfoID, opt => opt.Ignore());
 
             CreateMap<PageModel, IndividualForeigner>().ReverseMap()
-            .ForMember(dest => dest.IndividualInfoID, opt => opt.Ignore());
+                .ForMember(dest => dest.IndividualInfoID, opt => opt.Ignore());
 
             CreateMap<IndividualInfo, PageModel>().ReverseMap()
-            .ForMember(dest => dest.IndividualInfoID, opt => opt.Ignore());
+                .ForMember(dest => dest.IndividualInfoID, opt => opt.Ignore());
+
             CreateMap<PageModel, IndividualForeigner>();
         }
     }

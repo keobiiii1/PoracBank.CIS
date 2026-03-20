@@ -3,10 +3,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CIS.Assets.Models;
 
-[Table("ClientAcknowlegdement")]
-public class ClientAcknowlegdement
+[Table("ClientAcknowledgement")]
+public class ClientAcknowledgement
 {
-    public long ClientAcknowlegdementID { get; set; }
+    public long ClientAcknowledgementID { get; set; }
     public long CustomerID { get; set; }
     public EntityType EntityType { get; set; } = EntityType.Individual;
     public string? SignatureData { get; set; }

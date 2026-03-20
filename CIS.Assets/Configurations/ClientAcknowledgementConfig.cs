@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CIS.Assets.Configurations;
 
-public static class ClientAcknowlegdementConfig
+public static class ClientAcknowledgementConfig
 {
     public static void Set(ModelBuilder modelBuilder)
     {
-        var entity = modelBuilder.Entity<ClientAcknowlegdement>();
+        var entity = modelBuilder.Entity<ClientAcknowledgement>();
         entity.AsTable("cis");
-        entity.IsPrimaryKey(e => e.ClientAcknowlegdementID);
+        entity.IsPrimaryKey(e => e.ClientAcknowledgementID);
         entity.IsLong2(e => e.CustomerID);
         entity.IsNvarcharEnum(e => e.EntityType, 50);
 

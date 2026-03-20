@@ -22,19 +22,235 @@
 
     <script type="importmap"></script>
     <link rel="preload" id="webassembly" />
+
+    <style>
+        /* ── Reset ── */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* ── Full-screen splash ── */
+        .pb-splash {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(145deg, #f0f2f5 0%, #e8f5ee 50%, #e8f0fb 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            z-index: 9999;
+        }
+
+        /* Decorative blobs */
+        .pb-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(70px);
+            opacity: 0.3;
+            animation: pb-blob-drift 9s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+
+        .pb-blob-green {
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, #00a859 0%, transparent 70%);
+            top: -120px;
+            left: -120px;
+        }
+
+        .pb-blob-blue {
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, #0056b3 0%, transparent 70%);
+            bottom: -100px;
+            right: -100px;
+            animation-delay: -4.5s;
+        }
+
+        @keyframes pb-blob-drift {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(28px, 18px) scale(1.1);
+            }
+        }
+
+        /* ── Glass card ── */
+        .pb-splash-card {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 48px 40px 40px;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 8px 48px rgba(0, 0, 0, 0.09), 0 1px 0 rgba(255,255,255,0.8) inset;
+        }
+
+        /* ── Logo ── */
+        .pb-splash-logo {
+            height: 56px;
+            width: auto;
+            display: block;
+            margin: 0 auto 8px;
+        }
+
+        /* ── Tagline ── */
+        .pb-splash-tagline {
+            font-size: 0.72rem;
+            color: #64748b;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+        }
+
+        /* ── Progress bar ── */
+        .pb-bar-track {
+            height: 5px;
+            background: #e2e8f0;
+            border-radius: 99px;
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+
+        .pb-bar-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #00a859, #0056b3);
+            animation: pb-bar-grow 2.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes pb-bar-grow {
+            0% {
+                width: 0%;
+            }
+
+            25% {
+                width: 38%;
+            }
+
+            55% {
+                width: 65%;
+            }
+
+            80% {
+                width: 88%;
+            }
+
+            100% {
+                width: 100%;
+            }
+        }
+
+        /* ── Status text ── */
+        .pb-splash-status {
+            font-size: 0.76rem;
+            color: #94a3b8;
+            letter-spacing: 0.2px;
+            animation: pb-pulse 1.8s ease-in-out infinite;
+        }
+
+        @keyframes pb-pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        /* ── Error UI ── */
+        #blazor-error-ui {
+            display: none;
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            background: #fff;
+            border: 1px solid #fca5a5;
+            border-radius: 14px;
+            padding: 14px 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            align-items: center;
+            gap: 12px;
+            font-size: 0.84rem;
+            color: #dc2626;
+            white-space: nowrap;
+            max-width: calc(100vw - 32px);
+        }
+
+            #blazor-error-ui .reload {
+                color: #0056b3;
+                font-weight: 600;
+                text-decoration: none;
+                margin-left: 6px;
+            }
+
+                #blazor-error-ui .reload:hover {
+                    text-decoration: underline;
+                }
+
+            #blazor-error-ui .dismiss {
+                margin-left: 10px;
+                cursor: pointer;
+                color: #94a3b8;
+                font-size: 0.9rem;
+            }
+
+        /* ── Mobile ── */
+        @media (max-width: 480px) {
+            .pb-splash-card {
+                padding: 36px 24px 32px;
+                border-radius: 20px;
+                max-width: calc(100vw - 32px);
+            }
+
+            .pb-splash-logo {
+                height: 46px;
+            }
+        }
+    </style>
 </head>
 
 <body>
+
     <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+        <div class="pb-splash">
+            <div class="pb-blob pb-blob-green"></div>
+            <div class="pb-blob pb-blob-blue"></div>
+
+            <div class="pb-splash-card">
+                <img src="images/poracbank.png" alt="Porac Bank" class="pb-splash-logo" />
+                <p class="pb-splash-tagline">Customer Information System</p>
+
+                <div class="pb-bar-track">
+                    <div class="pb-bar-fill"></div>
+                </div>
+                <p class="pb-splash-status">Loading, please wait…</p>
+            </div>
+        </div>
     </div>
 
     <div id="blazor-error-ui">
-        An unhandled error has occurred.
+        ⚠️ An unhandled error has occurred.
         <a href="." class="reload">Reload</a>
         <span class="dismiss">🗙</span>
     </div>
@@ -58,6 +274,6 @@
             }
         };
     </script>
-</body>
 
+</body>
 </html>

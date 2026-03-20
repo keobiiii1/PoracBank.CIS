@@ -1,4 +1,5 @@
 ﻿using CIS.Assets.Components.MSSql;
+using CIS.Assets.Enum;
 using CIS.Assets.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,14 +13,13 @@ public static class CustomerConfig
         entity.AsTable("cis");
         entity.IsPrimaryKey(e => e.CustomerID);
         entity.IsNvarcharEnum(e => e.EntityType, 50);
-        entity.IsNvarcharEnum(e => e.CustomerCategory, 50);
-        entity.IsNvarcharEnum(e => e.CustomerType, 50);
+        entity.IsNvarcharJsonList<Customer, CustomerCategory>(e => e.CustomerCategories, 500);
         entity.IsNvarchar(e => e.CIDNumber, 50);
         entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
 
-        entity.HasOne(e => e.ClientAcknowlegdement)
+        entity.HasOne(e => e.ClientAcknowledgement)
             .WithOne()
-            .HasForeignKey<ClientAcknowlegdement>(e => e.CustomerID);
+            .HasForeignKey<ClientAcknowledgement>(e => e.CustomerID);
 
         entity.HasOne(e => e.BankReview)
             .WithOne()

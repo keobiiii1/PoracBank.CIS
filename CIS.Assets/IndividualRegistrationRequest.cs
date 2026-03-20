@@ -16,7 +16,7 @@ public class IndividualRegistrationRequest
     public BusinessInfoDTO.PageModel Business { get; set; } = new();
     public BusinessInfoDTO.PageModel AccountContact { get; set; } = new();
     public BeneficiaryDTO.PageModel Beneficiary { get; set; } = new();
-    public ClientAcknowlegdementDTO.PageModel Acknowledgement { get; set; } = new();
+    public ClientAcknowledgementDTO.PageModel Acknowledgement { get; set; } = new();
     public BankReviewDTO.PageModel BankReview { get; set; } = new();
 }
 
@@ -27,6 +27,6 @@ public class BusinessRegistrationRequest
     public AddressDTO.PageModel Address { get; set; } = new();
     public ContactDTO.PageModel Contact { get; set; } = new();
     public BeneficiaryDTO.PageModel Beneficiary { get; set; } = new();
-    public ClientAcknowlegdementDTO.PageModel Acknowledgement { get; set; } = new();
+    public ClientAcknowledgementDTO.PageModel Acknowledgement { get; set; } = new();
     public BankReviewDTO.PageModel BankReview { get; set; } = new();
 }

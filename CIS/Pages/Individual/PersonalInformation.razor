@@ -1,161 +1,876 @@
 ﻿@using CIS.Client.Services
 @inject IndividualService IndividualService
+@inject IJSRuntime JS
 
-<EditForm Model="Model" OnValidSubmit="Next">
+<EditForm Model="Model" OnValidSubmit="Next" @ref="editForm">
     <DataAnnotationsValidator />
 
-    <div class="card shadow-sm p-4">
-        <h5>Step 2: Personal Information</h5>
-        <div class="row g-3 mt-2">
-            @* --- Primary Names --- *@
-            <div class="col-md-4">
-                <label>First Name</label>
-                <InputText @bind-Value="Model.FirstName" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label>Middle Name</label>
-                <InputText @bind-Value="Model.MiddleName" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label>Last Name</label>
-                <InputText @bind-Value="Model.LastName" class="form-control" />
-            </div>
-
-            @* --- Residence and Gender --- *@
-            <div class="col-md-3">
-                <label>Resident</label>
-                <InputSelect @bind-Value="Model.IsResident" class="form-select">
-                    <option value="true">Yes</option>
-                    <option value="false">No</option>
-                </InputSelect>
-            </div>
-            <div class="col-md-3">
-                <label>Gender</label>
-                <InputSelect @bind-Value="Model.Gender" class="form-select">
-                    @foreach (var g in Enum.GetValues<Gender>())
-                    {
-                        <option value="@g">@g</option>
-                    }
-                </InputSelect>
-            </div>
-
-            @* --- Citizenship & Citizenship Other --- *@
-            <div class="col-md-3">
-                <label class="form-label">Citizenship</label>
-                <InputSelect @bind-Value="Model.Citizenship" class="form-select">
-                    @foreach (var c in Enum.GetValues<Citizenship>())
-                    {
-                        <option value="@c">@c</option>
-                    }
-                </InputSelect>
-            </div>
-            @if (Model.Citizenship == Citizenship.Others)
-            {
-                <div class="col-md-3">
-                    <label>Specify Citizenship</label>
-                    <InputText @bind-Value="Model.CitizenshipOther" class="form-control" />
+    <div class="pi-wrap">
+        @* ══════════════════════════════════════
+           SECTION 1 — Customer Category
+        ══════════════════════════════════════ *@
+        <div class="pi-section" id="field-CustomerCategories">
+            <div class="pi-section-header">
+                <div class="pi-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 11l3 3L22 4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    </svg>
                 </div>
-            }
+                <span class="pi-section-title">Customer Category</span>
+                <span class="pi-req pi-section-req">*</span>
+            </div>
+            <div class="pi-checkbox-group">
+                @foreach (var cat in Enum.GetValues<CustomerCategory>().Where(c => c != CustomerCategory.None))
+                {
+                    <label class="pi-checkbox-card @(Model.CustomerCategories.Contains(cat) ? "checked" : "")">
+                        <input type="checkbox"
+                               id="cat_@cat"
+                               checked="@Model.CustomerCategories.Contains(cat)"
+                               @onchange="e => ToggleCategory(cat, (bool)e.Value!)" />
+                        <div class="pi-checkbox-tick">
+                            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <span>@GetCategoryLabel(cat)</span>
+                    </label>
+                }
+            </div>
+            <ValidationMessage For="@(() => Model.CustomerCategories)" class="pi-field-error mt-2" />
+        </div>
 
-            @* --- Birth Details --- *@
-            <div class="col-md-4">
-                <label>Date of Birth</label>
-                <InputDate @bind-Value="Model.DateOfBirth" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label>Place of Birth</label>
-                <InputText @bind-Value="Model.PlaceOfBirth" class="form-control" />
-            </div>
-            <div class="col-md-4">
-                <label>Country of Origin</label>
-                <InputText @bind-Value="Model.CountryOfOrigin" class="form-control" />
-            </div>
-
-            @* --- Marital Status & Spouse --- *@
-            <div class="col-md-6">
-                <label>Marital Status</label>
-                <InputSelect @bind-Value="Model.MaritalStatus" class="form-select">
-                    @foreach (var m in Enum.GetValues<MaritalStatus>())
-                    {
-                        <option value="@m">@m</option>
-                    }
-                </InputSelect>
-            </div>
-            @if (Model.MaritalStatus == MaritalStatus.Married || Model.MaritalStatus == MaritalStatus.Widowed)
-            {
-                <div class="row g-2 mt-2 border-start ps-3">
-                    <h6>Spouse Full Name</h6>
-                    <div class="col-md-4"><InputText @bind-Value="Model.SpouseGivenName" class="form-control" placeholder="Given Name" /></div>
-                    <div class="col-md-4"><InputText @bind-Value="Model.SpouseMiddleName" class="form-control" placeholder="Middle Name" /></div>
-                    <div class="col-md-4"><InputText @bind-Value="Model.SpouseLastName" class="form-control" placeholder="Last Name" /></div>
+        @* ══════════════════════════════════════
+           SECTION 2 — Full Name
+        ══════════════════════════════════════ *@
+        <div class="pi-section" id="field-FirstName">
+            <div class="pi-section-header">
+                <div class="pi-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        <circle cx="12" cy="7" r="4" stroke="white" stroke-width="2" />
+                    </svg>
                 </div>
-            }
-
-            @* --- Mother's Maiden Name --- *@
-            <div class="row g-2 mt-4 border-start ps-3">
-                <h6>Mother's Maiden Name</h6>
-                <div class="col-md-4"><InputText @bind-Value="Model.MotherMaidenGivenName" class="form-control" placeholder="Given Name" /></div>
-                <div class="col-md-4"><InputText @bind-Value="Model.MotherMaidenMiddleName" class="form-control" placeholder="Middle Name" /></div>
-                <div class="col-md-4"><InputText @bind-Value="Model.MotherMaidenLastName" class="form-control" placeholder="Last Name" /></div>
+                <span class="pi-section-title">Full Name</span>
+            </div>
+            <div class="pi-grid pi-grid-3">
+                <div class="pi-field">
+                    <label class="pi-label">First Name <span class="pi-req">*</span></label>
+                    <InputText @bind-Value="Model.FirstName" class="pi-input" placeholder="e.g. Juan" />
+                    <ValidationMessage For="@(() => Model.FirstName)" class="pi-field-error" />
+                </div>
+                <div class="pi-field">
+                    <label class="pi-label">Middle Name</label>
+                    <InputText @bind-Value="Model.MiddleName" class="pi-input" placeholder="e.g. Santos" />
+                </div>
+                <div class="pi-field">
+                    <label class="pi-label">Last Name <span class="pi-req">*</span></label>
+                    <InputText @bind-Value="Model.LastName" class="pi-input" placeholder="e.g. Dela Cruz" />
+                    <ValidationMessage For="@(() => Model.LastName)" class="pi-field-error" />
+                </div>
             </div>
         </div>
 
-        @* --- Conditional: Female Maiden Name Details --- *@
-        @if (Model.Gender == Gender.Female)
+        @* ══════════════════════════════════════
+           SECTION 3 — Personal Details
+        ══════════════════════════════════════ *@
+        <div class="pi-section" id="field-Gender">
+            <div class="pi-section-header">
+                <div class="pi-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <span class="pi-section-title">Personal Details</span>
+            </div>
+            <div class="pi-grid pi-grid-4">
+                <div class="pi-field">
+                    <label class="pi-label">Philippines Resident?</label>
+                    <InputSelect @bind-Value="Model.IsResident" class="pi-select">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </InputSelect>
+                </div>
+                <div class="pi-field">
+                    <label class="pi-label">Gender <span class="pi-req">*</span></label>
+                    <InputSelect @bind-Value="Model.Gender" class="pi-select">
+                        @foreach (var g in Enum.GetValues<Gender>())
+                        {
+                            <option value="@g">@g</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Model.Gender)" class="pi-field-error" />
+                </div>
+                <div class="pi-field">
+                    <label class="pi-label">Citizenship <span class="pi-req">*</span></label>
+                    <InputSelect @bind-Value="Model.Citizenship" class="pi-select">
+                        @foreach (var c in Enum.GetValues<Citizenship>())
+                        {
+                            <option value="@c">@c</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Model.Citizenship)" class="pi-field-error" />
+                </div>
+                @if (Model.Citizenship == Citizenship.Others)
+                {
+                    <div class="pi-field pi-field-reveal">
+                        <label class="pi-label">Specify Citizenship <span class="pi-req">*</span></label>
+                        <InputText @bind-Value="Model.CitizenshipOther" class="pi-input" placeholder="Specify nationality" />
+                        <ValidationMessage For="@(() => Model.CitizenshipOther)" class="pi-field-error" />
+                    </div>
+                }
+                <div class="pi-field">
+                    <label class="pi-label">Marital Status</label>
+                    <InputSelect @bind-Value="Model.MaritalStatus" class="pi-select">
+                        @foreach (var m in Enum.GetValues<MaritalStatus>())
+                        {
+                            <option value="@m">@m</option>
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+        </div>
+
+        @* ══════════════════════════════════════
+           SECTION 4 — Birth Details
+        ══════════════════════════════════════ *@
+        <div class="pi-section" id="field-DateOfBirth">
+            <div class="pi-section-header">
+                <div class="pi-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="white" stroke-width="2" />
+                        <path d="M16 2v4M8 2v4M3 10h18" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <span class="pi-section-title">Birth Details</span>
+            </div>
+            <div class="pi-grid pi-grid-3">
+                <div class="pi-field">
+                    <label class="pi-label">Date of Birth <span class="pi-req">*</span></label>
+                    <InputDate @bind-Value="Model.DateOfBirth" class="pi-input" max="@maxDate" />
+                    <ValidationMessage For="@(() => Model.DateOfBirth)" class="pi-field-error" />
+                </div>
+                <div class="pi-field">
+                    <label class="pi-label">Place of Birth</label>
+                    <InputText @bind-Value="Model.PlaceOfBirth" class="pi-input" placeholder="e.g. Manila" />
+                </div>
+                <div class="pi-field">
+                    <label class="pi-label">Country of Origin <span class="pi-req">*</span></label>
+                    <InputText @bind-Value="Model.CountryOfOrigin" class="pi-input" placeholder="e.g. Philippines" />
+                    <ValidationMessage For="@(() => Model.CountryOfOrigin)" class="pi-field-error" />
+                </div>
+            </div>
+        </div>
+
+        @* ══════════════════════════════════════
+           CONDITIONAL — Maiden Name Details
+           (Female AND Married)
+        ══════════════════════════════════════ *@
+        @if (Model.Gender == Gender.Female && Model.MaritalStatus == MaritalStatus.Married)
         {
-            <div class="row g-3 mt-3 p-3 bg-light rounded border">
-                <h6>Maiden Name Details</h6>
-                <div class="col-md-4">
-                    <InputText @bind-Value="Model.MaidenName" class="form-control" placeholder="First Name" />
+            <div class="pi-section pi-section-conditional">
+                <div class="pi-section-header">
+                    <div class="pi-section-icon pi-icon-blue">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="8" r="4" stroke="white" stroke-width="2" />
+                            <path d="M12 12v8M9 18h6" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <span class="pi-section-title">Maiden Name Details</span>
                 </div>
-                <div class="col-md-4">
-                    <InputText @bind-Value="Model.MaidenMiddleName" class="form-control" placeholder="Middle Name" />
-                </div>
-                <div class="col-md-4">
-                    <InputText @bind-Value="Model.MaidenLastName" class="form-control" placeholder="Maiden Last Name" />
+                <div class="pi-grid pi-grid-3">
+                    <div class="pi-field">
+                        <label class="pi-label">Maiden First Name</label>
+                        <InputText @bind-Value="Model.MaidenName" class="pi-input" placeholder="First name before marriage" />
+                    </div>
+                    <div class="pi-field">
+                        <label class="pi-label">Maiden Middle Name</label>
+                        <InputText @bind-Value="Model.MaidenMiddleName" class="pi-input" placeholder="Middle name" />
+                    </div>
+                    <div class="pi-field">
+                        <label class="pi-label">Maiden Last Name <span class="pi-req">*</span></label>
+                        <InputText @bind-Value="Model.MaidenLastName" class="pi-input" placeholder="Last name before marriage" />
+                        <ValidationMessage For="@(() => Model.MaidenLastName)" class="pi-field-error" />
+                    </div>
                 </div>
             </div>
         }
 
-        @* --- Foreigner Section --- *@
-        <div class="form-check mt-4">
-            <InputCheckbox @bind-Value="Model.IsForeigner" class="form-check-input" id="chkForeigner" />
-            <label class="form-check-label" for="chkForeigner">Is Foreigner?</label>
+        @* ══════════════════════════════════════
+           CONDITIONAL — Spouse Name
+           (Married or Widowed)
+        ══════════════════════════════════════ *@
+        @if (Model.MaritalStatus == MaritalStatus.Married || Model.MaritalStatus == MaritalStatus.Widowed)
+        {
+            <div class="pi-section pi-section-conditional">
+                <div class="pi-section-header">
+                    <div class="pi-section-icon pi-icon-blue">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="white" stroke-width="2" stroke-linecap="round" />
+                            <circle cx="9" cy="7" r="4" stroke="white" stroke-width="2" />
+                            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <span class="pi-section-title">Spouse Full Name</span>
+                </div>
+                <div class="pi-grid pi-grid-3">
+                    <div class="pi-field">
+                        <label class="pi-label">Given Name <span class="pi-req">*</span></label>
+                        <InputText @bind-Value="Model.SpouseGivenName" class="pi-input" placeholder="Given name" />
+                        <ValidationMessage For="@(() => Model.SpouseGivenName)" class="pi-field-error" />
+                    </div>
+                    <div class="pi-field">
+                        <label class="pi-label">Middle Name</label>
+                        <InputText @bind-Value="Model.SpouseMiddleName" class="pi-input" placeholder="Middle name" />
+                    </div>
+                    <div class="pi-field">
+                        <label class="pi-label">Last Name <span class="pi-req">*</span></label>
+                        <InputText @bind-Value="Model.SpouseLastName" class="pi-input" placeholder="Last name" />
+                        <ValidationMessage For="@(() => Model.SpouseLastName)" class="pi-field-error" />
+                    </div>
+                </div>
+            </div>
+        }
+
+        @* ══════════════════════════════════════
+           SECTION 5 — Mother's Maiden Name
+        ══════════════════════════════════════ *@
+        <div class="pi-section" id="field-MotherMaidenGivenName">
+            <div class="pi-section-header">
+                <div class="pi-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        <circle cx="12" cy="7" r="4" stroke="white" stroke-width="2" />
+                    </svg>
+                </div>
+                <span class="pi-section-title">Mother's Maiden Name</span>
+            </div>
+            <div class="pi-grid pi-grid-3">
+                <div class="pi-field">
+                    <label class="pi-label">Given Name <span class="pi-req">*</span></label>
+                    <InputText @bind-Value="Model.MotherMaidenGivenName" class="pi-input" placeholder="Mother's given name" />
+                    <ValidationMessage For="@(() => Model.MotherMaidenGivenName)" class="pi-field-error" />
+                </div>
+                <div class="pi-field">
+                    <label class="pi-label">Middle Name</label>
+                    <InputText @bind-Value="Model.MotherMaidenMiddleName" class="pi-input" placeholder="Mother's middle name" />
+                </div>
+                <div class="pi-field">
+                    <label class="pi-label">Last Name <span class="pi-req">*</span></label>
+                    <InputText @bind-Value="Model.MotherMaidenLastName" class="pi-input" placeholder="Mother's maiden last name" />
+                    <ValidationMessage For="@(() => Model.MotherMaidenLastName)" class="pi-field-error" />
+                </div>
+            </div>
         </div>
 
+        @* ══════════════════════════════════════
+           SECTION 6 — Foreign National Toggle
+        ══════════════════════════════════════ *@
+        <div class="pi-section">
+            <label class="pi-toggle-row">
+                <div class="pi-toggle-info">
+                    <span class="pi-toggle-label">Foreign National</span>
+                    <span class="pi-toggle-sub">Applicant holds a foreign passport</span>
+                </div>
+                <div class="pi-toggle-switch @(Model.IsForeigner ? "on" : "")">
+                    <InputCheckbox @bind-Value="Model.IsForeigner" class="pi-toggle-input" id="chkForeigner" />
+                    <div class="pi-toggle-thumb"></div>
+                </div>
+            </label>
+        </div>
+
+        @* ══════════════════════════════════════
+           CONDITIONAL — Foreigner Details
+        ══════════════════════════════════════ *@
         @if (Model.IsForeigner)
         {
-            <div class="row g-3 mt-2 p-3 bg-light rounded border border-warning">
-                <div class="col-md-6">
-                    <label>Passport ID Number</label>
-                    <InputText @bind-Value="Model.PassportIDNumber" class="form-control" />
+            <div class="pi-section pi-section-conditional">
+                <div class="pi-section-header">
+                    <div class="pi-section-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <span class="pi-section-title">Foreigner Details</span>
                 </div>
-                <div class="col-md-6">
-                    <label>Passport Expiry</label>
-                    <InputDate @bind-Value="Model.PassportExpiry" class="form-control" />
+                <div class="pi-grid pi-grid-2">
+                    <div class="pi-field">
+                        <label class="pi-label">Passport ID Number <span class="pi-req">*</span></label>
+                        <InputText @bind-Value="Model.PassportIDNumber" class="pi-input" placeholder="e.g. A12345678" />
+                        <ValidationMessage For="@(() => Model.PassportIDNumber)" class="pi-field-error" />
+                    </div>
+                    <div class="pi-field">
+                        <label class="pi-label">Passport Expiry <span class="pi-req">*</span></label>
+                        <InputDate @bind-Value="Model.PassportExpiry" class="pi-input" />
+                        <ValidationMessage For="@(() => Model.PassportExpiry)" class="pi-field-error" />
+                    </div>
                 </div>
-                <div class="col-md-12 d-flex gap-4">
-                    <div class="form-check">
-                        <InputCheckbox @bind-Value="Model.IsACR" class="form-check-input" /> <label>Is ACR</label>
-                    </div>
-                    <div class="form-check">
-                        <InputCheckbox @bind-Value="Model.IsSIRV" class="form-check-input" /> <label>Is SIRV</label>
-                    </div>
-                    <div class="form-check">
-                        <InputCheckbox @bind-Value="Model.IsSRRV" class="form-check-input" /> <label>Is SRRV</label>
-                    </div>
+                <div class="pi-divider"></div>
+                <div class="pi-label mb-2">Visa / Permit Classification</div>
+                <div class="pi-checkbox-group">
+                    <label class="pi-checkbox-card @(Model.IsACR ? "checked" : "")">
+                        <InputCheckbox @bind-Value="Model.IsACR" class="pi-toggle-input" />
+                        <div class="pi-checkbox-tick">
+                            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="pi-checkbox-main">ACR</div>
+                            <div class="pi-checkbox-sub">Alien Certificate of Registration</div>
+                        </div>
+                    </label>
+                    <label class="pi-checkbox-card @(Model.IsSIRV ? "checked" : "")">
+                        <InputCheckbox @bind-Value="Model.IsSIRV" class="pi-toggle-input" />
+                        <div class="pi-checkbox-tick">
+                            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="pi-checkbox-main">SIRV</div>
+                            <div class="pi-checkbox-sub">Special Investor's Resident Visa</div>
+                        </div>
+                    </label>
+                    <label class="pi-checkbox-card @(Model.IsSRRV ? "checked" : "")">
+                        <InputCheckbox @bind-Value="Model.IsSRRV" class="pi-toggle-input" />
+                        <div class="pi-checkbox-tick">
+                            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="pi-checkbox-main">SRRV</div>
+                            <div class="pi-checkbox-sub">Special Resident Retiree's Visa</div>
+                        </div>
+                    </label>
                 </div>
             </div>
         }
 
-        <div class="d-flex justify-content-between mt-5">
-            <button type="button" class="btn btn-outline-secondary" @onclick="OnBack">Back</button>
-            <button type="submit" class="btn btn-primary px-5">Next</button>
+        @* ══════════════════════════════════════
+           FOOTER
+        ══════════════════════════════════════ *@
+        <div class="pi-footer">
+            <div class="pi-footer-hint">
+                <span class="pi-req">*</span>&nbsp;Required fields must be filled before continuing
+            </div>
+            <button type="submit" class="pi-btn-next" @onclick="async () => await TriggerValidation()">
+                <span>Continue to Contact</span>
+                <div class="pi-btn-arrow">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+            </button>
         </div>
+
     </div>
 </EditForm>
 
+<style>
+    /* ══════════════════════════════════════
+       Root
+    ══════════════════════════════════════ */
+    .pi-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* ══════════════════════════════════════
+       Section card
+    ══════════════════════════════════════ */
+    .pi-section {
+        background: #ffffff;
+        border: 1px solid #edf0f4;
+        border-radius: 18px;
+        padding: 22px 24px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .pi-section::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #00a859, #0056b3);
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+
+        .pi-section:focus-within {
+            border-color: #c8e6d8;
+            box-shadow: 0 4px 20px rgba(0,168,89,0.07);
+        }
+
+            .pi-section:focus-within::after {
+                opacity: 1;
+            }
+
+    .pi-section-error {
+        border-color: #fecaca !important;
+        background: #fffafa;
+    }
+
+    .pi-section-conditional {
+        border-color: #dbeafe;
+        background: linear-gradient(135deg, #f8fbff 0%, #f0fdf8 100%);
+        animation: pi-slide-in 0.22s ease;
+    }
+
+    @@keyframes pi-slide-in {
+        from {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ══════════════════════════════════════
+       Section header
+    ══════════════════════════════════════ */
+    .pi-section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .pi-section-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #00a859, #0056b3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(0,168,89,0.25);
+    }
+
+    .pi-icon-blue {
+        background: linear-gradient(135deg, #2563eb, #7c3aed);
+        box-shadow: 0 2px 8px rgba(37,99,235,0.22);
+    }
+
+    .pi-section-title {
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        flex: 1;
+    }
+
+    .pi-section-req {
+        font-size: 1rem;
+        color: #ef4444;
+        line-height: 1;
+    }
+
+    .pi-conditional-tag {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: #1d4ed8;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 6px;
+        padding: 2px 8px;
+        white-space: nowrap;
+    }
+
+    /* ══════════════════════════════════════
+       Grid
+    ══════════════════════════════════════ */
+    .pi-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .pi-grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .pi-grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .pi-grid-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    /* ══════════════════════════════════════
+       Field
+    ══════════════════════════════════════ */
+    .pi-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .pi-field-reveal {
+        animation: pi-slide-in 0.18s ease;
+    }
+
+    .pi-label {
+        font-size: 0.71rem;
+        font-weight: 700;
+        color: #64748b;
+        letter-spacing: 0.2px;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .pi-req {
+        color: #ef4444;
+        font-size: 0.8rem;
+        line-height: 1;
+    }
+
+    .pi-input,
+    .pi-select {
+        height: 42px;
+        padding: 0 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 11px;
+        font-size: 0.86rem;
+        color: #0f172a;
+        background: #fff;
+        outline: none;
+        transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+        width: 100%;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .pi-select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 36px;
+        cursor: pointer;
+    }
+
+        .pi-input:hover, .pi-select:hover {
+            border-color: #94a3b8;
+        }
+
+        .pi-input:focus, .pi-select:focus {
+            border-color: #00a859;
+            box-shadow: 0 0 0 3px rgba(0,168,89,0.12);
+            background: #fafffe;
+        }
+
+    .pi-input[type="date"] {
+        padding: 0 12px;
+    }
+
+    /* Blazor validation state classes */
+    .pi-input.invalid,
+    .pi-input.modified.invalid,
+    .pi-select.invalid,
+    .pi-select.modified.invalid {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important;
+    }
+
+    .pi-input.modified.valid,
+    .pi-select.modified.valid {
+        border-color: #00a859 !important;
+    }
+
+    .pi-field-error {
+        font-size: 0.7rem;
+        color: #dc2626;
+        font-weight: 500;
+        margin: 0;
+        padding: 0;
+        display: block;
+    }
+
+    .mt-2 {
+        margin-top: 8px;
+    }
+
+    /* ══════════════════════════════════════
+       Checkbox cards
+    ══════════════════════════════════════ */
+    .pi-checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .pi-checkbox-card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 18px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 11px;
+        cursor: pointer;
+        color: #475569;
+        background: #fff;
+        transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+        user-select: none;
+        font-size: 0.84rem;
+        font-weight: 500;
+    }
+
+        .pi-checkbox-card:hover {
+            border-color: #94a3b8;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .pi-checkbox-card input[type="checkbox"],
+        .pi-toggle-input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+
+    .pi-checkbox-tick {
+        width: 20px;
+        height: 20px;
+        border-radius: 6px;
+        border: 1.5px solid #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.18s;
+        background: #f8fafc;
+    }
+
+    .pi-checkbox-card.checked {
+        border-color: #00a859;
+        background: linear-gradient(135deg, #f0fdf8 0%, #eff6ff 100%);
+        box-shadow: 0 2px 12px rgba(0,168,89,0.1);
+        color: #0f172a;
+    }
+
+        .pi-checkbox-card.checked .pi-checkbox-tick {
+            background: linear-gradient(135deg, #00a859, #0056b3);
+            border-color: transparent;
+            box-shadow: 0 2px 6px rgba(0,168,89,0.3);
+        }
+
+    .pi-checkbox-main {
+        font-size: 0.84rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+
+    .pi-checkbox-sub {
+        font-size: 0.68rem;
+        color: #94a3b8;
+        margin-top: 1px;
+    }
+
+    /* ══════════════════════════════════════
+       Toggle switch
+    ══════════════════════════════════════ */
+    .pi-toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        user-select: none;
+        gap: 12px;
+    }
+
+    .pi-toggle-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .pi-toggle-label {
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .pi-toggle-sub {
+        font-size: 0.72rem;
+        color: #94a3b8;
+    }
+
+    .pi-toggle-switch {
+        position: relative;
+        width: 46px;
+        height: 26px;
+        background: #e2e8f0;
+        border-radius: 99px;
+        transition: background 0.25s;
+        flex-shrink: 0;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+        .pi-toggle-switch.on {
+            background: linear-gradient(90deg, #00a859, #0056b3);
+            box-shadow: 0 2px 8px rgba(0,168,89,0.3);
+        }
+
+    .pi-toggle-thumb {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+        transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+        pointer-events: none;
+    }
+
+    .pi-toggle-switch.on .pi-toggle-thumb {
+        transform: translateX(20px);
+    }
+
+    /* ══════════════════════════════════════
+       Divider
+    ══════════════════════════════════════ */
+    .pi-divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin: 16px 0 12px;
+    }
+
+    .mb-2 {
+        margin-bottom: 8px;
+    }
+
+    /* ══════════════════════════════════════
+       Footer
+    ══════════════════════════════════════ */
+    .pi-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 6px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .pi-footer-hint {
+        font-size: 0.72rem;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .pi-btn-next {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 28px;
+        background: linear-gradient(90deg, #00a859 0%, #0056b3 100%);
+        color: #fff;
+        border: none;
+        border-radius: 13px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: filter 0.18s, transform 0.15s, box-shadow 0.18s;
+        box-shadow: 0 4px 18px rgba(0,168,89,0.3);
+        letter-spacing: 0.2px;
+    }
+
+        .pi-btn-next:hover {
+            filter: brightness(1.07);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(0,168,89,0.38);
+        }
+
+        .pi-btn-next:active {
+            transform: translateY(0);
+            filter: brightness(0.97);
+        }
+
+    .pi-btn-arrow {
+        width: 30px;
+        height: 30px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════════════
+       Responsive
+    ══════════════════════════════════════ */
+    @@media (max-width: 768px) {
+        .pi-grid-3 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .pi-grid-4 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .pi-section {
+            padding: 18px;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .pi-grid-2,
+        .pi-grid-3,
+        .pi-grid-4 {
+            grid-template-columns: 1fr;
+        }
+
+        .pi-section {
+            padding: 14px;
+            border-radius: 14px;
+        }
+
+        .pi-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .pi-btn-next {
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    window.scrollToFirstError = function(id) {
+        var el = document.getElementById(id);
+        if (!el) return false;
+        var err = el.querySelector('.pi-field-error');
+        if (!err || !err.textContent.trim()) return false;
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return true;
+    };
+</script>
+
+
 @code {
+    // ── Parameters ────────────────────────────────────────────────
+    [Parameter] public CustomerDTO.PageModel Customer { get; set; } = new();
+    [Parameter] public EventCallback<CustomerDTO.PageModel> CustomerChanged { get; set; }
     [Parameter] public IndividualInfoDTO.PageModel Model { get; set; } = new();
     [Parameter] public EventCallback<IndividualInfoDTO.PageModel> ModelChanged { get; set; }
     [Parameter] public IndividualForeignerDTO.PageModel ForeignerModel { get; set; } = new();
@@ -163,27 +878,109 @@
     [Parameter] public EventCallback OnNext { get; set; }
     [Parameter] public EventCallback OnBack { get; set; }
 
+    // ── State ──────────────────────────────────────────────────────
+    private EditForm? editForm;
+    private ValidationMessageStore? messageStore;
+    private string maxDate => DateTime.Today.ToString("yyyy-MM-dd");
+
+    // ── Lifecycle ──────────────────────────────────────────────────
+    protected override void OnInitialized()
+    {
+        Model.IsResident = true;
+        Model.CustomerCategories = Customer.CustomerCategories;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender) return;
+        var ctx = editForm?.EditContext;
+        if (ctx == null) return;
+
+        messageStore = new ValidationMessageStore(ctx);
+        ctx.OnFieldChanged += (_, _) =>
+        {
+            ValidateConditionalFields();
+            ctx.NotifyValidationStateChanged();
+        };
+    }
+
+    // ── Validation ─────────────────────────────────────────────────
+    private static readonly string[] ScrollTargets =
+    [
+        "field-CustomerCategories", "field-FirstName",
+        "field-Gender", "field-DateOfBirth", "field-MotherMaidenGivenName"
+    ];
+
+    private async Task TriggerValidation()
+    {
+        var ctx = editForm?.EditContext;
+        if (ctx == null) return;
+
+        ctx.Validate();
+        ValidateConditionalFields();
+        ctx.NotifyValidationStateChanged();
+
+        if (!ctx.GetValidationMessages().Any()) return;
+        foreach (var id in ScrollTargets)
+        {
+            try { if (await JS.InvokeAsync<bool>("scrollToFirstError", id)) break; }
+            catch { /* element not in DOM */ }
+        }
+    }
+
+    private void ValidateConditionalFields()
+    {
+        var store = messageStore;
+        var ctx = editForm?.EditContext;
+        if (store == null || ctx == null) return;
+
+        store.Clear();
+
+        if (Model.CustomerCategories.Count == 0)
+            store.Add(() => Model.CustomerCategories, "At least one customer category must be selected.");
+
+        if (Model.Citizenship == Citizenship.Others && string.IsNullOrWhiteSpace(Model.CitizenshipOther))
+            store.Add(() => Model.CitizenshipOther, "Please specify citizenship.");
+
+        bool isMarriedOrWidowed = Model.MaritalStatus is MaritalStatus.Married or MaritalStatus.Widowed;
+        if (isMarriedOrWidowed)
+        {
+            if (string.IsNullOrWhiteSpace(Model.SpouseGivenName))
+                store.Add(() => Model.SpouseGivenName, "Spouse given name is required.");
+            if (string.IsNullOrWhiteSpace(Model.SpouseLastName))
+                store.Add(() => Model.SpouseLastName, "Spouse last name is required.");
+        }
+
+        if (Model.Gender == Gender.Female && Model.MaritalStatus == MaritalStatus.Married
+            && string.IsNullOrWhiteSpace(Model.MaidenLastName))
+            store.Add(() => Model.MaidenLastName, "Maiden last name is required.");
+
+        if (Model.IsForeigner)
+        {
+            if (string.IsNullOrWhiteSpace(Model.PassportIDNumber))
+                store.Add(() => Model.PassportIDNumber, "Passport ID number is required.");
+            if (Model.PassportExpiry == null)
+                store.Add(() => Model.PassportExpiry, "Passport expiry date is required.");
+        }
+    }
+
+    // ── Submit ─────────────────────────────────────────────────────
     private async Task Next()
     {
-        // Clear conditional fields that are hidden in the UI
+        Customer.EntityType = EntityType.Individual;
+        Customer.CustomerCategories = Model.CustomerCategories;
+
+        // Clear hidden conditional fields before saving
         if (Model.Citizenship != Citizenship.Others)
             Model.CitizenshipOther = null;
 
-        if (Model.MaritalStatus != MaritalStatus.Married && Model.MaritalStatus != MaritalStatus.Widowed)
-        {
-            Model.SpouseGivenName = null;
-            Model.SpouseMiddleName = null;
-            Model.SpouseLastName = null;
-        }
+        if (Model.MaritalStatus is not (MaritalStatus.Married or MaritalStatus.Widowed))
+            (Model.SpouseGivenName, Model.SpouseMiddleName, Model.SpouseLastName) = (null, null, null);
 
-        if (Model.Gender != Gender.Female)
-        {
-            Model.MaidenName = null;
-            Model.MaidenMiddleName = null;
-            Model.MaidenLastName = null;
-        }
+        if (!(Model.Gender == Gender.Female && Model.MaritalStatus == MaritalStatus.Married))
+            (Model.MaidenName, Model.MaidenMiddleName, Model.MaidenLastName) = (null, null, null);
 
-        // Map foreigner fields into the dedicated ForeignerModel DTO
+        // Sync foreigner data — reset both Model and ForeignerModel when not a foreigner
         if (Model.IsForeigner)
         {
             ForeignerModel.PassportIDNumber = Model.PassportIDNumber;
@@ -194,19 +991,32 @@
         }
         else
         {
-            ForeignerModel.PassportIDNumber = null;
-            ForeignerModel.PassportExpiry = null;
-            ForeignerModel.IsACR = false;
-            ForeignerModel.IsSIRV = false;
-            ForeignerModel.IsSRRV = false;
-            Model.PassportIDNumber = null;
-            Model.PassportExpiry = null;
-            Model.IsACR = false;
-            Model.IsSIRV = false;
-            Model.IsSRRV = false;
+            ForeignerModel.PassportIDNumber = Model.PassportIDNumber = null;
+            ForeignerModel.PassportExpiry = Model.PassportExpiry = null;
+            ForeignerModel.IsACR = Model.IsACR = false;
+            ForeignerModel.IsSIRV = Model.IsSIRV = false;
+            ForeignerModel.IsSRRV = Model.IsSRRV = false;
         }
 
+        await CustomerChanged.InvokeAsync(Customer);
         await ForeignerModelChanged.InvokeAsync(ForeignerModel);
         await OnNext.InvokeAsync();
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────
+    private static string GetCategoryLabel(CustomerCategory cat) => cat switch
+    {
+        CustomerCategory.LoanBorrower => "Loan Borrower",
+        CustomerCategory.LoanCoMaker => "Loan Co-Maker",
+        CustomerCategory.Depositor => "Depositor",
+        _ => cat.ToString()
+    };
+
+    private void ToggleCategory(CustomerCategory cat, bool isChecked)
+    {
+        if (isChecked && !Model.CustomerCategories.Contains(cat))
+            Model.CustomerCategories.Add(cat);
+        else
+            Model.CustomerCategories.Remove(cat);
     }
 }
