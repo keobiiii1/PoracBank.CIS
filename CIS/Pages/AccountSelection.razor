@@ -3,357 +3,113 @@
 @using CIS.Client.Services
 @inject RegistrationStorageService Storage
 
-<div class="container px-3 py-4 py-sm-5">
-    <!-- Header with PWA badge for mobile -->
-    <div class="d-flex d-sm-none align-items-center justify-content-between mb-4">
-        <h1 class="h5 fw-bold text-primary mb-0">
-            <i class="bi bi-bank2 me-2"></i>Porac Bank
-        </h1>
-        <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
-            <i class="bi bi-wifi"></i> PWA
-        </span>
-    </div>
-
-    <!-- Desktop header (hidden on mobile) -->
-    <div class="text-center mb-5 d-none d-sm-block">
-        <h1 class="display-4 fw-bold text-primary">Porac Bank</h1>
-        <p class="lead text-muted">Customer Information System</p>
-    </div>
-
-    <!-- Account Selection Cards -->
-    <div class="row justify-content-center g-3 g-md-4">
-        <!-- Individual Account Card -->
-        <div class="col-12 col-md-5">
-            <div class="type-selector p-4 p-sm-5 h-100 @(hoveredType == "individual" ? "selected" : "")"
-                 @onclick='() => NavigateTo("individual")'
-                 @onmouseover='() => hoveredType = "individual"'
-                 @onmouseout='() => hoveredType = ""'>
-
-                <div class="d-flex flex-column align-items-center text-center">
-                    <!-- Icon with background -->
-                    <div class="bg-primary bg-opacity-10 rounded-circle mb-3 mb-sm-4 d-flex align-items-center justify-content-center"
-                         style="width: 80px; height: 80px; @(isTabletOrLarger ? "width: 100px; height: 100px;" : "")">
-                        <i class="bi bi-person-circle text-primary" style="font-size: 2.5rem; @(isTabletOrLarger ? "font-size: 3rem;" : "")"></i>
-                    </div>
-
-                    <!-- Title -->
-                    <h2 class="h5 h4-sm fw-bold mb-2">Individual Account</h2>
-
-                    <!-- Description -->
-                    <p class="small text-muted mb-3 mb-sm-4">
-                        Register personal, joint, or single proprietorship accounts.
-                    </p>
-
-                    <!-- Button - Full width on mobile -->
-                    <button class="btn btn-primary w-100 w-sm-auto py-3 py-sm-2 px-sm-4 rounded-4 fw-semibold"
-                            style="font-size: 1rem; @(isTabletOrLarger ? "width: auto;" : "")">
-                        Start Individual Flow
-                        <i class="bi bi-arrow-right ms-2"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Business Account Card -->
-        <div class="col-12 col-md-5">
-            <div class="type-selector p-4 p-sm-5 h-100 @(hoveredType == "business" ? "selected" : "")"
-                 @onclick='() => NavigateTo("business")'
-                 @onmouseover='() => hoveredType = "business"'
-                 @onmouseout='() => hoveredType = ""'>
-
-                <div class="d-flex flex-column align-items-center text-center">
-                    <!-- Icon with background -->
-                    <div class="bg-success bg-opacity-10 rounded-circle mb-3 mb-sm-4 d-flex align-items-center justify-content-center"
-                         style="width: 80px; height: 80px; @(isTabletOrLarger ? "width: 100px; height: 100px;" : "")">
-                        <i class="bi bi-building text-success" style="font-size: 2.5rem; @(isTabletOrLarger ? "font-size: 3rem;" : "")"></i>
-                    </div>
-
-                    <!-- Title -->
-                    <h2 class="h5 h4-sm fw-bold mb-2">Business Account</h2>
-
-                    <!-- Description -->
-                    <p class="small text-muted mb-3 mb-sm-4">
-                        Register corporations, partnerships, or organizations.
-                    </p>
-
-                    <!-- Button - Full width on mobile -->
-                    <button class="btn btn-success w-100 w-sm-auto py-3 py-sm-2 px-sm-4 rounded-4 fw-semibold"
-                            style="font-size: 1rem; @(isTabletOrLarger ? "width: auto;" : "")">
-                        Start Business Flow
-                        <i class="bi bi-arrow-right ms-2"></i>
-                    </button>
-                </div>
-            </div>
+<div class="selection-container shadow-sm mt-4">
+    <div class="header-border mb-5">
+        <div class="d-flex align-items-center text-success fw-bold pb-2">
+            <i class="bi bi-card-heading me-2"></i> Select Account Type
         </div>
     </div>
 
-    <!-- PWA Install Prompt (optional) - Hidden by default -->
-    <div class="d-none" id="installPrompt"></div>
+    <div class="row justify-content-center mb-5">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="account-card active" @onclick='() => selectedType = "individual"'>
+                
+                <div class="icon-circle bg-info-subtle text-info mb-3">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <h5 class="fw-bold mb-1">Individual Account</h5>
+                <p class="text-muted small">For personal savings, checking, or time deposit accounts</p>          
+            </div>
+        </div>
+
+        @* <div class="col-md-6">
+            <div class="account-card @(selectedType == "business" ? "active" : "")" 
+                 @onclick='() => selectedType = "business"'>
+                <div class="icon-circle bg-primary-subtle text-primary mb-3">
+                    <i class="bi bi-building-fill"></i>
+                </div>
+                <h5 class="fw-bold mb-1">Business Account</h5>
+                <p class="text-muted small">For companies, partnerships, or corporations</p>
+                <div class="badge-container">
+                    <span class="badge rounded-pill bg-primary-subtle text-primary">
+                        <i class="bi bi-star-fill me-1"></i> Enterprise Ready
+                    </span>
+                </div>
+            </div>
+        </div> 
+        *@
+    </div>
+
+    <button class="btn start-btn w-100 py-3 fw-bold shadow" @onclick="HandleStart">
+        <i class="bi bi-rocket-takeoff-fill me-2"></i> Start Application <i class="bi bi-arrow-right ms-2"></i>
+    </button>
 </div>
 
 @code {
-    private string hoveredType = "";
-    private bool isTabletOrLarger = false;
+    private string selectedType = "individual";
 
     [Inject] private NavigationManager Nav { get; set; } = default!;
-    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            // Check screen size for responsive adjustments
-            isTabletOrLarger = await JSRuntime.InvokeAsync<bool>("checkScreenSize");
-            StateHasChanged();
-        }
-    }
-
-    private async Task NavigateTo(string path)
+    private async Task HandleStart()
     {
         await Storage.ClearIndividualDraftAsync();
         await Storage.ClearDraftAsync();
-
-        Nav.NavigateTo($"/cis/{path}");
+        Nav.NavigateTo($"/cis/{selectedType}");
     }
 }
 
-<!-- Add this JavaScript to wwwroot/index.html or a separate JS file -->
-<script>
-    window.checkScreenSize = () => {
-        return window.innerWidth >= 768;
-    };
-
-    // PWA Install prompt (optional)
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        // Show install prompt if needed
-        const installPrompt = document.getElementById('installPrompt');
-        if (installPrompt) {
-            installPrompt.classList.remove('d-none');
-        }
-    });
-</script>
-
 <style>
-    /* Account Selection Card Styles */
-    .type-selector {
-        border: 2px solid #e2e8f0;
-        border-radius: 24px;
+    .selection-container {
         background: white;
+        border-radius: 24px;
+        padding: 40px;
+        border: 1px solid #eef2f7;
+        max-width: 700px;
+        margin: auto;
+    }
+
+    .header-border {
+        border-bottom: 2px solid;
+        border-image: linear-gradient(to right, #00a859 30%, #2563eb 100%) 1;
+    }
+
+    .account-card {
+        border: 2px solid transparent;
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
         cursor: pointer;
-        transition: all 0.2s ease;
-        -webkit-tap-highlight-color: transparent;
-        min-height: 380px;
-        display: flex;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        background: linear-gradient(white, white) padding-box, linear-gradient(to right, #00a859, #2563eb) border-box;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    }
+
+        .account-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+    .icon-circle {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: inline-flex;
         align-items: center;
+        justify-content: center;
+        font-size: 2rem;
     }
 
-        .type-selector:hover {
-            border-color: #2563eb;
-            transform: translateY(-4px);
-            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.15);
-        }
-
-        .type-selector.selected {
-            border-color: #2563eb;
-            background: #eff6ff;
-            box-shadow: 0 20px 30px -10px rgba(37, 99, 235, 0.2);
-        }
-
-        /* Touch feedback for mobile */
-        .type-selector:active {
-            transform: scale(0.98);
-            opacity: 0.9;
-        }
-
-        /* Individual card specific hover */
-        .type-selector:has(.btn-primary):hover {
-            border-color: #2563eb;
-        }
-
-        /* Business card specific hover */
-        .type-selector:has(.btn-success):hover {
-            border-color: #10b981;
-        }
-
-        .type-selector:has(.btn-success).selected {
-            border-color: #10b981;
-            background: #f0fdf4;
-        }
-
-    /* Icon background colors */
-    .bg-primary.bg-opacity-10 {
-        background-color: rgba(37, 99, 235, 0.1) !important;
-    }
-
-    .bg-success.bg-opacity-10 {
-        background-color: rgba(16, 185, 129, 0.1) !important;
-    }
-
-    /* Button styles */
-    .btn-primary {
-        background-color: #2563eb;
+    .start-btn {
+        background: linear-gradient(90deg, #00c853 0%, #2962ff 100%);
+        color: white;
         border: none;
+        border-radius: 50px;
         transition: all 0.2s;
     }
 
-        .btn-primary:hover, .btn-primary:active {
-            background-color: #1d4ed8 !important;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.3);
+        .start-btn:hover {
+            transform: scale(1.01);
+            filter: brightness(1.1);
+            color: white;
         }
-
-    .btn-success {
-        background-color: #10b981;
-        border: none;
-        transition: all 0.2s;
-    }
-
-        .btn-success:hover, .btn-success:active {
-            background-color: #059669 !important;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px -5px rgba(16, 185, 129, 0.3);
-        }
-
-    .btn:active {
-        transform: translateY(0) !important;
-    }
-
-    /* ===== RESPONSIVE STYLES ===== */
-
-    /* Mobile phones (up to 576px) */
-    @@media (max-width: 576px) {
-        .type-selector {
-            min-height: 340px;
-            padding: 20px !important;
-            border-radius: 20px;
-        }
-
-            .type-selector .rounded-circle {
-                width: 70px !important;
-                height: 70px !important;
-            }
-
-            .type-selector i {
-                font-size: 2rem !important;
-            }
-
-            .type-selector h2 {
-                font-size: 1.25rem !important;
-            }
-
-            .type-selector p {
-                font-size: 0.875rem !important;
-            }
-
-        .btn {
-            padding: 16px !important;
-            font-size: 1rem !important;
-            border-radius: 40px !important;
-            width: 100%;
-        }
-    }
-
-    /* Tablets (577px to 768px) */
-    @@media (min-width: 577px) and (max-width: 768px) {
-        .type-selector {
-            min-height: 360px;
-            padding: 24px !important;
-        }
-
-            .type-selector .rounded-circle {
-                width: 85px !important;
-                height: 85px !important;
-            }
-
-            .type-selector i {
-                font-size: 2.5rem !important;
-            }
-    }
-
-    /* Small desktops (769px to 1024px) */
-    @@media (min-width: 769px) and (max-width: 1024px) {
-        .type-selector {
-            min-height: 400px;
-        }
-    }
-
-    /* Landscape orientation on phones */
-    @@media (max-width: 896px) and (orientation: landscape) {
-        .type-selector {
-            min-height: 280px;
-        }
-
-        .row {
-            flex-direction: row !important;
-        }
-
-        .col-12 {
-            width: 50%;
-        }
-    }
-
-    /* High-resolution phones (e.g., iPhone Pro Max) */
-    @@media (min-width: 390px) and (max-width: 428px) {
-        .type-selector {
-            min-height: 360px;
-        }
-    }
-
-    /* Safe area insets for notched phones */
-    @@supports (padding: max(0px)) {
-        .container {
-            padding-left: max(16px, env(safe-area-inset-left)) !important;
-            padding-right: max(16px, env(safe-area-inset-right)) !important;
-            padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
-        }
-    }
-
-    /* Prevent pull-to-refresh on PWA */
-    body {
-        overscroll-behavior-y: contain;
-    }
-
-    /* Loading animation for buttons */
-    .btn {
-        position: relative;
-        overflow: hidden;
-    }
-
-        .btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.3s, height 0.3s;
-        }
-
-        .btn:active::after {
-            width: 200px;
-            height: 200px;
-        }
-
-    /* Fade-in animation */
-    .type-selector {
-        animation: fadeInUp 0.5s ease;
-    }
-
-    @@keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
 </style>

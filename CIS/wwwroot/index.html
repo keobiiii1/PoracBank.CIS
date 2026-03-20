@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CIS</title>
+    <title>Porac Bank</title>
     <base href="/" />
 
     <link rel="icon" type="image/png" href="favicon.png" />
@@ -47,6 +47,16 @@
                 navigator.serviceWorker.register('./service-worker.js');
             });
         }
+
+        window.connectivityStatus = {
+            checkStatus: function () {
+                return navigator.onLine;
+            },
+            registerHandler: function (dotnetHelper) {
+                window.addEventListener('online', () => dotnetHelper.invokeMethodAsync('UpdateStatus', true));
+                window.addEventListener('offline', () => dotnetHelper.invokeMethodAsync('UpdateStatus', false));
+            }
+        };
     </script>
 </body>
 

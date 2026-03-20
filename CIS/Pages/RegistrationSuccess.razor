@@ -26,7 +26,8 @@
                         </button>
 
                         @* Existing Register Another Button *@
-                        <button type="button" class="btn btn-outline-secondary btn-lg px-4" @onclick='() => Nav.NavigateTo("/")'>
+                        <button type="button" class="btn btn-outline-secondary btn-lg px-4"
+                                @onclick="RegisterAnother">
                             Register Another @RegistrationType
                         </button>
                     </div>
@@ -50,7 +51,11 @@
     {
         var printUrl = $"/porac-bank-cis?customerId={CustomerId}";
         await JS.InvokeVoidAsync("open", printUrl, "_blank");
+    }
 
-        //Nav.NavigateTo("/");
+    private async Task RegisterAnother()
+    {
+        await OnReset.InvokeAsync();   
+        Nav.NavigateTo("/");
     }
 }

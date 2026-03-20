@@ -4,12 +4,18 @@
     flex-direction: column;
 }
 
+::deep body {
+    margin: 0;
+    padding: 0;
+}
+
 main {
-    flex: 1;
+    display: block;
+    width: 100%;
 }
 
 .sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+    background-image: linear-gradient(180deg, #00a859 0%, #0056b3 100%);
 }
 
 .top-row {
