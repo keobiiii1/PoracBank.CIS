@@ -634,6 +634,24 @@
     private string? presAddressError;
 
     // ── Lifecycle ──────────────────────────────────────────────────
+    protected override void OnInitialized()
+    {
+        // Restore split address fields from the combined model value
+        // so inputs are pre-filled when navigating back
+        if (!string.IsNullOrWhiteSpace(AddressModel.PermanentAddress))
+            RestoreAddressParts(AddressModel.PermanentAddress,
+                ref permHouseNo, ref permStreet, ref permBarangay, ref permCity, ref permProvince);
+
+        if (!string.IsNullOrWhiteSpace(AddressModel.PresentAddress) && !AddressModel.IsPresentSameAsPermanent)
+            RestoreAddressParts(AddressModel.PresentAddress,
+                ref presHouseNo, ref presStreet, ref presBarangay, ref presCity, ref presProvince);
+
+        // Restore mobile raw digits from stored +63XXXXXXXXXX value
+        if (!string.IsNullOrWhiteSpace(InfoModel.MobilePhoneNumber) &&
+            InfoModel.MobilePhoneNumber.StartsWith("+63"))
+            mobileRaw = InfoModel.MobilePhoneNumber[3..];
+    }
+
     protected override void OnAfterRender(bool firstRender)
     {
         if (!firstRender) return;
@@ -783,6 +801,41 @@
         _ => pref.ToString()
     };
 
+    // ── Address restore helper ────────────────────────────────────
+    // Splits a stored combined address back into individual part fields.
+    // The address was originally built as: HouseNo, Street, Barangay, City, Province
+    // We reverse that by splitting on ", " up to 5 parts.
+    private static void RestoreAddressParts(
+        string combined,
+        ref string? houseNo, ref string? street,
+        ref string? barangay, ref string? city, ref string? province)
+    {
+        var parts = combined.Split(", ", 5, StringSplitOptions.None);
+        // If there are 5 parts, assume full address with house no.
+        // If 4 parts, assume no house no. was entered.
+        if (parts.Length == 5)
+        {
+            houseNo  = parts[0];
+            street   = parts[1];
+            barangay = parts[2];
+            city     = parts[3];
+            province = parts[4];
+        }
+        else if (parts.Length == 4)
+        {
+            houseNo  = null;
+            street   = parts[0];
+            barangay = parts[1];
+            city     = parts[2];
+            province = parts[3];
+        }
+        else if (parts.Length >= 1)
+        {
+            // Fallback: put everything in street
+            street = combined;
+        }
+    }
+
     // ── Submit ─────────────────────────────────────────────────────
     private async Task Next()
     {
@@ -798,11 +851,11 @@
             AddressModel.MailingPreference = MailingPreference.PermanentAddress;
         }
 
-        ContactModel.EntityID          = CustomerId;
-        ContactModel.EntityType        = EntityType.Individual;
-        ContactModel.HomePhoneNumber   = InfoModel.HomePhoneNumber;
+        ContactModel.EntityID = CustomerId;
+        ContactModel.EntityType = EntityType.Individual;
+        ContactModel.HomePhoneNumber = InfoModel.HomePhoneNumber;
         ContactModel.MobilePhoneNumber = InfoModel.MobilePhoneNumber;
-        ContactModel.EmailAddress      = InfoModel.EmailAddress;
+        ContactModel.EmailAddress = InfoModel.EmailAddress;
 
         await ContactModelChanged.InvokeAsync(ContactModel);
         await OnNext.InvokeAsync();
