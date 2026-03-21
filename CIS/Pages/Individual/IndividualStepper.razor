@@ -50,7 +50,7 @@
                               : "todo";
                     var label = StepLabels[idx - 1];
 
-                    <div class="ist-step ist-step-@state ist-step-clickable"
+                    <div class="ist-step ist-step-@state @(idx < CurrentStep ? "ist-step-clickable" : "")"
                          @onclick="() => GoToStep(idx)">
                         <div class="ist-step-circle">
                             @if (state == "done")
@@ -635,7 +635,7 @@
 
     private void GoToStep(int step)
     {
-        if (step >= 1 && step <= TotalSteps)
+        if (step >= 1 && step < CurrentStep && validatedSteps.Contains(step))
         {
             CurrentStep = step;
             StateHasChanged();

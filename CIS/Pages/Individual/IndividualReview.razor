@@ -1,213 +1,1159 @@
 ﻿@using CIS.Client.Services
 @using CIS.Assets.Enum
 @using CIS.Assets.DTO
+@using System.ComponentModel
+@using System.Reflection
 
-<div class="container pb-5">
-    <div class="alert alert-info shadow-sm mb-4">
-        <i class="bi bi-info-circle-fill me-2"></i>
-        Please review all encoded details carefully before final submission.
-    </div>
+<div class="rv-wrap">
 
-    @* Section: Personal Information *@
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">Personal Information</div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4"><strong>Full Name:</strong> @Personal.FirstName @Personal.MiddleName @Personal.LastName</div>
-                <div class="col-md-4"><strong>Birth Date:</strong> @Personal.DateOfBirth?.ToString("MMMM dd, yyyy")</div>
-                <div class="col-md-4"><strong>Gender:</strong> @Personal.Gender</div>
-                <div class="col-md-4 mt-2"><strong>Marital Status:</strong> @Personal.MaritalStatus</div>
-                <div class="col-md-4 mt-2"><strong>Citizenship:</strong> @Personal.Citizenship</div>
-            </div>
+    @* ── Info banner ── *@
+    <div class="rv-banner">
+        <div class="rv-banner-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/>
+                <path d="M12 8v4M12 16h.01" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <div class="rv-banner-content">
+            <span class="rv-banner-title">Review Before Submitting</span>
+            <span class="rv-banner-text">Please review all encoded details carefully before final submission.</span>
         </div>
     </div>
 
-    @* Section: Identification *@
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-secondary text-white">Identification Details</div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4"><strong>TIN:</strong> @Identification.TINNumber</div>
-                <div class="col-md-4"><strong>SSS:</strong> @Identification.SSSNumber</div>
-                <div class="col-md-4"><strong>GSIS:</strong> @Identification.GSISNumber</div>
-                @if (!string.IsNullOrEmpty(Identification.DriversLicenseIDNo))
+    @* ══════════════════════════════════════
+       1 — Personal Information
+    ══════════════════════════════════════ *@
+    <div class="rv-section">
+        <div class="rv-section-header">
+            <div class="rv-section-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="12" cy="7" r="4" stroke="white" stroke-width="2"/>
+                </svg>
+            </div>
+            <span class="rv-section-title">Personal Information</span>
+        </div>
+
+        @* Customer Category *@
+        @if (Personal.CustomerCategories != null && Personal.CustomerCategories.Any())
+        {
+            <div class="rv-subsection">Customer Category</div>
+            <div class="rv-tag-group">
+                @foreach (var cat in Personal.CustomerCategories)
                 {
-                    <div class="col-md-4 mt-2"><strong>Driver's License:</strong> @Identification.DriversLicenseIDNo (Exp: @Identification.DriversLicenseExpiry?.ToString("MMMM dd, yyyy"))</div>
+                    <span class="rv-tag">@GetCategoryLabel(cat)</span>
                 }
             </div>
+            <div class="rv-divider"></div>
+        }
+
+        <div class="rv-grid rv-grid-3">
+            <div class="rv-item"><span class="rv-key">Full Name</span><span class="rv-val">@Personal.FirstName @Personal.MiddleName @Personal.LastName</span></div>
+            <div class="rv-item"><span class="rv-key">Date of Birth</span><span class="rv-val">@Personal.DateOfBirth?.ToString("MMMM dd, yyyy")</span></div>
+            <div class="rv-item"><span class="rv-key">Place of Birth</span><span class="rv-val">@OrDash(Personal.PlaceOfBirth)</span></div>
+            <div class="rv-item"><span class="rv-key">Gender</span><span class="rv-val">@Personal.Gender</span></div>
+            <div class="rv-item"><span class="rv-key">Citizenship</span><span class="rv-val">@Personal.Citizenship @(Personal.Citizenship == Citizenship.Others ? $"({Personal.CitizenshipOther})" : "")</span></div>
+            <div class="rv-item"><span class="rv-key">Marital Status</span><span class="rv-val">@Personal.MaritalStatus</span></div>
+            <div class="rv-item"><span class="rv-key">Country of Origin</span><span class="rv-val">@OrDash(Personal.CountryOfOrigin)</span></div>
+            <div class="rv-item"><span class="rv-key">Philippines Resident</span><span class="rv-val">@(Personal.IsResident ? "Yes" : "No")</span></div>
+            <div class="rv-item"><span class="rv-key">Foreign National</span><span class="rv-val">@(Personal.IsForeigner ? "Yes" : "No")</span></div>
+        </div>
+
+        @if (Personal.IsForeigner)
+        {
+            <div class="rv-divider"></div>
+            <div class="rv-subsection">Foreigner Details</div>
+            <div class="rv-grid rv-grid-3">
+                <div class="rv-item"><span class="rv-key">Passport No.</span><span class="rv-val">@OrDash(Personal.PassportIDNumber)</span></div>
+                <div class="rv-item"><span class="rv-key">Passport Expiry</span><span class="rv-val">@Personal.PassportExpiry?.ToString("MMMM dd, yyyy")</span></div>
+                <div class="rv-item">
+                    <span class="rv-key">Visa / Permit</span>
+                    <span class="rv-val">
+                        @OrDash(string.Join(", ", new[] {
+                            Personal.IsACR  ? "ACR"  : null,
+                            Personal.IsSIRV ? "SIRV" : null,
+                            Personal.IsSRRV ? "SRRV" : null
+                        }.Where(x => x != null)))
+                    </span>
+                </div>
+            </div>
+        }
+
+        @if (Personal.Gender == Gender.Female && Personal.MaritalStatus == MaritalStatus.Married)
+        {
+            <div class="rv-divider"></div>
+            <div class="rv-subsection">Maiden Name</div>
+            <div class="rv-grid rv-grid-3">
+                <div class="rv-item"><span class="rv-key">First Name</span><span class="rv-val">@OrDash(Personal.MaidenName)</span></div>
+                <div class="rv-item"><span class="rv-key">Middle Name</span><span class="rv-val">@OrDash(Personal.MaidenMiddleName)</span></div>
+                <div class="rv-item"><span class="rv-key">Last Name</span><span class="rv-val">@OrDash(Personal.MaidenLastName)</span></div>
+            </div>
+        }
+
+        @if (Personal.MaritalStatus is MaritalStatus.Married or MaritalStatus.Widowed)
+        {
+            <div class="rv-divider"></div>
+            <div class="rv-subsection">Spouse</div>
+            <div class="rv-grid rv-grid-3">
+                <div class="rv-item"><span class="rv-key">Given Name</span><span class="rv-val">@OrDash(Personal.SpouseGivenName)</span></div>
+                <div class="rv-item"><span class="rv-key">Middle Name</span><span class="rv-val">@OrDash(Personal.SpouseMiddleName)</span></div>
+                <div class="rv-item"><span class="rv-key">Last Name</span><span class="rv-val">@OrDash(Personal.SpouseLastName)</span></div>
+            </div>
+        }
+
+        <div class="rv-divider"></div>
+        <div class="rv-subsection">Mother's Maiden Name</div>
+        <div class="rv-grid rv-grid-3">
+            <div class="rv-item"><span class="rv-key">Given Name</span><span class="rv-val">@OrDash(Personal.MotherMaidenGivenName)</span></div>
+            <div class="rv-item"><span class="rv-key">Middle Name</span><span class="rv-val">@OrDash(Personal.MotherMaidenMiddleName)</span></div>
+            <div class="rv-item"><span class="rv-key">Last Name</span><span class="rv-val">@OrDash(Personal.MotherMaidenLastName)</span></div>
         </div>
     </div>
 
-    @* Section: Employment & Business *@
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-success text-white text-opacity-75">Employment & Business</div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6"><strong>Employer:</strong> @Employment.NameOfEmployer</div>
-                <div class="col-md-6"><strong>Position:</strong> @Employment.PositionRank</div>
-                <div class="col-md-6 mt-2"><strong>Status:</strong> @Employment.EmploymentStatus</div>
-                <div class="col-md-6 mt-2"><strong>Income:</strong> @Employment.AverageMonthlyIncome</div>
+    @* ══════════════════════════════════════
+       2 — Contact & Address
+    ══════════════════════════════════════ *@
+    <div class="rv-section">
+        <div class="rv-section-header">
+            <div class="rv-section-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.36 11.36 0 003.56.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.01l-2.2 2.21z" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
             </div>
-
-            @if (Personal.BusinessInterests != null && Personal.BusinessInterests.Any())
+            <span class="rv-section-title">Contact &amp; Address</span>
+        </div>
+        <div class="rv-grid rv-grid-3">
+            <div class="rv-item"><span class="rv-key">Mobile Phone</span><span class="rv-val">@OrDash(Personal.MobilePhoneNumber)</span></div>
+            <div class="rv-item"><span class="rv-key">Home Phone</span><span class="rv-val">@OrDash(Personal.HomePhoneNumber)</span></div>
+            <div class="rv-item"><span class="rv-key">Email Address</span><span class="rv-val">@OrDash(Personal.EmailAddress)</span></div>
+            <div class="rv-item rv-full"><span class="rv-key">Permanent Address</span><span class="rv-val">@OrDash(Address.PermanentAddress)@(string.IsNullOrWhiteSpace(Address.PermanentZipCode) ? "" : $", {Address.PermanentZipCode}") @OrDash(Address.PermanentCountry)</span></div>
+            @if (!Address.IsPresentSameAsPermanent)
             {
-                <h6 class="mt-3 border-top pt-2">Business Interests</h6>
-                @foreach (var biz in Personal.BusinessInterests)
-                {
-                    <div class="text-muted small">• @biz.BusinessName (@biz.OwnershipPercentage%)</div>
-                }
-            }
-        </div>
-    </div>
-
-    @* Section: Government Relations *@
-    @if (Personal.HasGovRelative && Personal.GovRelatives != null && Personal.GovRelatives.Any())
-    {
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-info text-white">Government Relations</div>
-            <div class="card-body">
-                @foreach (var rel in Personal.GovRelatives)
-                {
-                    <div class="row mb-2 border-bottom pb-2">
-                        <div class="col-md-3"><strong>Name:</strong> @rel.Name</div>
-                        <div class="col-md-3"><strong>Relation:</strong> @rel.Relationship</div>
-                        <div class="col-md-3"><strong>Position:</strong> @rel.Position</div>
-                        <div class="col-md-3"><strong>Period:</strong> @rel.PeriodCovered</div>
-                    </div>
-                }
-            </div>
-        </div>
-    }
-
-    @* Section: Business Information *@
-    @if (!string.IsNullOrEmpty(BusinessInfo.NameOfBusiness))
-    {
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-dark text-white">Business Information</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4"><strong>Business Name:</strong> @BusinessInfo.NameOfBusiness</div>
-                    <div class="col-md-4"><strong>Type:</strong> @BusinessInfo.TypeOfOrganization</div>
-                    <div class="col-md-4"><strong>Reg. Number:</strong> @BusinessInfo.BusinessRegNumber</div>
-                    <div class="col-md-4 mt-2"><strong>Nature:</strong> @BusinessInfo.NatureOfBusiness</div>
-                    <div class="col-md-4 mt-2"><strong>TIN:</strong> @BusinessInfo.TaxIdentificationNumber</div>
-                </div>
-            </div>
-        </div>
-    }
-
-    @* Section: Account & Contact *@
-    @if (AccountContact.AccountPurpose != PurposeOfAccount.None || !string.IsNullOrEmpty(AccountContact.ProductsAvailed))
-    {
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-secondary text-white">Account & Contact</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4"><strong>Purpose:</strong> @AccountContact.AccountPurpose</div>
-                    @if (!string.IsNullOrEmpty(AccountContact.AccountPurposeOther))
-                    {
-                        <div class="col-md-4"><strong>Specify Purpose:</strong> @AccountContact.AccountPurposeOther</div>
-                    }
-                    <div class="col-md-4"><strong>Products:</strong> @AccountContact.ProductsAvailed</div>
-                    @if (!string.IsNullOrEmpty(AccountContact.ProductsAvailedOther))
-                    {
-                        <div class="col-md-4 mt-2"><strong>Other Products:</strong> @AccountContact.ProductsAvailedOther</div>
-                    }
-                    <div class="col-md-4 mt-2"><strong>Phone:</strong> @AccountContact.OfficePhoneNo</div>
-                    <div class="col-md-4 mt-2"><strong>Email:</strong> @AccountContact.EmailAddress</div>
-                    <div class="col-md-4 mt-2"><strong>Contact Person:</strong> @AccountContact.ContactPerson</div>
-                    <div class="col-md-4 mt-2"><strong>Size of Business:</strong> @AccountContact.SizeOfBusiness</div>
-                    <div class="col-md-4 mt-2"><strong>Avg. Annual Income:</strong> @AccountContact.AverageAnnualIncome</div>
-                </div>
-            </div>
-        </div>
-    }
-
-    @* Section: Beneficiary *@
-    @if (!string.IsNullOrEmpty(Beneficiary.BeneficiaryName))
-    {
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-info text-white">Beneficiary</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4"><strong>Name:</strong> @Beneficiary.BeneficiaryName</div>
-                    <div class="col-md-4"><strong>Trust Type:</strong> @Beneficiary.TrustType</div>
-                    <div class="col-md-4"><strong>Birthday:</strong> @Beneficiary.Birthday?.ToString("MMMM dd, yyyy")</div>
-                    <div class="col-md-4 mt-2"><strong>Nationality:</strong> @Beneficiary.Nationality</div>
-                    <div class="col-md-8 mt-2"><strong>Address:</strong> @Beneficiary.Address</div>
-                </div>
-            </div>
-        </div>
-    }
-
-    @* Section: Acknowledgement *@
-    @if (!string.IsNullOrEmpty(Acknowledgement.PrintedName))
-    {
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-dark text-white">Client Acknowledgement</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6"><strong>Printed Name:</strong> @Acknowledgement.PrintedName</div>
-                    <div class="col-md-6"><strong>Date Signed:</strong> @Acknowledgement.DateSigned</div>
-                    <div class="col-md-12 mt-2">
-                        <strong>Signature:</strong>
-                        @if (!string.IsNullOrEmpty(Acknowledgement.SignatureData))
-                        {
-                            <img src="@Acknowledgement.SignatureData" style="max-height:80px; display:block; margin-top:4px;" />
-                        }
-                        else
-                        {
-                            <span class="text-muted">No signature captured</span>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-
-    @* Section: Bank Review *@
-    @if (!string.IsNullOrEmpty(BankReview.VerifiedBy) || BankReview.IsEmployee || BankReview.IsRelative)
-    {
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-dark text-white">Bank Review</div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3"><strong>Is Employee:</strong> @(BankReview.IsEmployee ? "Yes" : "No")</div>
-                    <div class="col-md-3"><strong>Is DOSRI:</strong> @(BankReview.IsDosri ? "Yes" : "No")</div>
-                    <div class="col-md-3"><strong>Is Relative:</strong> @(BankReview.IsRelative ? "Yes" : "No")</div>
-                    <div class="col-md-3"><strong>Is PEP:</strong> @(BankReview.IsOwnedByPEP ? "Yes" : "No")</div>
-                    @if (!string.IsNullOrEmpty(BankReview.VerifiedBy))
-                    {
-                        <div class="col-md-4 mt-2"><strong>Verified By:</strong> @BankReview.VerifiedBy</div>
-                    }
-                    @if (!string.IsNullOrEmpty(BankReview.ApprovedBy))
-                    {
-                        <div class="col-md-4 mt-2"><strong>Approved By:</strong> @BankReview.ApprovedBy</div>
-                    }
-                    @if (!string.IsNullOrEmpty(BankReview.Remarks))
-                    {
-                        <div class="col-md-12 mt-2"><strong>Remarks:</strong> @BankReview.Remarks</div>
-                    }
-                </div>
-            </div>
-        </div>
-    }
-
-    <div class="d-flex justify-content-between mt-5">
-        <button type="button" class="btn btn-outline-secondary btn-lg" @onclick="OnBack" disabled="@IsSubmitting">Back to Edit</button>
-        <button type="button" class="btn btn-primary btn-lg px-5 shadow" @onclick="SubmitAsync" disabled="@IsSubmitting">
-            @if (IsSubmitting)
-            {
-                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                <text>Loading...</text>
+                <div class="rv-item rv-full"><span class="rv-key">Present Address</span><span class="rv-val">@OrDash(Address.PresentAddress)@(string.IsNullOrWhiteSpace(Address.PresentZipCode) ? "" : $", {Address.PresentZipCode}") @OrDash(Address.PresentCountry)</span></div>
             }
             else
             {
-                <text>Confirm &amp; Submit Registration</text>
+                <div class="rv-item"><span class="rv-key">Present Address</span><span class="rv-val rv-same">Same as permanent</span></div>
+            }
+            <div class="rv-item"><span class="rv-key">Mailing Preference</span><span class="rv-val">@Address.MailingPreference</span></div>
+        </div>
+    </div>
+
+    @* ══════════════════════════════════════
+       3 — Identification
+    ══════════════════════════════════════ *@
+    <div class="rv-section">
+        <div class="rv-section-header">
+            <div class="rv-section-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <rect x="2" y="5" width="20" height="14" rx="2" stroke="white" stroke-width="2"/>
+                    <path d="M2 10h20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <span class="rv-section-title">Identification</span>
+        </div>
+
+        @* ── Selfie ── *@
+        @if (!string.IsNullOrWhiteSpace(Identification.SelfieDataUrl))
+        {
+            <div class="rv-subsection">Selfie</div>
+            <div class="rv-photo-row">
+                <div class="rv-photo-card">
+                    <img src="@Identification.SelfieDataUrl" class="rv-photo-img" alt="Selfie" />
+                    <span class="rv-photo-label">Face Photo</span>
+                </div>
+            </div>
+            <div class="rv-divider"></div>
+        }
+
+        @* ── Government IDs ── *@
+        <div class="rv-subsection">Government IDs</div>
+
+        @* TIN *@
+        @if (!string.IsNullOrWhiteSpace(Identification.TINNumber))
+        {
+            <div class="rv-id-block">
+                <div class="rv-id-block-header">
+                    <span class="rv-id-block-name">TIN</span>
+                    <span class="rv-id-block-number">@Identification.TINNumber</span>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Identification.TINFrontDataUrl) || !string.IsNullOrWhiteSpace(Identification.TINBackDataUrl))
+                {
+                    <div class="rv-photo-row">
+                        @if (!string.IsNullOrWhiteSpace(Identification.TINFrontDataUrl))
+                        {
+                            <div class="rv-photo-card">
+                                <img src="@Identification.TINFrontDataUrl" class="rv-photo-img" alt="TIN Front" />
+                                <span class="rv-photo-label">Front</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Identification.TINBackDataUrl))
+                        {
+                            <div class="rv-photo-card">
+                                <img src="@Identification.TINBackDataUrl" class="rv-photo-img" alt="TIN Back" />
+                                <span class="rv-photo-label">Back</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="rv-id-block"><div class="rv-id-block-header"><span class="rv-id-block-name">TIN</span><span class="rv-same">—</span></div></div>
+        }
+
+        @* SSS *@
+        @if (!string.IsNullOrWhiteSpace(Identification.SSSNumber))
+        {
+            <div class="rv-id-block">
+                <div class="rv-id-block-header">
+                    <span class="rv-id-block-name">SSS</span>
+                    <span class="rv-id-block-number">@Identification.SSSNumber</span>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Identification.SSSFrontDataUrl) || !string.IsNullOrWhiteSpace(Identification.SSSBackDataUrl))
+                {
+                    <div class="rv-photo-row">
+                        @if (!string.IsNullOrWhiteSpace(Identification.SSSFrontDataUrl))
+                        {
+                            <div class="rv-photo-card">
+                                <img src="@Identification.SSSFrontDataUrl" class="rv-photo-img" alt="SSS Front" />
+                                <span class="rv-photo-label">Front</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Identification.SSSBackDataUrl))
+                        {
+                            <div class="rv-photo-card">
+                                <img src="@Identification.SSSBackDataUrl" class="rv-photo-img" alt="SSS Back" />
+                                <span class="rv-photo-label">Back</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="rv-id-block"><div class="rv-id-block-header"><span class="rv-id-block-name">SSS</span><span class="rv-same">—</span></div></div>
+        }
+
+        @* GSIS *@
+        @if (!string.IsNullOrWhiteSpace(Identification.GSISNumber))
+        {
+            <div class="rv-id-block">
+                <div class="rv-id-block-header">
+                    <span class="rv-id-block-name">GSIS</span>
+                    <span class="rv-id-block-number">@Identification.GSISNumber</span>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Identification.GSISFrontDataUrl) || !string.IsNullOrWhiteSpace(Identification.GSISBackDataUrl))
+                {
+                    <div class="rv-photo-row">
+                        @if (!string.IsNullOrWhiteSpace(Identification.GSISFrontDataUrl))
+                        {
+                            <div class="rv-photo-card">
+                                <img src="@Identification.GSISFrontDataUrl" class="rv-photo-img" alt="GSIS Front" />
+                                <span class="rv-photo-label">Front</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Identification.GSISBackDataUrl))
+                        {
+                            <div class="rv-photo-card">
+                                <img src="@Identification.GSISBackDataUrl" class="rv-photo-img" alt="GSIS Back" />
+                                <span class="rv-photo-label">Back</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="rv-id-block"><div class="rv-id-block-header"><span class="rv-id-block-name">GSIS</span><span class="rv-same">—</span></div></div>
+        }
+
+        <div class="rv-divider"></div>
+
+        @* ── IDs Presented ── *@
+        <div class="rv-subsection">IDs Presented</div>
+
+        @* Driver's License *@
+        @if (!string.IsNullOrWhiteSpace(Identification.DriversLicenseIDNo))
+        {
+            <div class="rv-id-block">
+                <div class="rv-id-block-header">
+                    <span class="rv-id-block-name">Driver's License</span>
+                    <span class="rv-id-block-number">@Identification.DriversLicenseIDNo</span>
+                    <span class="rv-id-block-exp">Exp: @Identification.DriversLicenseExpiry?.ToString("MMM dd, yyyy")</span>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Identification.DriversLicenseFrontDataUrl) || !string.IsNullOrWhiteSpace(Identification.DriversLicenseBackDataUrl))
+                {
+                    <div class="rv-photo-row">
+                        @if (!string.IsNullOrWhiteSpace(Identification.DriversLicenseFrontDataUrl))
+                        {
+                            <div class="rv-photo-card">
+                                <img src="@Identification.DriversLicenseFrontDataUrl" class="rv-photo-img" alt="DL Front" />
+                                <span class="rv-photo-label">Front</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Identification.DriversLicenseBackDataUrl))
+                        {
+                            <div class="rv-photo-card">
+                                <img src="@Identification.DriversLicenseBackDataUrl" class="rv-photo-img" alt="DL Back" />
+                                <span class="rv-photo-label">Back</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
+        @* Passport *@
+        @if (!string.IsNullOrWhiteSpace(Identification.PassportIDNo))
+        {
+            <div class="rv-id-block">
+                <div class="rv-id-block-header">
+                    <span class="rv-id-block-name">Passport</span>
+                    <span class="rv-id-block-number">@Identification.PassportIDNo</span>
+                    <span class="rv-id-block-exp">Exp: @Identification.PassportIDExpiry?.ToString("MMM dd, yyyy")</span>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Identification.PassportFrontDataUrl) || !string.IsNullOrWhiteSpace(Identification.PassportBackDataUrl))
+                {
+                    <div class="rv-photo-row">
+                        @if (!string.IsNullOrWhiteSpace(Identification.PassportFrontDataUrl))
+                        {
+                            <div class="rv-photo-card">
+                                <img src="@Identification.PassportFrontDataUrl" class="rv-photo-img" alt="Passport Front" />
+                                <span class="rv-photo-label">Front</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Identification.PassportBackDataUrl))
+                        {
+                            <div class="rv-photo-card">
+                                <img src="@Identification.PassportBackDataUrl" class="rv-photo-img" alt="Passport Back" />
+                                <span class="rv-photo-label">Back</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
+        @* Other ID *@
+        @if (!string.IsNullOrWhiteSpace(Identification.OtherIDType))
+        {
+            <div class="rv-id-block">
+                <div class="rv-id-block-header">
+                    <span class="rv-id-block-name">@Identification.OtherIDType</span>
+                    <span class="rv-id-block-number">@OrDash(Identification.OtherIDNumber)</span>
+                    <span class="rv-id-block-exp">Exp: @Identification.OtherIDExpiry?.ToString("MMM dd, yyyy")</span>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Identification.OtherIDFrontDataUrl) || !string.IsNullOrWhiteSpace(Identification.OtherIDBackDataUrl))
+                {
+                    <div class="rv-photo-row">
+                        @if (!string.IsNullOrWhiteSpace(Identification.OtherIDFrontDataUrl))
+                        {
+                            <div class="rv-photo-card">
+                                <img src="@Identification.OtherIDFrontDataUrl" class="rv-photo-img" alt="Other ID Front" />
+                                <span class="rv-photo-label">Front</span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Identification.OtherIDBackDataUrl))
+                        {
+                            <div class="rv-photo-card">
+                                <img src="@Identification.OtherIDBackDataUrl" class="rv-photo-img" alt="Other ID Back" />
+                                <span class="rv-photo-label">Back</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
+        @if (string.IsNullOrWhiteSpace(Identification.DriversLicenseIDNo) &&
+             string.IsNullOrWhiteSpace(Identification.PassportIDNo) &&
+             string.IsNullOrWhiteSpace(Identification.OtherIDType))
+        {
+            <div class="rv-item rv-full"><span class="rv-val rv-same">No IDs presented</span></div>
+        }
+    </div>
+
+    @* ══════════════════════════════════════
+       4 — Employment
+    ══════════════════════════════════════ *@
+    <div class="rv-section">
+        <div class="rv-section-header">
+            <div class="rv-section-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <rect x="2" y="7" width="20" height="14" rx="2" stroke="white" stroke-width="2"/>
+                    <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <span class="rv-section-title">Employment</span>
+        </div>
+        <div class="rv-grid rv-grid-3">
+            <div class="rv-item"><span class="rv-key">Employment Status</span><span class="rv-val">@Employment.EmploymentStatus @(Employment.EmploymentStatus == EmploymentStatus.Others ? $"({Employment.EmploymentStatusOther})" : "")</span></div>
+            <div class="rv-item"><span class="rv-key">Type of Employment</span><span class="rv-val">@Employment.TypeOfEmployment @(Employment.TypeOfEmployment == TypeOfEmployment.OFW ? $"({Employment.OFWCountry})" : "") @(Employment.TypeOfEmployment == TypeOfEmployment.Others ? $"({Employment.TypeOfEmploymentOther})" : "")</span></div>
+            <div class="rv-item"><span class="rv-key">Nature of Work</span><span class="rv-val">@OrDash(Employment.NatureOfWork)</span></div>
+            <div class="rv-item"><span class="rv-key">Educational Attainment</span><span class="rv-val">@OrDash(Employment.EducationalAttainment)</span></div>
+            <div class="rv-item"><span class="rv-key">Avg. Monthly Income</span><span class="rv-val">@Employment.AverageMonthlyIncome</span></div>
+            <div class="rv-item"><span class="rv-key">Source of Funds</span><span class="rv-val">@Employment.SourceOfFunds @(Employment.SourceOfFunds == SourceOfFunds.Others ? $"({Employment.SourceOfFundsOther})" : "")</span></div>
+        </div>
+        <div class="rv-divider"></div>
+        <div class="rv-subsection">Employer Details</div>
+        <div class="rv-grid rv-grid-3">
+            <div class="rv-item"><span class="rv-key">Name of Employer</span><span class="rv-val">@OrDash(Employment.NameOfEmployer)</span></div>
+            <div class="rv-item"><span class="rv-key">Position / Rank</span><span class="rv-val">@OrDash(Employment.PositionRank)</span></div>
+            <div class="rv-item"><span class="rv-key">Phone</span><span class="rv-val">@OrDash(Employment.EmployerPhoneNumber)</span></div>
+            <div class="rv-item"><span class="rv-key">Email</span><span class="rv-val">@OrDash(Employment.EmployerEmailAddress)</span></div>
+            <div class="rv-item rv-full">
+                <span class="rv-key">Address</span>
+                <span class="rv-val">@OrDash(string.Join(", ", new[]{ Employment.EmployerBuildingNo, Employment.EmployerStreet, Employment.EmployerBrgyDistrict, Employment.EmployerCityTown }.Where(x => !string.IsNullOrWhiteSpace(x))))</span>
+            </div>
+        </div>
+    </div>
+
+    @* ══════════════════════════════════════
+       5 — Account & Business
+    ══════════════════════════════════════ *@
+    <div class="rv-section">
+        <div class="rv-section-header">
+            <div class="rv-section-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="rv-section-title">Account &amp; Business</span>
+        </div>
+        <div class="rv-grid rv-grid-2">
+            <div class="rv-item">
+                <span class="rv-key">Purpose of Account</span>
+                <span class="rv-val">
+                    @(Personal.AccountPurpose == PurposeOfAccount.None ? "—" : FormatEnum(Personal.AccountPurpose.ToString())) 
+                    @(Personal.AccountPurpose == PurposeOfAccount.Others ? $"({Personal.AccountPurposeOther})" : "")
+                </span>
+            </div>
+            <div class="rv-item">
+                <span class="rv-key">Products to be Availed</span>
+                <span class="rv-val">
+                    @OrDash(Personal.ProductsAvailed) @(Personal.ProductsAvailed == "Others" ? $"({Personal.ProductsAvailedOther})" : "")
+                </span>
+            </div>
+            <div class="rv-item"><span class="rv-key">Past / Present Gov. Official (PEP)</span><span class="rv-val">@(Personal.IsGovOfficial ? "Yes" : "No")</span></div>
+            <div class="rv-item"><span class="rv-key">Relative in Government</span><span class="rv-val">@(Personal.HasGovRelative ? "Yes" : "No")</span></div>
+        </div>
+
+        @if (Personal.IsGovOfficial)
+        {
+            <div class="rv-divider"></div>
+            <div class="rv-subsection">Government Official Details</div>
+            <div class="rv-grid rv-grid-2">
+                <div class="rv-item"><span class="rv-key">Highest Position</span><span class="rv-val">@OrDash(Personal.GovPosition)</span></div>
+                <div class="rv-item"><span class="rv-key">Period Covered</span><span class="rv-val">@OrDash(Personal.GovPeriod)</span></div>
+            </div>
+        }
+
+        @if (Personal.BusinessInterests != null && Personal.BusinessInterests.Any())
+        {
+            <div class="rv-divider"></div>
+            <div class="rv-subsection">Business Interests</div>
+            <div class="rv-list-header rv-grid-biz">
+                <span class="rv-list-col">Business Name</span>
+                <span class="rv-list-col">Ownership %</span>
+            </div>
+            @foreach (var biz in Personal.BusinessInterests)
+            {
+                <div class="rv-list-row rv-grid-biz">
+                    <span>@OrDash(biz.BusinessName)</span>
+                    <span>@biz.OwnershipPercentage%</span>
+                </div>
+            }
+        }
+
+        @if (Personal.HasGovRelative && Personal.GovRelatives != null && Personal.GovRelatives.Any())
+        {
+            <div class="rv-divider"></div>
+            <div class="rv-subsection">Relatives in Government</div>
+            <div class="rv-list-header rv-grid-rel">
+                <span class="rv-list-col">Full Name</span>
+                <span class="rv-list-col">Relationship</span>
+                <span class="rv-list-col">Position</span>
+                <span class="rv-list-col">Period</span>
+            </div>
+            @foreach (var rel in Personal.GovRelatives)
+            {
+                <div class="rv-list-row rv-grid-rel">
+                    <span>@OrDash(rel.Name)</span>
+                    <span>@OrDash(rel.Relationship)</span>
+                    <span>@OrDash(rel.Position)</span>
+                    <span>@OrDash(rel.PeriodCovered)</span>
+                </div>
+            }
+        }
+    </div>
+
+    @* ══════════════════════════════════════
+       7 — Business Information
+    ══════════════════════════════════════ *@
+    @if (!string.IsNullOrWhiteSpace(BusinessInfo.NameOfBusiness))
+    {
+        <div class="rv-section">
+            <div class="rv-section-header">
+                <div class="rv-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 22V12h6v10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <span class="rv-section-title">Business Information</span>
+            </div>
+
+            <div class="rv-grid rv-grid-3">
+                <div class="rv-item"><span class="rv-key">Business Name</span><span class="rv-val">@OrDash(BusinessInfo.NameOfBusiness)</span></div>
+                <div class="rv-item"><span class="rv-key">Sector</span><span class="rv-val">@(BusinessInfo.IsGovernment ? "Government" : "Private")</span></div>
+                <div class="rv-item"><span class="rv-key">Type of Organization</span><span class="rv-val">@BusinessInfo.TypeOfOrganization @(!string.IsNullOrWhiteSpace(BusinessInfo.TypeOfOrganizationOther) ? $"({BusinessInfo.TypeOfOrganizationOther})" : "")</span></div>
+                
+                <div class="rv-item"><span class="rv-key">Size of Business</span><span class="rv-val">@GetEnumDescription(BusinessInfo.SizeOfBusiness)</span></div>
+                <div class="rv-item"><span class="rv-key">Avg. Annual Income</span><span class="rv-val">@GetEnumDescription(BusinessInfo.AverageAnnualIncome)</span></div>
+                <div class="rv-item"><span class="rv-key">Nature of Business</span><span class="rv-val">@OrDash(BusinessInfo.NatureOfBusiness)</span></div>
+
+                @* Address Details from the form *@
+                <div class="rv-item rv-full">
+                    <span class="rv-key">Business Address</span>
+                    <span class="rv-val">@OrDash(Address.BusinessAddress)</span>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Address.PrincipalAddress) && Address.PrincipalAddress != Address.BusinessAddress)
+                {
+                    <div class="rv-item rv-full">
+                        <span class="rv-key">Principal Address</span>
+                        <span class="rv-val">@Address.PrincipalAddress</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="rv-item"><span class="rv-key">Principal Address</span><span class="rv-val rv-same">Same as business address</span></div>
+                }
+            </div>
+
+            <div class="rv-divider"></div>
+            <div class="rv-subsection">Registration Details</div>
+            <div class="rv-grid rv-grid-3">
+                <div class="rv-item"><span class="rv-key">TIN</span><span class="rv-val">@OrDash(BusinessInfo.TaxIdentificationNumber)</span></div>
+                <div class="rv-item"><span class="rv-key">Reg. Number</span><span class="rv-val">@OrDash(BusinessInfo.BusinessRegNumber)</span></div>
+                <div class="rv-item"><span class="rv-key">Date of Registration</span><span class="rv-val">@(BusinessInfo.DateOfRegistration?.ToString("MMM dd, yyyy") ?? "—")</span></div>
+                
+                <div class="rv-item"><span class="rv-key">Registration Expiry</span><span class="rv-val">@(BusinessInfo.BusinessRegExpiry?.ToString("MMM dd, yyyy") ?? "—")</span></div>
+                <div class="rv-item"><span class="rv-key">Place of Registration</span><span class="rv-val">@OrDash(BusinessInfo.PlaceOfRegistration)</span></div>
+                <div class="rv-item"><span class="rv-key">DTI Cert Number</span><span class="rv-val">@OrDash(BusinessInfo.DTICertNumber)</span></div>
+                
+                <div class="rv-item"><span class="rv-key">DTI Cert Expiry</span><span class="rv-val">@(BusinessInfo.DTICertExpiry?.ToString("MMM dd, yyyy") ?? "—")</span></div>
+            </div>
+
+            @* Keep existing Business Contact if data exists from other steps *@
+            @if (!string.IsNullOrWhiteSpace(BusinessInfo.EmailAddress) || !string.IsNullOrWhiteSpace(BusinessInfo.OfficePhoneNo))
+            {
+                <div class="rv-divider"></div>
+                <div class="rv-subsection">Business Contact</div>
+                <div class="rv-grid rv-grid-3">
+                    <div class="rv-item"><span class="rv-key">Office Phone</span><span class="rv-val">@OrDash(BusinessInfo.OfficePhoneNo)</span></div>
+                    <div class="rv-item"><span class="rv-key">Email</span><span class="rv-val">@OrDash(BusinessInfo.EmailAddress)</span></div>
+                    <div class="rv-item"><span class="rv-key">Contact Person</span><span class="rv-val">@OrDash(BusinessInfo.ContactPerson)</span></div>
+                </div>
+            }
+        </div>
+    }
+
+    @* ══════════════════════════════════════
+       8 — Account Contact
+    ══════════════════════════════════════ *@
+    @if (AccountContact != null && (AccountContact.AccountPurpose != PurposeOfAccount.None || !string.IsNullOrWhiteSpace(AccountContact.ProductsAvailed)))
+    {
+        <div class="rv-section">
+            <div class="rv-section-header">
+                <div class="rv-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span class="rv-section-title">Account Contact</span>
+            </div>
+            <div class="rv-grid rv-grid-3">
+                @* Purpose of Account [cite: 751-755] *@
+                <div class="rv-item">
+                    <span class="rv-key">Purpose of Account</span>
+                    <span class="rv-val">
+                        @(AccountContact.AccountPurpose == PurposeOfAccount.None ? "—" : FormatEnum(AccountContact.AccountPurpose.ToString())) 
+                        @(AccountContact.AccountPurpose == PurposeOfAccount.Others ? $"({AccountContact.AccountPurposeOther})" : "")
+                    </span>
+                </div>
+
+                @* Products Availed [cite: 757-763, 849] *@
+                <div class="rv-item">
+                    <span class="rv-key">Products Availed</span>
+                    <span class="rv-val">
+                        @OrDash(AccountContact.ProductsAvailed?.Replace(",", ", ")) 
+                        @(!string.IsNullOrWhiteSpace(AccountContact.ProductsAvailedOther) ? $"({AccountContact.ProductsAvailedOther})" : "")
+                    </span>
+                </div>
+
+                @* Contact Info [cite: 765-770] *@
+                <div class="rv-item"><span class="rv-key">Office Phone</span><span class="rv-val">@OrDash(AccountContact.OfficePhoneNo)</span></div>
+                <div class="rv-item"><span class="rv-key">Email Address</span><span class="rv-val">@OrDash(AccountContact.EmailAddress)</span></div>
+                <div class="rv-item"><span class="rv-key">Contact Person</span><span class="rv-val">@OrDash(AccountContact.ContactPerson)</span></div>
+
+                @* Keep existing size/income if they are used elsewhere in your logic [cite: 89-90] *@
+                <div class="rv-item"><span class="rv-key">Size of Business</span><span class="rv-val">@GetEnumDescription(AccountContact.SizeOfBusiness)</span></div>
+                <div class="rv-item"><span class="rv-key">Avg. Annual Income</span><span class="rv-val">@GetEnumDescription(AccountContact.AverageAnnualIncome)</span></div>
+            </div>
+        </div>
+    }
+
+    @* ══════════════════════════════════════
+       9 — Beneficiary Information
+    ══════════════════════════════════════ *@
+    @if (!string.IsNullOrWhiteSpace(Beneficiary.BeneficiaryName))
+    {
+        <div class="rv-section">
+            <div class="rv-section-header">
+                <div class="rv-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="9" cy="7" r="4" stroke="white" stroke-width="2"/>
+                        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span class="rv-section-title">Beneficiary</span>
+            </div>
+            <div class="rv-grid rv-grid-3">
+                <div class="rv-item"><span class="rv-key">Name</span><span class="rv-val">@Beneficiary.BeneficiaryName</span></div>
+                <div class="rv-item"><span class="rv-key">Trust Type</span><span class="rv-val">@GetTrustTypeLabel(Beneficiary.TrustType)</span></div>
+                <div class="rv-item"><span class="rv-key">Birthday</span><span class="rv-val">@Beneficiary.Birthday?.ToString("MMMM dd, yyyy")</span></div>
+                
+                <div class="rv-item"><span class="rv-key">Place of Birth</span><span class="rv-val">@OrDash(Beneficiary.PlaceOfBirth)</span></div>
+                <div class="rv-item"><span class="rv-key">Nationality</span><span class="rv-val">@OrDash(Beneficiary.Nationality)</span></div>
+                <div class="rv-item"><span class="rv-key">Nature of Work</span><span class="rv-val">@OrDash(Beneficiary.NatureOfWork)</span></div>
+                
+                <div class="rv-item">
+                    <span class="rv-key">Source of Funds</span>
+                    <span class="rv-val">
+                        @OrDash(Beneficiary.SourceOfFunds) 
+                        @(Beneficiary.SourceOfFunds == "Others" ? $"({Beneficiary.SourceOfFundsOther})" : "")
+                    </span>
+                </div>
+                <div class="rv-item rv-full">
+                    <span class="rv-key">Address</span>
+                    <span class="rv-val">@OrDash(Beneficiary.Address)</span>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* ══════════════════════════════════════
+       10 — Client Acknowledgement
+    ══════════════════════════════════════ *@
+    @if (!string.IsNullOrWhiteSpace(Acknowledgement.PrintedName))
+    {
+        <div class="rv-section">
+            <div class="rv-section-header">
+                <div class="rv-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 11l3 3L22 4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span class="rv-section-title">Client Acknowledgement</span>
+            </div>
+            <div class="rv-grid rv-grid-2">
+                <div class="rv-item">
+                    <span class="rv-key">Printed Name</span>
+                    <span class="rv-val">@Acknowledgement.PrintedName</span>
+                </div>
+                <div class="rv-item">
+                    <span class="rv-key">Date Signed</span>
+                    <span class="rv-val">@(Acknowledgement.DateSigned?.ToString("MMMM dd, yyyy") ?? "—")</span>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Acknowledgement.SignatureData))
+            {
+                <div class="rv-divider"></div>
+                <div class="rv-item rv-full" style="background: #fff; border: 1.5px dashed #e2e8f0;">
+                    <span class="rv-key">Signature</span>
+                    <div style="display: flex; justify-content: center; padding: 10px;">
+                        <img src="@Acknowledgement.SignatureData" 
+                             class="rv-signature" 
+                             alt="Client Signature" 
+                             style="max-width: 100%; height: auto; max-height: 120px; object-fit: contain;" />
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @* ══════════════════════════════════════
+       11 — Bank Review (Internal Use)
+    ══════════════════════════════════════ *@
+    @if (!string.IsNullOrWhiteSpace(BankReview.VerifiedBy) || BankReview.IsEmployee || BankReview.IsRelative)
+    {
+        <div class="rv-section">
+            <div class="rv-section-header">
+                <div class="rv-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <span class="rv-section-title">Bank Review & Verification</span>
+            </div>
+
+            @* Screening & Nature of Work *@
+            <div class="rv-subsection">Screening & Nature of Work</div>
+            <div class="rv-grid rv-grid-2">
+                <div class="rv-item">
+                    <span class="rv-key">Screening Lists</span>
+                    <span class="rv-val">@OrDash(string.Join(", ", BankReview.ScreeningList))</span>
+                </div>
+                <div class="rv-item">
+                    <span class="rv-key">Nature of Work / Business</span>
+                    <span class="rv-val">
+                        @OrDash(string.Join(", ", BankReview.WorkList))
+                        @(BankReview.SelectedWork == "OTHERS" ? $" ({BankReview.NatureOfWorkBusinessOther})" : "")
+                    </span>
+                </div>
+            </div>
+
+            <div class="rv-divider"></div>
+
+            @* Employee & Relationship Status *@
+            <div class="rv-subsection">Internal Status</div>
+            <div class="rv-grid rv-grid-3">
+                <div class="rv-item">
+                    <span class="rv-key">Porac Bank Employee</span>
+                    <span class="rv-val">@(BankReview.IsEmployee ? $"Yes ({BankReview.Position})" : "No")</span>
+                </div>
+                <div class="rv-item"><span class="rv-key">DOSRI Status</span><span class="rv-val">@(BankReview.IsDosri ? "Yes" : "No")</span></div>
+                <div class="rv-item"><span class="rv-key">RPT Status</span><span class="rv-val">@(BankReview.IsRpt ? "Yes" : "No")</span></div>
+            </div>
+
+            @if (BankReview.IsRelative)
+            {
+                <div class="rv-grid rv-grid-3 mt-2">
+                    <div class="rv-item"><span class="rv-key">Relative of Employee</span><span class="rv-val">@BankReview.RelativeEmployeeName</span></div>
+                    <div class="rv-item"><span class="rv-key">Relative Position</span><span class="rv-val">@BankReview.RelativePosition</span></div>
+                    <div class="rv-item"><span class="rv-key">Relationship</span><span class="rv-val">@BankReview.RelativeRelationship</span></div>
+                </div>
+            }
+
+            <div class="rv-divider"></div>
+
+            @* Documents Presented *@
+            <div class="rv-subsection">Documents Presented</div>
+            <div class="rv-item rv-full">
+                <span class="rv-val" style="font-size: 0.8rem;">
+                    @if (BankReview.DocsList.Any() || BankReview.AdditionalDocsList.Any())
+                    {
+                        <ul style="margin: 0; padding-left: 20px;">
+                            @foreach (var doc in BankReview.DocsList) { <li>@doc</li> }
+                            @foreach (var doc in BankReview.AdditionalDocsList) { <li>@doc</li> }
+                            @if (!string.IsNullOrWhiteSpace(BankReview.DocumentsOther)) { <li>Other: @BankReview.DocumentsOther</li> }
+                        </ul>
+                    }
+                    else { <span>No documents recorded.</span> }
+                </span>
+            </div>
+
+            <div class="rv-divider"></div>
+
+            @* Approval & Signatures *@
+            <div class="rv-grid rv-grid-3">
+                <div class="rv-item"><span class="rv-key">Verified By</span><span class="rv-val">@OrDash(BankReview.VerifiedBy)</span></div>
+                <div class="rv-item"><span class="rv-key">Approved By</span><span class="rv-val">@OrDash(BankReview.ApprovedBy)</span></div>
+                <div class="rv-item"><span class="rv-key">Remarks</span><span class="rv-val">@OrDash(BankReview.Remarks)</span></div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(BankReview.SignatureAuthenticated))
+            {
+                <div class="rv-item rv-full mt-2" style="background: #fff; border: 1.5px dashed #e2e8f0;">
+                    <span class="rv-key">Authenticated Signature (Internal)</span>
+                    <div style="display: flex; justify-content: center; padding: 10px;">
+                        <img src="@BankReview.SignatureAuthenticated" 
+                             class="rv-signature" 
+                             alt="Bank Signature" 
+                             style="max-height: 80px;" />
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @* ── Footer ── *@
+    <div class="rv-footer">
+        <button type="button" class="rv-btn-back" @onclick="OnBack" disabled="@IsSubmitting">
+            <div class="rv-btn-arrow-left">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
+            <span>Back to Edit</span>
+        </button>
+        <div class="rv-footer-hint">Please review everything above before submitting.</div>
+        <button type="button" class="rv-btn-submit" @onclick="SubmitAsync" disabled="@IsSubmitting">
+            @if (IsSubmitting)
+            {
+                <div class="rv-spinner"></div>
+                <span>Submitting...</span>
+            }
+            else
+            {
+                <span>Confirm &amp; Submit</span>
+                <div class="rv-btn-arrow">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
             }
         </button>
     </div>
+
 </div>
+
+<style>
+    .rv-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .rv-banner {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        background: linear-gradient(135deg, #f0fdf8, #eff6ff);
+        border: 1px solid #bfdbfe;
+        border-left: 4px solid #00a859;
+        border-radius: 14px;
+        padding: 14px 18px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .rv-banner-icon {
+        flex-shrink: 0;
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #00a859, #0056b3);
+        display: flex; align-items: center; justify-content: center;
+        margin-top: 1px;
+    }
+
+    .rv-banner-content {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .rv-banner-title {
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+    }
+
+    .rv-banner-text {
+        font-size: 0.84rem;
+        color: #475569;
+        line-height: 1.5;
+    }
+
+    .rv-section {
+        background: #ffffff;
+        border: 1px solid #edf0f4;
+        border-radius: 18px;
+        padding: 22px 24px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .rv-section::after {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #00a859, #0056b3);
+    }
+
+    .rv-section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .rv-section-icon {
+        width: 28px; height: 28px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #00a859, #0056b3);
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(0,168,89,0.25);
+    }
+
+    .rv-section-title {
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        flex: 1;
+    }
+
+    .rv-subsection {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #64748b;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .rv-divider { height: 1px; background: #f1f5f9; margin: 14px 0; }
+
+    .rv-grid { display: grid; gap: 10px; }
+    .rv-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .rv-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .rv-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+    .rv-item {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        padding: 10px 14px;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid #f1f5f9;
+    }
+
+    .rv-full { grid-column: 1 / -1; }
+
+    .rv-key {
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: #94a3b8;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+    }
+
+    .rv-val {
+        font-size: 0.86rem;
+        font-weight: 500;
+        color: #0f172a;
+        word-break: break-word;
+    }
+
+    .rv-sub { font-size: 0.72rem; color: #64748b; }
+    .rv-same { font-style: italic; color: #64748b; }
+
+    .rv-list-header { display: grid; gap: 10px; margin-bottom: 4px; padding: 0 4px; }
+    .rv-list-col { font-size: 0.68rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.3px; }
+    .rv-list-row {
+        display: grid;
+        gap: 10px;
+        padding: 10px 14px;
+        background: #f8fafc;
+        border-radius: 10px;
+        border: 1px solid #f1f5f9;
+        font-size: 0.86rem;
+        color: #0f172a;
+        margin-bottom: 6px;
+    }
+
+    .rv-grid-biz { grid-template-columns: 2fr 1fr; }
+    .rv-grid-rel { grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr; }
+
+    .rv-signature {
+        display: block;
+        margin-top: 10px;
+        max-height: 90px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 4px;
+        background: #fff;
+    }
+
+    .rv-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 6px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .rv-footer-hint { font-size: 0.72rem; color: #94a3b8; flex: 1; text-align: center; }
+
+    .rv-btn-submit {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 28px;
+        background: linear-gradient(90deg, #00a859 0%, #0056b3 100%);
+        color: #fff;
+        border: none;
+        border-radius: 13px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: filter 0.18s, transform 0.15s, box-shadow 0.18s;
+        box-shadow: 0 4px 18px rgba(0,168,89,0.3);
+    }
+
+    .rv-btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+    .rv-btn-submit:not(:disabled):hover { filter: brightness(1.07); transform: translateY(-1px); }
+
+    .rv-btn-arrow {
+        width: 30px; height: 30px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 9px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .rv-btn-back {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 20px;
+        background: #fff;
+        color: #475569;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 13px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color 0.18s, color 0.18s, transform 0.15s;
+    }
+
+    .rv-btn-back:disabled { opacity: 0.6; cursor: not-allowed; }
+    .rv-btn-back:not(:disabled):hover { border-color: #94a3b8; color: #0f172a; transform: translateY(-1px); }
+
+    .rv-btn-arrow-left {
+        width: 28px; height: 28px;
+        background: #f1f5f9;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .rv-spinner {
+        width: 18px; height: 18px;
+        border: 2px solid rgba(255,255,255,0.4);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: rv-spin 0.7s linear infinite;
+    }
+
+    @@keyframes rv-spin { to { transform: rotate(360deg); } }
+
+    .rv-tag-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+
+    .rv-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 14px;
+        background: linear-gradient(135deg, #f0fdf8, #eff6ff);
+        border: 1.5px solid #c8e6d8;
+        border-radius: 99px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .rv-id-block {
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+    }
+
+    .rv-id-block-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .rv-id-block-name {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        min-width: 80px;
+    }
+
+    .rv-id-block-number {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #0f172a;
+        flex: 1;
+    }
+
+    .rv-id-block-exp {
+        font-size: 0.72rem;
+        color: #94a3b8;
+    }
+
+    .rv-photo-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+
+    .rv-photo-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .rv-photo-img {
+        width: 140px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1.5px solid #e2e8f0;
+        background: #f1f5f9;
+    }
+
+    .rv-photo-label {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    @@media (max-width: 768px) {
+        .rv-grid-3, .rv-grid-4 { grid-template-columns: repeat(2, 1fr); }
+        .rv-grid-rel { grid-template-columns: 1fr 1fr; }
+    }
+
+    @@media (max-width: 480px) {
+        .rv-grid-2, .rv-grid-3, .rv-grid-4 { grid-template-columns: 1fr; }
+        .rv-grid-biz, .rv-grid-rel { grid-template-columns: 1fr; }
+        .rv-section { padding: 16px; border-radius: 14px; }
+        .rv-footer { flex-direction: column; align-items: stretch; }
+        .rv-btn-submit, .rv-btn-back { justify-content: center; }
+    }
+</style>
 
 @code {
     [Parameter] public CustomerDTO.PageModel Customer { get; set; } = new();
@@ -230,14 +1176,40 @@
     {
         if (IsSubmitting) return;
         IsSubmitting = true;
-
-        try
-        {
-            await OnSubmit.InvokeAsync();
-        }
-        finally
-        {
-            IsSubmitting = false;
-        }
+        try { await OnSubmit.InvokeAsync(); }
+        finally { IsSubmitting = false; }
     }
+
+    private static string GetCategoryLabel(CustomerCategory cat) => cat switch
+    {
+        CustomerCategory.LoanBorrower => "Loan Borrower",
+        CustomerCategory.LoanCoMaker  => "Loan Co-Maker",
+        CustomerCategory.Depositor    => "Depositor",
+        _                             => cat.ToString()
+    };
+
+    private static string OrDash(string? value)
+        => string.IsNullOrWhiteSpace(value) ? "\u2014" : value;
+
+    private static string GetEnumDescription<TEnum>(TEnum value) where TEnum : Enum
+    {
+        var field = value.GetType().GetField(value.ToString()!);
+        var attr  = field?.GetCustomAttribute<DescriptionAttribute>();
+        if (attr != null) return attr.Description;
+        return System.Text.RegularExpressions.Regex.Replace(
+            value.ToString()!, @"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ");
+    }
+
+    private static string FormatEnum(string value)
+    {
+        return System.Text.RegularExpressions.Regex.Replace(
+            value, @"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ");
+    }
+
+    private static string GetTrustTypeLabel(TrustType type) => type switch
+    {
+        TrustType.ITF => "In Trust For (ITF)",
+        TrustType.FAO => "For the Account Of (FAO)",
+        _ => type == TrustType.None ? "—" : type.ToString()
+    };
 }

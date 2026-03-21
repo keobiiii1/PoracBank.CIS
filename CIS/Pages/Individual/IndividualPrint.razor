@@ -2,334 +2,972 @@
 @using CIS.Assets.DTO
 @using CIS.Assets.Enum
 @using CIS.Client.Services
+@using System.ComponentModel
+@using System.Reflection
 @inject IJSRuntime JS
 @inject IndividualService IndividualService
 
-<div class="cis-container">
-    @* --- HEADER SECTION --- *@
-    <div class="cis-header">
-        <div class="header-main">
-            <h1 class="form-title">CUSTOMER INFORMATION SHEET</h1>
-        </div>
-        <div class="header-brand">
-            <h1 class="bank-name">PoracBank</h1>
-            <p class="bank-tagline">A Rural Bank Since 1968</p>
-        </div>
-    </div>
+<div class="cis-page">
 
-    @* --- META DATA SECTION --- *@
-    <div class="meta-grid">
-        <div class="meta-row">
-            <div class="meta-col">
-                <span class="small-label">CUSTOMER CATEGORY</span>
-                <span class="custom-check">@(Customer.CustomerCategories.Contains(CustomerCategory.LoanBorrower) ? "X" : "")</span> <span class="check-label">Loan Borrower</span>
-                <span class="custom-check">@(Customer.CustomerCategories.Contains(CustomerCategory.LoanCoMaker) ? "X" : "")</span> <span class="check-label">Loan Co-Maker</span>
-                <span class="custom-check">@(Customer.CustomerCategories.Contains(CustomerCategory.Depositor) ? "X" : "")</span> <span class="check-label">Depositor</span>
+    @* ══════════════════════════════════════
+       PAGE 1 — INDIVIDUAL INFORMATION
+    ══════════════════════════════════════ *@
+    <div class="cis-sheet">
+
+        @* ── Header ── *@
+        <div class="cis-header">
+            <div>
+                <div class="cis-title">CUSTOMER INFORMATION</div>
+                <div class="cis-title">SHEET</div>
             </div>
-            <div class="meta-col cid-field">
-                <span class="small-label">CID NO.</span>
-                <span class="data-text large-text">@Customer.CIDNumber</span>
+            <div class="cis-bank">
+                <div class="cis-bank-name">PoracBank</div>
+                <div class="cis-bank-sub">A Rural Bank Since 1968</div>
             </div>
         </div>
-    </div>
 
-    <div class="guidelines">
-        1. Fill in all blank spaces with proper information. 2. Items with * are required. 3. For assistance, please approach Porac Bank personnel.
-    </div>
-
-    @* --- SECTION I: INDIVIDUAL INFORMATION --- *@
-    <div class="section-title">I. INDIVIDUAL INFORMATION</div>
-
-    @* Name Row *@
-    <div class="row-border flex-row">
-        <div class="flex-grow-3 p-5">
-            <span class="small-label">NAME*</span>
-            <div class="name-grid">
-                <div class="name-item"><span class="data-text large-text">@Personal.FirstName</span><br/><small>First Name</small></div>
-                <div class="name-item"><span class="data-text large-text">@Personal.MiddleName</span><br/><small>Middle Name</small></div>
-                <div class="name-item"><span class="data-text large-text">@Personal.LastName</span><br/><small>Last Name</small></div>
+        @* ── Meta ── *@
+        <div class="cis-meta">
+            <div class="cis-meta-left">
+                <span class="lbl">CUSTOMER CATEGORY</span>
+                <span class="cis-chk">@(Customer.CustomerCategories != null && Customer.CustomerCategories.Contains(CustomerCategory.LoanBorrower) ? "✓" : "")</span><span class="chk-lbl">Borrower</span>
+                <span class="cis-chk">@(Customer.CustomerCategories != null && Customer.CustomerCategories.Contains(CustomerCategory.LoanCoMaker) ? "✓" : "")</span><span class="chk-lbl">Non-borrower</span>
+            </div>
+            <div class="cis-meta-right">
+                <span class="lbl">CID NO.</span>
+                <span class="val-lg">@Customer.CIDNumber</span>
             </div>
         </div>
-        <div class="flex-grow-1 p-5 border-left text-center">
-            <span class="small-label">RESIDENT*</span>
-            <div class="mt-5">
-                YES <span class="custom-check">@(Personal.IsResident ? "X" : "")</span> 
-                NO <span class="custom-check">@(!Personal.IsResident ? "X" : "")</span>
+
+        <div class="cis-guidelines">
+            1. Fill in all blank spaces with the proper information &nbsp;&nbsp; 2. Items with * are required to be filled in. &nbsp;&nbsp; 3. For assistance/ question, please approach any Porac Bank personnel.
+        </div>
+
+        @* ── Section I ── *@
+        <div class="sec-title">I. INDIVIDUAL INFORMATION</div>
+
+        @* Name + Resident *@
+        <div class="cis-row">
+            <div class="cis-cell grow-3">
+                <span class="lbl">NAME*</span>
+                <div class="name-grid">
+                    <div><span class="val">@Personal.FirstName</span><div class="sub-lbl">First name</div></div>
+                    <div><span class="val">@Personal.MiddleName</span><div class="sub-lbl">Middle Name</div></div>
+                    <div><span class="val">@Personal.LastName</span><div class="sub-lbl">Last name</div></div>
+                </div>
+            </div>
+            <div class="cis-cell grow-1 center border-l">
+                <span class="lbl">RESIDENT*</span>
+                <div class="mt4">
+                    <span class="cis-chk">@(Personal.IsResident ? "✓" : "")</span> YES &nbsp;
+                    <span class="cis-chk">@(!Personal.IsResident ? "✓" : "")</span> NO
+                </div>
             </div>
         </div>
-    </div>
 
-    @* Addresses *@
-    <div class="row-border flex-row">
-        <div class="flex-grow-3 p-5">
-            <span class="small-label">PERMANENT ADDRESS*</span>
-            <div class="data-text large-text">@Address.PermanentAddress</div>
-        </div>
-        <div class="flex-grow-1 p-5 border-left">
-            <span class="small-label">ZIP CODE</span>
-            <div class="data-text large-text">@Address.PermanentZipCode</div>
-        </div>
-        <div class="flex-grow-1 p-5 border-left">
-            <span class="small-label">COUNTRY</span>
-            <div class="data-text large-text">@Address.PermanentCountry</div>
-        </div>
-    </div>
-
-    <div class="row-border flex-row">
-        <div class="flex-grow-3 p-5">
-            <span class="small-label">PRESENT ADDRESS (If different from permanent address)*</span>
-            <div class="data-text large-text">@Address.PresentAddress</div>
-        </div>
-        <div class="flex-grow-1 p-5 border-left">
-            <span class="small-label">ZIP CODE</span>
-            <div class="data-text large-text">@Address.PresentZipCode</div>
-        </div>
-        <div class="flex-grow-1 p-5 border-left">
-            <span class="small-label">COUNTRY</span>
-            <div class="data-text large-text">@Address.PresentCountry</div>
-        </div>
-    </div>
-
-    @* Mailing and Foreigner *@
-    <div class="row-border flex-row">
-        <div class="flex-grow-1 p-5">
-            <span class="small-label">MAILING PREFERENCE*</span>
-            <div><span class="custom-check">@(Address.MailingPreference == MailingPreference.PermanentAddress ? "X" : "")</span> <small>PERMANENT</small></div>
-            <div><span class="custom-check">@(Address.MailingPreference == MailingPreference.PresentAddress ? "X" : "")</span> <small>PRESENT</small></div>
-        </div>
-        <div class="flex-grow-1 p-5 border-left">
-            <span class="small-label">CITIZENSHIP*</span>
-            <div><span class="custom-check">@(Personal.Citizenship == Citizenship.Filipino ? "X" : "")</span> <small>FILIPINO</small></div>
-            <div><span class="custom-check">@(Personal.Citizenship == Citizenship.Others ? "X" : "")</span> <small>OTHERS: @Personal.CitizenshipOther</small></div>
-        </div>
-        <div class="flex-grow-2 p-5 border-left bg-light-gray">
-            <span class="small-label">FOR FOREIGNERS ONLY**</span>
-            <div class="foreign-row">
-                <span>PASSPORT ID NO. <span class="data-text">@Foreigner.PassportIDNumber</span></span>
-                <span>EXPIRY <span class="data-text">@Foreigner.PassportExpiry?.ToString("MM/dd/yyyy")</span></span>
+        @* Permanent Address *@
+        <div class="cis-row">
+            <div class="cis-cell grow-4">
+                <span class="lbl">PERMANENT ADDRESS*</span>
+                <div class="val">@Address.PermanentAddress</div>
             </div>
-            <div class="mt-2">
-                <span class="custom-check">@(Foreigner.IsACR ? "X" : "")</span> ACR 
-                <span class="custom-check">@(Foreigner.IsSIRV ? "X" : "")</span> SIRV 
-                <span class="custom-check">@(Foreigner.IsSRRV ? "X" : "")</span> SRRV
+            <div class="cis-cell grow-1 border-l">
+                <span class="lbl">ZIP CODE</span>
+                <div class="val">@Address.PermanentZipCode</div>
+            </div>
+            <div class="cis-cell grow-1 border-l">
+                <span class="lbl">COUNTRY</span>
+                <div class="val">@Address.PermanentCountry</div>
             </div>
         </div>
-    </div>
 
-    @* Birth and Contact *@
-    <div class="row-border flex-row">
-        <div class="flex-grow-1 p-5">
-            <span class="small-label">COUNTRY OF ORIGIN*</span>
-            <div class="data-text large-text">@Personal.CountryOfOrigin</div>
-        </div>
-        <div class="flex-grow-1 p-5 border-left">
-            <span class="small-label">DATE OF BIRTH (mm/dd/yyyy)*</span>
-            <div class="data-text large-text">@Personal.DateOfBirth?.ToString("MM/dd/yyyy")</div>
-        </div>
-        <div class="flex-grow-2 p-5 border-left">
-            <span class="small-label">PERSONAL CONTACT DETAILS*</span>
-            <div class="contact-details">
-                <span>HOME NO: <span class="data-text">@Contact.HomePhoneNumber</span></span>
-                <span>MOBILE NO: <span class="data-text">@Contact.MobilePhoneNumber</span></span>
-                <span>EMAIL: <span class="data-text">@Contact.EmailAddress</span></span>
+        @* Present Address *@
+        <div class="cis-row">
+            <div class="cis-cell grow-4">
+                <span class="lbl">PRESENT ADDRESS (If different from permanent address)*</span>
+                <div class="val">@Address.PresentAddress</div>
+            </div>
+            <div class="cis-cell grow-1 border-l">
+                <span class="lbl">ZIP CODE</span>
+                <div class="val">@Address.PresentZipCode</div>
+            </div>
+            <div class="cis-cell grow-1 border-l">
+                <span class="lbl">COUNTRY</span>
+                <div class="val">@Address.PresentCountry</div>
             </div>
         </div>
-    </div>
 
-    @* Status and Spouse *@
-    <div class="row-border flex-row">
-        <div class="flex-grow-1 p-5">
-            <span class="small-label">MARITAL STATUS</span>
-            <div class="status-grid">
-                <span><span class="custom-check">@(Personal.MaritalStatus == MaritalStatus.Single ? "X" : "")</span> Single</span>
-                <span><span class="custom-check">@(Personal.MaritalStatus == MaritalStatus.Married ? "X" : "")</span> Married</span>
-                <span><span class="custom-check">@(Personal.MaritalStatus == MaritalStatus.DivorcedAnnulled ? "X" : "")</span> Divorced/ Annuled</span>
-                <span><span class="custom-check">@(Personal.MaritalStatus == MaritalStatus.Separated ? "X" : "")</span> Separated</span>
-                <span><span class="custom-check">@(Personal.MaritalStatus == MaritalStatus.Widowed ? "X" : "")</span> Widowed</span>
+        @* Mailing / Citizenship / Foreigners *@
+        <div class="cis-row">
+            <div class="cis-cell grow-1">
+                <span class="lbl">MAILING PREFERENCE*</span>
+                <div><span class="cis-chk">@(Address.MailingPreference == MailingPreference.PermanentAddress ? "✓" : "")</span> <small>PERMANENT ADDRESS</small></div>
+                <div><span class="cis-chk">@(Address.MailingPreference == MailingPreference.PresentAddress ? "✓" : "")</span> <small>PRESENT ADDRESS</small></div>
+            </div>
+            <div class="cis-cell grow-1 border-l">
+                <span class="lbl">CITIZENSHIP*</span>
+                <div><span class="cis-chk">@(Personal.Citizenship == Citizenship.Filipino ? "✓" : "")</span> <small>FILIPINO</small></div>
+                <div><span class="cis-chk">@(Personal.Citizenship == Citizenship.Others ? "✓" : "")</span> <small>OTHERS @Personal.CitizenshipOther</small></div>
+            </div>
+            <div class="cis-cell grow-2 border-l bg-gray">
+                <span class="lbl">FOR FOREIGNERS ONLY**</span>
+                <div class="two-col-row">
+                    <span>PASSPORT ID NO. ** <span class="val">@Foreigner.PassportIDNumber</span></span>
+                    <span>EXPIRY (mm/dd/yyyy) ** <span class="val">@Foreigner.PassportExpiry?.ToString("MM/dd/yyyy")</span></span>
+                </div>
+                <div class="mt4">
+                    <span class="cis-chk">@(Foreigner.IsACR ? "✓" : "")</span> ACR** &nbsp;
+                    <span class="cis-chk">@(Foreigner.IsSIRV ? "✓" : "")</span> SIRV** &nbsp;
+                    <span class="cis-chk">@(Foreigner.IsSRRV ? "✓" : "")</span> SRRV**
+                </div>
             </div>
         </div>
-        <div class="flex-grow-2 p-5 border-left">
-            <span class="small-label">SPOUSE'S NAME*</span>
-            <div class="data-text large-text">@($"{Family.SpouseGivenName} {Family.SpouseMiddleName} {Family.SpouseLastName}".Trim())</div>
-        </div>
-    </div>
 
-    @* IDs and Personal ID *@
-    <div class="row-border flex-row">
-        <div class="flex-grow-2 p-5">
-            <span class="small-label">IDs PRESENTED*</span>
-            <div class="id-row">
-                <span class="custom-check">@(!string.IsNullOrEmpty(Identification.DriversLicenseIDNo) ? "X" : "")</span> <small>LICENSE NO: @Identification.DriversLicenseIDNo</small>
-                <span class="custom-check">@(!string.IsNullOrEmpty(Identification.PassportIDNo) ? "X" : "")</span> <small>PASSPORT NO: @Identification.PassportIDNo</small>
-                <span class="custom-check">@(!string.IsNullOrEmpty(Identification.OtherIDType) ? "X" : "")</span> <small>OTHER ID NO: @Identification.OtherIDNumber</small> <small>OTHER ID EXPIRY: @Identification.OtherIDExpiry</small>
+        @* Country / DOB / Contact *@
+        <div class="cis-row">
+            <div class="cis-cell grow-1">
+                <span class="lbl">COUNTRY OF ORIGIN*</span>
+                <div class="val">@Personal.CountryOfOrigin</div>
+            </div>
+            <div class="cis-cell grow-1 border-l">
+                <span class="lbl">DATE OF BIRTH (mm/dd/yyyy)*</span>
+                <div class="val">@Personal.DateOfBirth?.ToString("MM/dd/yyyy")</div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">PERSONAL CONTACT DETAILS*</span>
+                <div class="contact-stack">
+                    <span>HOME PHONE NO. <span class="val">@Contact.HomePhoneNumber</span></span>
+                    <span>MOBILE PHONE NO. <span class="val">@Contact.MobilePhoneNumber</span></span>
+                    <span>EMAIL ADDRESS <span class="val">@Contact.EmailAddress</span></span>
+                </div>
             </div>
         </div>
-        <div class="flex-grow-1 p-5 border-left">
-            <span class="small-label">PERSONAL IDENTIFICATION*</span>
-            <div class="id-stack">
-                <span>TIN NO: <span class="data-text">@Identification.TINNumber</span></span>
-                <span>SSS NO: <span class="data-text">@Identification.SSSNumber</span></span>
-                <span>GSIS NO: <span class="data-text">@Identification.GSISNumber</span></span>
+
+        @* Place of Birth / Gender *@
+        <div class="cis-row">
+            <div class="cis-cell grow-2">
+                <span class="lbl">PLACE OF BIRTH</span>
+                <div class="val">@Personal.PlaceOfBirth</div>
+            </div>
+            <div class="cis-cell grow-1 border-l">
+                <span class="lbl">GENDER*</span>
+                <div class="mt4">
+                    <span class="cis-chk">@(Personal.Gender == Gender.Male ? "✓" : "")</span> MALE &nbsp;
+                    <span class="cis-chk">@(Personal.Gender == Gender.Female ? "✓" : "")</span> FEMALE
+                </div>
             </div>
         </div>
-    </div>
 
-    @* Employment and Income *@
-    <div class="row-border flex-row">
-        <div class="flex-grow-1 p-5">
-            <span class="small-label">EMPLOYMENT STATUS*</span>
-            <div><span class="custom-check">@(Employment.EmploymentStatus == EmploymentStatus.Employed ? "X" : "")</span> <small>EMPLOYED</small></div>
-            <div><span class="custom-check">@(Employment.EmploymentStatus == EmploymentStatus.SelfEmployed ? "X" : "")</span> <small>SELF-EMPLOYED</small></div>
-            <div><span class="custom-check">@(Employment.EmploymentStatus == EmploymentStatus.Unemployed ? "X" : "")</span> <small>UNEMPLOYED</small></div>
-            <div><span class="custom-check">@(Employment.EmploymentStatus == EmploymentStatus.Others ? "X" : "")</span> <small>OTHERS: @Employment.EmploymentStatusOther</small></div>
-        </div>
-        <div class="flex-grow-1 p-5 border-left">
-            <span class="small-label">AVERAGE MONTHLY INCOME*</span>
-            <div class="income-grid">
-                <span><span class="custom-check">@(Employment.AverageMonthlyIncome == AverageMonthlyIncome.UnderP10000 ? "X" : "")</span> <small>Under P10k</small></span>
-                <span><span class="custom-check">@(Employment.AverageMonthlyIncome == AverageMonthlyIncome.P20001ToP50000 ? "X" : "")</span> <small>P20k-P50k</small></span>
-                <span><span class="custom-check">@(Employment.AverageMonthlyIncome == AverageMonthlyIncome.P50001ToP100000 ? "X" : "")</span> <small>P50k-P100k</small></span>
-                <span><span class="custom-check">@(Employment.AverageMonthlyIncome == AverageMonthlyIncome.P100001ToP200000 ? "X" : "")</span> <small>P100k-P200k</small></span>
-                <span><span class="custom-check">@(Employment.AverageMonthlyIncome == AverageMonthlyIncome.AboveP200001 ? "X" : "")</span> <small>Above P200k</small></span>
+        @* Marital Status / Spouse *@
+        <div class="cis-row">
+            <div class="cis-cell grow-1">
+                <span class="lbl">MARITAL STATUS</span>
+                <div class="status-grid">
+                    <div><span class="cis-chk">@(Personal.MaritalStatus == MaritalStatus.Single ? "✓" : "")</span> <small>SINGLE</small></div>
+                    <div><span class="cis-chk">@(Personal.MaritalStatus == MaritalStatus.Married ? "✓" : "")</span> <small>MARRIED</small></div>
+                    <div><span class="cis-chk">@(Personal.MaritalStatus == MaritalStatus.DivorcedAnnulled ? "✓" : "")</span> <small>DIVORCED/ ANNULED</small></div>
+                    <div><span class="cis-chk">@(Personal.MaritalStatus == MaritalStatus.Separated ? "✓" : "")</span> <small>SEPARATED</small></div>
+                    <div><span class="cis-chk">@(Personal.MaritalStatus == MaritalStatus.Widowed ? "✓" : "")</span> <small>WIDOWED</small></div>
+                </div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">SPOUSE'S NAME*</span>
+                <div class="name-grid">
+                    <div><span class="val">@Family.SpouseLastName</span><div class="sub-lbl">Last name</div></div>
+                    <div><span class="val">@Family.SpouseGivenName</span><div class="sub-lbl">Given name</div></div>
+                    <div><span class="val">@Family.SpouseMiddleName</span><div class="sub-lbl">Middle Name</div></div>
+                </div>
             </div>
         </div>
-        <div class="flex-grow-1 p-5 border-left">
-            <span class="small-label">SOURCE OF FUNDS*</span>
-            <div><span class="custom-check">@(Employment.SourceOfFunds == SourceOfFunds.Salary ? "X" : "")</span> <small>SALARY</small></div>
-            <div><span class="custom-check">@(Employment.SourceOfFunds == SourceOfFunds.Pension ? "X" : "")</span> <small>PESNION</small></div>
-            <div><span class="custom-check">@(Employment.SourceOfFunds == SourceOfFunds.Business ? "X" : "")</span> <small>BUSINESS</small></div>
-            <div><span class="custom-check">@(Employment.SourceOfFunds == SourceOfFunds.RegularRemittance ? "X" : "")</span> <small>REGGULAR REMITTANCE</small></div>
-            <div><span class="custom-check">@(Employment.SourceOfFunds == SourceOfFunds.Others ? "X" : "")</span> <small>OTHERS: @Employment.SourceOfFundsOther</small></div>
+
+        @* Mother's Maiden Name *@
+        <div class="cis-row">
+            <div class="cis-cell grow-1">
+                @* spacer *@
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">MOTHER'S MAIDEN NAME*</span>
+                <div class="name-grid">
+                    <div><span class="val">@Family.MotherMaidenLastName</span><div class="sub-lbl">Last name</div></div>
+                    <div><span class="val">@Family.MotherMaidenGivenName</span><div class="sub-lbl">Given name</div></div>
+                    <div><span class="val">@Family.MotherMaidenMiddleName</span><div class="sub-lbl">Middle Name</div></div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    @* Business and Gov Tables *@
-    <div class="section-title black-bg">BUSINESS INTERESTS & GOVERNMENT OFFICIALS</div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>BUSINESS NAME</th>
-                <th>% OWNERSHIP</th>
-                <th>POSITION</th>
-                <th>PERIOD</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var biz in Personal.BusinessInterests)
-            {
-                <tr>
-                    <td class="large-text">@biz.BusinessName</td>
-                    <td class="large-text">@biz.OwnershipPercentage%</td>
-                    <td class="large-text">@Personal.GovPosition</td>
-                    <td class="large-text">@Personal.GovPeriod</td>
-                </tr>
-            }
-            @for(int i = Personal.BusinessInterests.Count; i < 2; i++) { <tr><td>&nbsp;</td><td></td><td></td><td></td></tr> }
-        </tbody>
-    </table>
+        @* IDs Presented / Personal Identification *@
+        <div class="cis-row">
+            <div class="cis-cell grow-2">
+                <span class="lbl">IDs PRESENTED*</span>
+                <div class="id-row">
+                    <span class="cis-chk">@(!string.IsNullOrEmpty(Identification.DriversLicenseIDNo) ? "✓" : "")</span>
+                    <small>DRIVER'S LICENSE &nbsp; ID NO. <span class="val">@Identification.DriversLicenseIDNo</span> &nbsp; EXPIRY <span class="val">@Identification.DriversLicenseExpiry?.ToString("MM/dd/yyyy")</span></small>
+                </div>
+                <div class="id-row">
+                    <span class="cis-chk">@(!string.IsNullOrEmpty(Identification.PassportIDNo) ? "✓" : "")</span>
+                    <small>PASSPORT &nbsp; ID NO. <span class="val">@Identification.PassportIDNo</span> &nbsp; EXPIRY <span class="val">@Identification.PassportIDExpiry?.ToString("MM/dd/yyyy")</span></small>
+                </div>
+                <div class="id-row">
+                    <span class="cis-chk">@(!string.IsNullOrEmpty(Identification.OtherIDType) ? "✓" : "")</span>
+                    <small>OTHERS &nbsp; ID TYPE/ NO. <span class="val">@Identification.OtherIDType / @Identification.OtherIDNumber</span> &nbsp; EXPIRY <span class="val">@Identification.OtherIDExpiry?.ToString("MM/dd/yyyy")</span></small>
+                </div>
+            </div>
+            <div class="cis-cell grow-1 border-l">
+                <span class="lbl">PERSONAL IDENTIFICATION*</span>
+                <div class="id-stack">
+                    <div>TIN NO. <span class="val">@Identification.TINNumber</span></div>
+                    <div>SSS NO. <span class="val">@Identification.SSSNumber</span></div>
+                    <div>GSIS NO. <span class="val">@Identification.GSISNumber</span></div>
+                </div>
+            </div>
+        </div>
 
-    <div class="section-title">RELATIONSHIP TO GOVERNMENT OFFICIAL</div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>NAME</th>
-                <th>RELATIONSHIP</th>
-                <th>POSITION</th>
-                <th>PERIOD</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var rel in Personal.GovRelatives)
-            {
-                <tr>
-                    <td class="large-text">@rel.Name</td>
-                    <td class="large-text">@rel.Relationship</td>
-                    <td class="large-text">@rel.Position</td>
-                    <td class="large-text">@rel.PeriodCovered</td>
-                </tr>
-            }
-            @for(int i = Personal.GovRelatives.Count; i < 2; i++) { <tr><td>&nbsp;</td><td></td><td></td><td></td></tr> }
-        </tbody>
-    </table>
+        @* Employment Status / Income / Source of Funds *@
+        <div class="cis-row">
+            <div class="cis-cell grow-1">
+                <span class="lbl">EMPLOYMENT STATUS*</span>
+                <div><span class="cis-chk">@(Employment.EmploymentStatus == EmploymentStatus.Employed ? "✓" : "")</span> <small>EMPLOYED</small></div>
+                <div><span class="cis-chk">@(Employment.EmploymentStatus == EmploymentStatus.SelfEmployed ? "✓" : "")</span> <small>SELF-EMPLOYED</small></div>
+                <div><span class="cis-chk">@(Employment.EmploymentStatus == EmploymentStatus.Unemployed ? "✓" : "")</span> <small>UNEMPLOYED</small></div>
+                <div><span class="cis-chk">@(Employment.EmploymentStatus == EmploymentStatus.Others ? "✓" : "")</span> <small>OTHERS @Employment.EmploymentStatusOther</small></div>
+            </div>
+            <div class="cis-cell grow-1 border-l">
+                <span class="lbl">EDUCATIONAL ATTAINMENT</span>
+                <div class="val">@Employment.EducationalAttainment</div>
+                <div class="mt6">
+                    <span class="lbl">NATURE OF WORK*</span>
+                    <div class="val">@Employment.NatureOfWork</div>
+                </div>
+            </div>
+            <div class="cis-cell grow-1 border-l">
+                <span class="lbl">TYPE OF EMPLOYMENT*</span>
+                <div><span class="cis-chk">@(Employment.TypeOfEmployment == TypeOfEmployment.Government ? "✓" : "")</span> <small>GOVERNMENT</small></div>
+                <div><span class="cis-chk">@(Employment.TypeOfEmployment == TypeOfEmployment.Private ? "✓" : "")</span> <small>PRIVATE</small></div>
+                <div><span class="cis-chk">@(Employment.TypeOfEmployment == TypeOfEmployment.OFW ? "✓" : "")</span> <small>OFW @(!string.IsNullOrEmpty(Employment.OFWCountry) ? $"— {Employment.OFWCountry}" : "")</small></div>
+                <div><span class="cis-chk">@(Employment.TypeOfEmployment == TypeOfEmployment.Others ? "✓" : "")</span> <small>OTHERS @Employment.TypeOfEmploymentOther</small></div>
+            </div>
+        </div>
 
-    <div class="no-print print-btn-container">
-        <button class="btn-primary-print" onclick="window.print()">Print Official Form</button>
-    </div>
+        @* Monthly Income / Source of Funds *@
+        <div class="cis-row">
+            <div class="cis-cell grow-2">
+                <span class="lbl">AVERAGE MONTHLY INCOME*</span>
+                <div class="income-grid">
+                    <span><span class="cis-chk">@(Employment.AverageMonthlyIncome == AverageMonthlyIncome.UnderP10000 ? "✓" : "")</span> <small>UNDER P10,000.00</small></span>
+                    <span><span class="cis-chk">@(Employment.AverageMonthlyIncome == AverageMonthlyIncome.P10001ToP20000 ? "✓" : "")</span> <small>P10,001.00 -P20,000.00</small></span>
+                    <span><span class="cis-chk">@(Employment.AverageMonthlyIncome == AverageMonthlyIncome.P20001ToP50000 ? "✓" : "")</span> <small>P20,001.00-P50,000.00</small></span>
+                    <span><span class="cis-chk">@(Employment.AverageMonthlyIncome == AverageMonthlyIncome.P50001ToP100000 ? "✓" : "")</span> <small>P50,001.00-P100,000.00</small></span>
+                    <span><span class="cis-chk">@(Employment.AverageMonthlyIncome == AverageMonthlyIncome.P100001ToP200000 ? "✓" : "")</span> <small>P100,001.00-P200,000.00</small></span>
+                    <span><span class="cis-chk">@(Employment.AverageMonthlyIncome == AverageMonthlyIncome.AboveP200001 ? "✓" : "")</span> <small>ABOVE P200,001.00</small></span>
+                </div>
+            </div>
+            <div class="cis-cell grow-1 border-l">
+                <span class="lbl">SOURCE OF FUNDS*</span>
+                <div><span class="cis-chk">@(Employment.SourceOfFunds == SourceOfFunds.Salary ? "✓" : "")</span> <small>SALARY</small></div>
+                <div><span class="cis-chk">@(Employment.SourceOfFunds == SourceOfFunds.Pension ? "✓" : "")</span> <small>PENSION</small></div>
+                <div><span class="cis-chk">@(Employment.SourceOfFunds == SourceOfFunds.Business ? "✓" : "")</span> <small>BUSINESS</small></div>
+                <div><span class="cis-chk">@(Employment.SourceOfFunds == SourceOfFunds.RegularRemittance ? "✓" : "")</span> <small>REGULAR REMITTANCE</small></div>
+                <div><span class="cis-chk">@(Employment.SourceOfFunds == SourceOfFunds.Others ? "✓" : "")</span> <small>OTHERS (PLEASE SPECIFY) @Employment.SourceOfFundsOther</small></div>
+            </div>
+        </div>
+
+        @* Employer *@
+        <div class="cis-row">
+            <div class="cis-cell grow-2">
+                <span class="lbl">NAME OF EMPLOYER</span>
+                <div class="val">@Employment.NameOfEmployer</div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">EMPLOYER'S ADDRESS*</span>
+                <div class="employer-addr">
+                    <span><span class="val">@Employment.EmployerBuildingNo</span><br/><div class="sub-lbl">Building No.</div></span>
+                    <span><span class="val">@Employment.EmployerStreet</span><br/><div class="sub-lbl">Street</div></span>
+                    <span><span class="val">@Employment.EmployerBrgyDistrict</span><br/><div class="sub-lbl">Brgy / District</div></span>
+                    <span><span class="val">@Employment.EmployerCityTown</span><br/><div class="sub-lbl">City/ Town</div></span>
+                </div>
+            </div>
+        </div>
+
+        @* Employer Contact / Position *@
+        <div class="cis-row">
+            <div class="cis-cell grow-2">
+                <span class="lbl">CONTACT DETAILS OF EMPLOYER*</span>
+                <div class="contact-stack">
+                    <span>PHONE NO. <span class="val">@Employment.EmployerPhoneNumber</span></span>
+                    <span>E-MAIL ADDRESS <span class="val">@Employment.EmployerEmailAddress</span></span>
+                </div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">POSITION/ RANK</span>
+                <div class="val">@Employment.PositionRank</div>
+            </div>
+        </div>
+
+        @* Purpose / Products *@
+        <div class="cis-row">
+            <div class="cis-cell grow-2">
+                <span class="lbl">PURPOSE OF THE ACCOUNT*</span>
+                <div><span class="cis-chk">@(AccPurpose.PurposeOfAccount == PurposeOfAccount.PersonalSavings ? "✓" : "")</span> <small>PERSONAL SAVINGS</small></div>
+                <div><span class="cis-chk">@(AccPurpose.PurposeOfAccount == PurposeOfAccount.LoanPurposes ? "✓" : "")</span> <small>FOR LOAN PURPOSES</small></div>
+                <div><span class="cis-chk">@(AccPurpose.PurposeOfAccount == PurposeOfAccount.BusinessPurposes ? "✓" : "")</span> <small>FOR BUSINESS PURPOSES</small></div>
+                <div><span class="cis-chk">@(AccPurpose.PurposeOfAccount == PurposeOfAccount.Others ? "✓" : "")</span> <small>OTHERS @AccPurpose.PurposeOfAccountOther</small></div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">PRODUCTS TO BE AVAILED*</span>
+                <div class="products-grid">
+                    <span><span class="cis-chk">@(AccPurpose.ProductsAvailed == "Savings" ? "✓" : "")</span> <small>SAVINGS</small></span>
+                    <span><span class="cis-chk">@(AccPurpose.ProductsAvailed == "TimeDeposit" ? "✓" : "")</span> <small>TIME DEPOSIT</small></span>
+                    <span><span class="cis-chk">@(AccPurpose.ProductsAvailed == "SaleOfRopa" ? "✓" : "")</span> <small>SALE OF ROPA</small></span>
+                    <span><span class="cis-chk">@(AccPurpose.ProductsAvailed == "Checking" ? "✓" : "")</span> <small>CURRENT</small></span>
+                    <span><span class="cis-chk">@(AccPurpose.ProductsAvailed == "Loan" ? "✓" : "")</span> <small>LOAN</small></span>
+                    <span><span class="cis-chk">@(AccPurpose.ProductsAvailed == "Others" ? "✓" : "")</span> <small>OTHERS @AccPurpose.ProductsAvailedOther</small></span>
+                </div>
+            </div>
+        </div>
+
+        @* Business Interests Table *@
+        <div class="cis-row">
+            <div class="cis-cell grow-2">
+                <span class="lbl">BUSINESS INTEREST (PLEASE USE ANOTHER SHEET IF NECESSARY)*</span>
+                <table class="inline-table">
+                    <thead>
+                        <tr><th>NAME</th><th>% OF OWNERSHIP</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var biz in Personal.BusinessInterests)
+                        {
+                            <tr><td class="val">@biz.BusinessName</td><td class="val">@biz.OwnershipPercentage%</td></tr>
+                        }
+                        @for (int i = Personal.BusinessInterests.Count; i < 3; i++) { <tr><td>&nbsp;</td><td></td></tr> }
+                    </tbody>
+                </table>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">FOR PAST/ PRESENT GOVERNMENT OFFICIALS*</span>
+                <table class="inline-table">
+                    <thead>
+                        <tr><th>HIGHEST POSITION OCCUPIED</th><th>PERIOD COVERED</th></tr>
+                    </thead>
+                    <tbody>
+                        @if (Personal.IsGovOfficial)
+                        {
+                            <tr><td class="val">@Personal.GovPosition</td><td class="val">@Personal.GovPeriod</td></tr>
+                        }
+                        @for (int i = Personal.IsGovOfficial ? 1 : 0; i < 3; i++) { <tr><td>&nbsp;</td><td></td></tr> }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @* Gov Relatives Table *@
+        <div class="lbl-standalone">RELATIONSHIP TO GOVERNMENT OFFICIAL (WITHIN THE 1ST DEGREE OF CONSAGUINITY AND AFFINITY)*</div>
+        <table class="full-table">
+            <thead>
+                <tr><th>NAME</th><th>RELATIONSHIP</th><th>HIGHEST POSITION OCCUPIED</th><th>PERIOD COVERED</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var rel in Personal.GovRelatives)
+                {
+                    <tr>
+                        <td class="val">@rel.Name</td>
+                        <td class="val">@rel.Relationship</td>
+                        <td class="val">@rel.Position</td>
+                        <td class="val">@rel.PeriodCovered</td>
+                    </tr>
+                }
+                @for (int i = Personal.GovRelatives.Count; i < 3; i++) { <tr><td>&nbsp;</td><td></td><td></td><td></td></tr> }
+            </tbody>
+        </table>
+
+    </div>@* end page 1 *@
+
+    @* ══════════════════════════════════════
+       PAGE 2 — BUSINESS INFORMATION
+    ══════════════════════════════════════ *@
+    <div class="cis-sheet page-break">
+
+        @* ── Page 2 Header ── *@
+        <div class="cis-header">
+            <div></div>
+            <div class="cis-bank">
+                <div class="cis-bank-name">PoracBank</div>
+                <div class="cis-bank-sub">A Rural Bank Since 1968</div>
+            </div>
+        </div>
+
+        @* ── Section II: Business Information ── *@
+        <div class="sec-title">II. BUSINESS INFORMATION</div>
+
+        @* Sector / Name *@
+        <div class="cis-row">
+            <div class="cis-cell grow-1">
+                <span class="lbl">SECTOR</span>
+                <div><span class="cis-chk">@(BusinessInfo.IsGovernment ? "✓" : "")</span> <small>GOVERNMENT</small></div>
+                <div><span class="cis-chk">@(!BusinessInfo.IsGovernment && !string.IsNullOrEmpty(BusinessInfo.NameOfBusiness) ? "✓" : "")</span> <small>PRIVATE</small></div>
+            </div>
+            <div class="cis-cell grow-3 border-l">
+                <span class="lbl">NAME OF BUSINESS*</span>
+                <div class="val">@BusinessInfo.NameOfBusiness</div>
+            </div>
+        </div>
+
+        @* Type of Org / Business Address *@
+        <div class="cis-row">
+            <div class="cis-cell grow-1">
+                <span class="lbl">TYPE OF ORGANIZATION*</span>
+                <div><span class="cis-chk">@(BusinessInfo.TypeOfOrganization == TypeOfOrganization.SoleProprietorship ? "✓" : "")</span> <small>SOLE PROPRIETORSHIP</small></div>
+                <div><span class="cis-chk">@(BusinessInfo.TypeOfOrganization == TypeOfOrganization.Partnership ? "✓" : "")</span> <small>PARTNERSHIP</small></div>
+                <div><span class="cis-chk">@(BusinessInfo.TypeOfOrganization == TypeOfOrganization.Corporation ? "✓" : "")</span> <small>CORPORATION</small></div>
+                <div><span class="cis-chk">@(BusinessInfo.TypeOfOrganization == TypeOfOrganization.Cooperative ? "✓" : "")</span> <small>COOPERATIVE</small></div>
+                <div><span class="cis-chk">@(BusinessInfo.TypeOfOrganization == TypeOfOrganization.Association ? "✓" : "")</span> <small>ASSOCIATION</small></div>
+                <div><span class="cis-chk">@(BusinessInfo.TypeOfOrganization == TypeOfOrganization.Others ? "✓" : "")</span> <small>OTHERS @BusinessInfo.TypeOfOrganizationOther</small></div>
+            </div>
+            <div class="cis-cell grow-3 border-l">
+                <span class="lbl">BUSINESS ADDRESS*</span>
+                <div class="val">@Address.BusinessAddress</div>
+                <div class="mt8">
+                    <span class="lbl">PRINCIPAL ADDRESS (If different from business address)*</span>
+                    <div class="val">@Address.PrincipalAddress</div>
+                </div>
+            </div>
+        </div>
+
+        @* Reg Details *@
+        <div class="cis-row">
+            <div class="cis-cell grow-1">
+                <span class="lbl">DATE OF REGISTRATION (mm/dd/yyyy)*</span>
+                <div class="val">@BusinessInfo.DateOfRegistration?.ToString("MM/dd/yyyy")</div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">BUSINESS REGISTRATION NUMBER/ EXPIRY*</span>
+                <div class="val">@BusinessInfo.BusinessRegNumber &nbsp;/ &nbsp;@BusinessInfo.BusinessRegExpiry?.ToString("MM/dd/yyyy")</div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">PLACE OF REGISTRATION/ ORIGIN*</span>
+                <div class="val">@BusinessInfo.PlaceOfRegistration</div>
+            </div>
+        </div>
+
+        <div class="cis-row">
+            <div class="cis-cell grow-2">
+                <span class="lbl">NATURE OF BUSINESS*</span>
+                <div class="val">@BusinessInfo.NatureOfBusiness</div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">TAX IDENTIFICATION NUMBER*</span>
+                <div class="val">@BusinessInfo.TaxIdentificationNumber</div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">DTI CERT. REGISTRATION NO. / EXPIRY*</span>
+                <div class="val">@BusinessInfo.DTICertNumber &nbsp;/ &nbsp;@BusinessInfo.DTICertExpiry?.ToString("MM/dd/yyyy")</div>
+            </div>
+        </div>
+
+        @* Purpose / Products / Contact *@
+        <div class="cis-row">
+            <div class="cis-cell grow-2">
+                <span class="lbl">PURPOSE OF THE ACCOUNT*</span>
+                <div><span class="cis-chk">@(AccountContact.AccountPurpose == PurposeOfAccount.BusinessPurposes ? "✓" : "")</span> <small>BUSINESS</small></div>
+                <div><span class="cis-chk">@(AccountContact.AccountPurpose == PurposeOfAccount.LoanPurposes ? "✓" : "")</span> <small>LOAN</small></div>
+                <div><span class="cis-chk">@(AccountContact.AccountPurpose == PurposeOfAccount.Others ? "✓" : "")</span> <small>OTHERS @AccountContact.AccountPurposeOther</small></div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">PRODUCT TO BE AVAILED*</span>
+                <div class="products-grid">
+                    <span><span class="cis-chk">@(AccountContact.ProductsAvailed == "Savings" ? "✓" : "")</span> <small>SAVINGS</small></span>
+                    <span><span class="cis-chk">@(AccountContact.ProductsAvailed == "TimeDeposit" ? "✓" : "")</span> <small>TD</small></span>
+                    <span><span class="cis-chk">@(AccountContact.ProductsAvailed == "SaleOfRopa" ? "✓" : "")</span> <small>SALE OF ROPA</small></span>
+                    <span><span class="cis-chk">@(AccountContact.ProductsAvailed == "Checking" ? "✓" : "")</span> <small>CURRENT</small></span>
+                    <span><span class="cis-chk">@(AccountContact.ProductsAvailed == "Loan" ? "✓" : "")</span> <small>LOAN</small></span>
+                </div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">CONTACT INFORMATION*</span>
+                <div class="contact-stack">
+                    <span>PHONE NUMBER <span class="val">@BusinessInfo.OfficePhoneNo</span></span>
+                    <span>E-MAIL ADDRESS <span class="val">@BusinessInfo.EmailAddress</span></span>
+                    <span>CONTACT PERSON <span class="val">@BusinessInfo.ContactPerson</span></span>
+                </div>
+            </div>
+        </div>
+
+        @* Income / Size *@
+        <div class="cis-row">
+            <div class="cis-cell grow-3">
+                <span class="lbl">AVERAGE ANNUAL INCOME*</span>
+                <div class="income-grid">
+                    <span><span class="cis-chk">@(BusinessInfo.AverageAnnualIncome == AverageAnnualIncome.BelowP100000 ? "✓" : "")</span> <small>BELOW P100,000.00</small></span>
+                    <span><span class="cis-chk">@(BusinessInfo.AverageAnnualIncome == AverageAnnualIncome.P500001ToP1M ? "✓" : "")</span> <small>P500,001.00 -P1M</small></span>
+                    <span><span class="cis-chk">@(BusinessInfo.AverageAnnualIncome == AverageAnnualIncome.P100001ToP500000 ? "✓" : "")</span> <small>P100,001.00 -P500,000.00</small></span>
+                    <span><span class="cis-chk">@(BusinessInfo.AverageAnnualIncome == AverageAnnualIncome.MoreThanP1M ? "✓" : "")</span> <small>MORE THAN P1M</small></span>
+                </div>
+            </div>
+            <div class="cis-cell grow-3 border-l">
+                <span class="lbl">SIZE OF BUSINESS*</span>
+                <div class="income-grid">
+                    <span><span class="cis-chk">@(BusinessInfo.SizeOfBusiness == SizeOfBusiness.Micro ? "✓" : "")</span> <small>Micro (assets of up to P3M)</small></span>
+                    <span><span class="cis-chk">@(BusinessInfo.SizeOfBusiness == SizeOfBusiness.Medium ? "✓" : "")</span> <small>Medium (assets of P15,000,001.00 to P100M)</small></span>
+                    <span><span class="cis-chk">@(BusinessInfo.SizeOfBusiness == SizeOfBusiness.Small ? "✓" : "")</span> <small>Small (assets of P3,000,001.00 -P15M)</small></span>
+                    <span><span class="cis-chk">@(BusinessInfo.SizeOfBusiness == SizeOfBusiness.Large ? "✓" : "")</span> <small>Large (assets of more than P100M)</small></span>
+                </div>
+            </div>
+        </div>
+
+        @* Section III: Beneficiary *@
+        <div class="sec-title">III. FOR INDIVIDUAL AND BUSINESS ACCOUNT WITH BENEFICIARY</div>
+
+        <div class="cis-row">
+            <div class="cis-cell grow-1">
+                <span class="lbl">TRUST TYPE</span>
+                <div><span class="cis-chk">@(Beneficiary.TrustType == TrustType.ITF ? "✓" : "")</span> <small>IN TRUST FOR ACCOUNT</small></div>
+                <div><span class="cis-chk">@(Beneficiary.TrustType == TrustType.FAO ? "✓" : "")</span> <small>FOR THE ACCOUNT OF</small></div>
+            </div>
+            <div class="cis-cell grow-3 border-l">
+                <span class="lbl">NAME*</span>
+                <div class="val">@Beneficiary.BeneficiaryName</div>
+            </div>
+        </div>
+
+        <div class="cis-row">
+            <div class="cis-cell grow-2">
+                <span class="lbl">SOURCE OF FUNDS*</span>
+                <div class="products-grid">
+                    <span><span class="cis-chk">@(Beneficiary.SourceOfFunds == "Salary" ? "✓" : "")</span> <small>SALARY</small></span>
+                    <span><span class="cis-chk">@(Beneficiary.SourceOfFunds == "Business" ? "✓" : "")</span> <small>BUSINESS</small></span>
+                    <span><span class="cis-chk">@(Beneficiary.SourceOfFunds == "Pension" ? "✓" : "")</span> <small>PENSION</small></span>
+                    <span><span class="cis-chk">@(Beneficiary.SourceOfFunds == "RegularRemittance" ? "✓" : "")</span> <small>REGULAR REMITTANCE</small></span>
+                    <span><span class="cis-chk">@(Beneficiary.SourceOfFunds == "Others" ? "✓" : "")</span> <small>OTHERS (Please specify)* @Beneficiary.SourceOfFundsOther</small></span>
+                </div>
+            </div>
+            <div class="cis-cell grow-1 border-l">
+                <span class="lbl">BIRTHDAY (MM/DD/YYYY)*</span>
+                <div class="val">@Beneficiary.Birthday?.ToString("MM/dd/yyyy")</div>
+            </div>
+            <div class="cis-cell grow-1 border-l">
+                <span class="lbl">PLACE OF BIRTH*</span>
+                <div class="val">@Beneficiary.PlaceOfBirth</div>
+            </div>
+        </div>
+
+        <div class="cis-row">
+            <div class="cis-cell grow-2">
+                <span class="lbl">NATIONALITY*</span>
+                <div class="val">@Beneficiary.Nationality</div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">ADDRESS*</span>
+                <div class="val">@Beneficiary.Address</div>
+            </div>
+        </div>
+
+        <div class="cis-row">
+            <div class="cis-cell grow-1">
+                <span class="lbl">NATURE OF WORK*</span>
+                <div class="val">@Beneficiary.NatureOfWork</div>
+            </div>
+        </div>
+
+        @* Client Acknowledgement *@
+        <div class="sec-title">CLIENT'S ACKNOWLEDGEMENT</div>
+        <div class="ack-text">
+            By signing this form, I/We certify that all information provided herein is true and correct to the best of my knowledge. I/We further agree:<br/>
+            i. To allow Porac Bank to verify the above information and inform Porac Bank of any changes in the information provided in the form;<br/>
+            ii. That all deposit products and credit facilities that I/We have availed, or shall, in the future, avail from Porac Bank shall be governed by the terms and conditions set forth by Porac Bank as well as the rules and regulations of the Bangko Sentral ng Pilipinas (BSP) and such other laws, rules and regulations relative to said products and facilities.<br/>
+            iii. To grant Porac Bank access to all information relating to my/our present and future accounts and to disclose such data and papers pertaining to my/our accounts as may be required by government regulatory authorities for purposes of compliance with relevant laws and regulations issued by appropriate regulatory authorities and agencies of the government.
+        </div>
+        <div class="cis-row sig-row">
+            <div class="cis-cell grow-2 center">
+                <div class="sig-line">
+                    @if (!string.IsNullOrEmpty(Acknowledgement.SignatureData))
+                    {
+                        <img src="@Acknowledgement.SignatureData" class="sig-img" alt="Signature" />
+                    }
+                </div>
+                <div class="sub-lbl">PRINTED NAME AND SIGNATURE OF DEPOSITOR</div>
+                <div class="val">@Acknowledgement.PrintedName</div>
+            </div>
+            <div class="cis-cell grow-2 center border-l">
+                <div class="sig-line"></div>
+                <div class="sub-lbl">PRINTED NAME AND SIGNATURE OF DEPOSITOR</div>
+            </div>
+            <div class="cis-cell grow-1 center border-l">
+                <div class="sig-line"></div>
+                <div class="sub-lbl">DATE</div>
+                <div class="val">@Acknowledgement.DateSigned?.ToString("MM/dd/yyyy")</div>
+            </div>
+        </div>
+
+        @* For Bank Use Only *@
+        <div class="sec-title black-bg">FOR BANK USE ONLY</div>
+
+        @* Screening *@
+        <div class="cis-row">
+            <div class="cis-cell grow-2">
+                <span class="lbl">CUSTOMER WAS CHECKED AGAINST: *</span>
+                <div><span class="cis-chk">@(BankReview.ScreeningList != null && BankReview.ScreeningList.Contains("NEGATIVE LIST") ? "✓" : "")</span> <small>NEGATIVE LIST (OFAC/ UN SANCTION LIST)</small></div>
+                <div><span class="cis-chk">@(BankReview.ScreeningList != null && BankReview.ScreeningList.Contains("PEPLIST") ? "✓" : "")</span> <small>PEPLIST</small></div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">CUSTOMER IS A PORAC BANK EMPLOYEE*</span>
+                <div>
+                    <span class="cis-chk">@(BankReview.IsEmployee ? "✓" : "")</span> <small>DOSRI</small> &nbsp;
+                    <span class="cis-chk"></span> <small>RPT</small> &nbsp;
+                    <small>POSITION* <span class="val">@BankReview.Position</span></small>
+                </div>
+            </div>
+        </div>
+
+        @* Relative *@
+        <div class="cis-row">
+            <div class="cis-cell grow-1">
+                <div><span class="cis-chk">@(BankReview.IsRelative ? "✓" : "")</span> <small>CUSTOMER IS A RELATIVE (UP TO 2ND DEGREE OF AFFINITY AND CONSAGUINITY) OF A PORAC BANK EMPLOYEE</small></div>
+            </div>
+        </div>
+        @if (BankReview.IsRelative)
+        {
+            <div class="cis-row">
+                <div class="cis-cell grow-2">
+                    <span class="lbl">NAME OF EMPLOYEE*</span>
+                    <div class="val">@BankReview.RelativeEmployeeName</div>
+                </div>
+                <div class="cis-cell grow-2 border-l">
+                    <span class="lbl">POSITION*</span>
+                    <div class="val">@BankReview.RelativePosition</div>
+                </div>
+                <div class="cis-cell grow-2 border-l">
+                    <span class="lbl">RELATIONSHIP*</span>
+                    <div class="val">@BankReview.RelativeRelationship</div>
+                </div>
+            </div>
+        }
+
+        @* Nature of Work / Business *@
+        <div class="cis-row">
+            <div class="cis-cell grow-2">
+                <span class="lbl">NATURE OF WORK/ BUSINESS*</span>
+                <div class="nature-grid">
+                    @foreach (var nw in BankReview.WorkList)
+                    {
+                        <span><span class="cis-chk">✓</span> <small>@nw</small></span>
+                    }
+                </div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <div><span class="cis-chk">@(BankReview.IsOwnedByPEP ? "✓" : "")</span> <small>CUSTOMER IS AN ENTITY OWNED AND CONTROLLED BY A POLITICALLY EXPOSED PERSON</small></div>
+                <div class="mt8"><span class="cis-chk">@(BankReview.IsEntityOwnedByEmployee ? "✓" : "")</span> <small>CUSTOMER IS AN ENTITY OWNED AND CONTROLLED BY A PORAC BANK EMPLOYEE*</small></div>
+            </div>
+        </div>
+
+        @* Documents Presented *@
+        <div class="cis-row">
+            <div class="cis-cell grow-1">
+                <span class="lbl">DOCUMENTS PRESENTED*</span>
+                <div class="doc-list">
+                    @foreach (var doc in BankReview.DocsList)
+                    {
+                        <div><span class="cis-chk">✓</span> <small>@doc</small></div>
+                    }
+                    @foreach (var doc in BankReview.AdditionalDocsList)
+                    {
+                        <div><span class="cis-chk">✓</span> <small>@doc</small></div>
+                    }
+                    @if (!string.IsNullOrEmpty(BankReview.DocumentsOther))
+                    {
+                        <div><span class="cis-chk">✓</span> <small>OTHERS: @BankReview.DocumentsOther</small></div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @* Signature / Verified / Approved *@
+        <div class="cis-row sig-row">
+            <div class="cis-cell grow-1 center">
+                <div class="sig-line">
+                    @if (!string.IsNullOrEmpty(BankReview.SignatureAuthenticated))
+                    {
+                        <img src="@BankReview.SignatureAuthenticated" class="sig-img" alt="Auth Signature" />
+                    }
+                </div>
+                <div class="sub-lbl">SIGNATURE AUTHENTICATED</div>
+            </div>
+            <div class="cis-cell grow-1 center border-l">
+                <div class="sig-line"></div>
+                <div class="sub-lbl">VERIFIED BY</div>
+                <div class="val">@BankReview.VerifiedBy</div>
+            </div>
+            <div class="cis-cell grow-1 center border-l">
+                <div class="sig-line"></div>
+                <div class="sub-lbl">APPROVED BY</div>
+                <div class="val">@BankReview.ApprovedBy</div>
+            </div>
+            <div class="cis-cell grow-2 border-l">
+                <span class="lbl">REMARKS (IF ANY)</span>
+                <div class="val">@BankReview.Remarks</div>
+            </div>
+        </div>
+
+    </div>@* end page 2 *@
+
+</div>@* end cis-page *@
+
+@* ── Print Button (hidden on print) ── *@
+<div class="no-print print-bar">
+    <button class="btn-print" onclick="window.print()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Print Official Form
+    </button>
 </div>
 
 <style>
-    .cis-container { 
-        width: 8.5in; 
-        margin: auto; 
-        padding: 0.3in; 
-        background: #fff; 
-        color: #000; 
-        font-family: Arial, sans-serif; 
-        font-size: 8.5pt;
+    * { box-sizing: border-box; }
+
+    body { margin: 0; background: #e8ecf0; }
+
+    .cis-page {
+        font-family: Arial, sans-serif;
+        font-size: 8pt;
+        color: #000;
     }
-    
-    /* Header Positioning */
-    .cis-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; padding-bottom: 5px; }
-    .form-title { font-size: 22pt; font-weight: 900; margin: 0; }
-    .bank-name { font-size: 24pt; font-weight: 900; margin: 0; text-align: right; }
-    .bank-tagline { font-style: italic; margin: 0; text-align: right; }
 
-    /* Meta Grid */
-    .meta-grid { margin: 10px 0; }
-    .meta-row { display: flex; justify-content: space-between; align-items: center; }
-    .meta-col { flex: 1; }
-    .cid-field { text-align: right; }
+    .cis-sheet {
+        width: 8.5in;
+        margin: 0 auto 0.3in;
+        padding: 0.35in 0.4in;
+        background: #fff;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+    }
 
-    /* Section Styles */
-    .section-title { background: #333; color: #fff; padding: 4px 10px; font-weight: bold; margin-top: 5px; text-transform: uppercase; }
+    /* ── Header ── */
+    .cis-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-bottom: 2.5px solid #000;
+        padding-bottom: 6px;
+        margin-bottom: 6px;
+    }
+    .cis-title { font-size: 18pt; font-weight: 900; line-height: 1.1; }
+    .cis-bank-name { font-size: 22pt; font-weight: 900; text-align: right; }
+    .cis-bank-sub  { font-size: 8pt; font-style: italic; text-align: right; }
+
+    /* ── Meta ── */
+    .cis-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 4px 0;
+        border-bottom: 1px solid #000;
+        margin-bottom: 3px;
+    }
+    .cis-meta-left, .cis-meta-mid { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+    .cis-meta-right { text-align: right; }
+
+    .cis-guidelines {
+        font-size: 6.5pt;
+        font-style: italic;
+        color: #444;
+        margin-bottom: 4px;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 3px;
+    }
+
+    /* ── Section titles ── */
+    .sec-title {
+        background: #333;
+        color: #fff;
+        padding: 3px 8px;
+        font-weight: bold;
+        font-size: 8.5pt;
+        text-transform: uppercase;
+        margin-top: 4px;
+        text-align: center;
+    }
     .black-bg { background: #000; }
-    .guidelines { font-size: 7pt; font-style: italic; margin-bottom: 5px; color: #444; }
 
-    /* Layout Helpers */
-    .flex-row { display: flex; width: 100%; }
-    .row-border { border: 1px solid #000; border-top: none; }
-    .p-5 { padding: 4px 8px; }
-    .border-left { border-left: 1px solid #000; }
-    .flex-grow-1 { flex: 1; }
-    .flex-grow-2 { flex: 2; }
-    .flex-grow-3 { flex: 3; }
-    .bg-light-gray { background: #f2f2f2; }
+    /* ── Rows & Cells ── */
+    .cis-row {
+        display: flex;
+        width: 100%;
+        border: 1px solid #000;
+        border-top: none;
+    }
+    .cis-row:first-of-type { border-top: 1px solid #000; }
 
-    /* Text Formatting */
-    .small-label { font-size: 7pt; font-weight: bold; display: block; color: #333; margin-bottom: 2px; }
-    .large-text { font-size: 11pt !important; font-weight: bold; color: #000; }
-    .data-text { font-family: 'Courier New', Courier, monospace; text-transform: uppercase; }
-    
-    /* Checkbox UI */
-    .custom-check { width: 14px; height: 14px; border: 1px solid #000; display: inline-block; vertical-align: middle; text-align: center; line-height: 14px; font-weight: bold; margin: 0 2px; }
-    .check-label { font-size: 8pt; margin-right: 10px; }
+    .cis-cell {
+        padding: 4px 7px;
+        min-height: 28px;
+    }
+    .cis-cell.center { text-align: center; }
+    .border-l { border-left: 1px solid #000; }
+    .bg-gray { background: #f2f2f2; }
 
-    /* Grids */
-    .name-grid { display: flex; gap: 15px; }
-    .name-item small { font-size: 6.5pt; color: #666; display: block; }
-    .status-grid, .income-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
-    .contact-details span { display: block; font-size: 8pt; margin-bottom: 2px; }
+    .grow-1 { flex: 1; }
+    .grow-2 { flex: 2; }
+    .grow-3 { flex: 3; }
+    .grow-4 { flex: 4; }
 
-    /* Tables */
-    .data-table { width: 100%; border-collapse: collapse; border: 1px solid #000; border-top: none; }
-    .data-table th, .data-table td { border: 1px solid #000; padding: 4px 8px; font-size: 8pt; }
-    .data-table th { background: #eee; font-weight: bold; text-align: left; }
+    /* ── Labels & Values ── */
+    .lbl {
+        display: block;
+        font-size: 6.5pt;
+        font-weight: bold;
+        color: #333;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+    .lbl-standalone {
+        font-size: 6.5pt;
+        font-weight: bold;
+        color: #333;
+        text-transform: uppercase;
+        padding: 3px 7px;
+        border: 1px solid #000;
+        border-top: none;
+        display: block;
+        background: #f8f8f8;
+    }
+    .val {
+        font-size: 10pt;
+        font-weight: bold;
+        font-family: 'Courier New', monospace;
+        text-transform: uppercase;
+    }
+    .val-lg {
+        font-size: 12pt;
+        font-weight: bold;
+        font-family: 'Courier New', monospace;
+    }
+    .sub-lbl {
+        font-size: 6pt;
+        color: #666;
+        margin-top: 1px;
+    }
+    .chk-lbl { font-size: 7.5pt; margin-right: 8px; }
 
-    /* Print Button */
-    .print-btn-container { margin-top: 20px; text-align: center; }
-    .btn-primary-print { background: #000; color: #fff; border: none; padding: 10px 30px; font-weight: bold; cursor: pointer; }
+    /* ── Checkbox ── */
+    .cis-chk {
+        display: inline-block;
+        width: 12px; height: 12px;
+        border: 1px solid #000;
+        vertical-align: middle;
+        text-align: center;
+        line-height: 11px;
+        font-size: 9pt;
+        font-weight: bold;
+        margin-right: 2px;
+    }
+
+    /* ── Grids ── */
+    .name-grid {
+        display: flex;
+        gap: 12px;
+    }
+    .name-grid > div { flex: 1; border-bottom: 1px solid #999; }
+
+    .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; }
+    .income-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .products-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; }
+    .nature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+
+    .two-col-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .contact-stack span { display: block; margin-bottom: 2px; }
+    .id-row { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+    .id-stack div { margin-bottom: 2px; }
+    .employer-addr { display: flex; gap: 10px; }
+    .employer-addr > span { flex: 1; border-bottom: 1px solid #999; }
+    .doc-list div { margin-bottom: 1px; }
+
+    /* ── Tables ── */
+    .inline-table, .full-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 7.5pt;
+        margin-top: 4px;
+    }
+    .inline-table th, .full-table th {
+        background: #eee;
+        font-weight: bold;
+        border: 1px solid #000;
+        padding: 2px 6px;
+        text-align: left;
+        font-size: 6.5pt;
+    }
+    .inline-table td, .full-table td {
+        border: 1px solid #000;
+        padding: 3px 6px;
+        min-height: 18px;
+    }
+    .full-table {
+        border: 1px solid #000;
+        border-top: none;
+    }
+
+    /* ── Acknowledgement ── */
+    .ack-text {
+        font-size: 7pt;
+        line-height: 1.5;
+        padding: 6px 7px;
+        border: 1px solid #000;
+        border-top: none;
+    }
+    .sig-row { min-height: 60px; }
+    .sig-line {
+        min-height: 50px;
+        border-bottom: 1px solid #000;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        margin-bottom: 3px;
+    }
+    .sig-img {
+        max-height: 45px;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    /* ── Spacers ── */
+    .mt4 { margin-top: 4px; }
+    .mt6 { margin-top: 6px; }
+    .mt8 { margin-top: 8px; }
+
+    /* ── Print button ── */
+    .print-bar {
+        text-align: center;
+        padding: 20px;
+        background: #e8ecf0;
+    }
+    .btn-print {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 32px;
+        background: linear-gradient(90deg, #00a859, #0056b3);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(0,168,89,0.3);
+    }
+    .btn-print:hover { filter: brightness(1.08); }
+
+    /* ── Page break ── */
+    .page-break { margin-top: 0.3in; }
 
     @@media print {
-        .no-print { display: none; }
-        .cis-container { width: 100%; margin: 0; padding: 0.2in; border: none; }
-        body { margin: 0; }
+        body { background: #fff; }
+        .no-print { display: none !important; }
+        .cis-sheet { margin: 0; padding: 0.25in 0.3in; box-shadow: none; width: 100%; }
+        .page-break { page-break-before: always; margin-top: 0; }
     }
 </style>
 
 @code {
     [SupplyParameterFromQuery] public long CustomerId { get; set; }
 
-    // Initialize all models to avoid null reference errors
     public CustomerDTO.PageModel Customer { get; set; } = new();
     public IndividualInfoDTO.PageModel Personal { get; set; } = new();
     public AddressDTO.PageModel Address { get; set; } = new();
@@ -339,25 +977,38 @@
     public IndividualFamilyDTO.PageModel Family { get; set; } = new();
     public IndividualForeignerDTO.PageModel Foreigner { get; set; } = new();
     public AccountPurposeDTO.PageModel AccPurpose { get; set; } = new();
+    public BusinessInfoDTO.PageModel BusinessInfo { get; set; } = new();
+    public BusinessInfoDTO.PageModel AccountContact { get; set; } = new();
+    public BeneficiaryDTO.PageModel Beneficiary { get; set; } = new();
+    public ClientAcknowledgementDTO.PageModel Acknowledgement { get; set; } = new();
+    public BankReviewDTO.PageModel BankReview { get; set; } = new();
 
-    protected override async Task OnInitializedAsync()
+    private long _loadedId;
+
+    protected override async Task OnParametersSetAsync()
     {
-        if (CustomerId > 0) 
+        if (CustomerId > 0 && CustomerId != _loadedId)
         {
+            _loadedId = CustomerId;
+
             var data = await IndividualService.GetRegistrationDetailsAsync(CustomerId);
             if (data != null)
             {
-                Personal = data.Individual ?? new();
-
-                Customer.CIDNumber = Personal.CIDNumber;
+                Personal        = data.Individual      ?? new();
+                Customer.CIDNumber          = Personal.CIDNumber;
                 Customer.CustomerCategories = Personal.CustomerCategories;
-                Address = data.Address ?? new();
-                Identification = data.Identification ?? new();
-                Employment = data.Employment ?? new();
-                Family = data.Family ?? new();
-                Contact = data.Contact ?? new();
-                Foreigner = data.Foreigner ?? new();
-                AccPurpose = data.AccountPurpose ?? new();
+                Address         = data.Address         ?? new();
+                Identification  = data.Identification  ?? new();
+                Employment      = data.Employment      ?? new();
+                Family          = data.Family          ?? new();
+                Contact         = data.Contact         ?? new();
+                Foreigner       = data.Foreigner       ?? new();
+                AccPurpose      = data.AccountPurpose  ?? new();
+                BusinessInfo    = data.Business        ?? new();
+                AccountContact  = data.AccountContact  ?? new();
+                Beneficiary     = data.Beneficiary     ?? new();
+                Acknowledgement = data.Acknowledgement ?? new();
+                BankReview      = data.BankReview      ?? new();
             }
         }
     }
