@@ -83,14 +83,7 @@
                 </div>
                 <span class="pi-section-title">Personal Details</span>
             </div>
-            <div class="pi-grid pi-grid-4">
-                <div class="pi-field">
-                    <label class="pi-label">Philippines Resident?</label>
-                    <InputSelect @bind-Value="Model.IsResident" class="pi-select">
-                        <option value="true">Yes</option>
-                        <option value="false">No</option>
-                    </InputSelect>
-                </div>
+            <div class="pi-grid pi-grid-4">               
                 <div class="pi-field">
                     <label class="pi-label">Gender <span class="pi-req">*</span></label>
                     <InputSelect @bind-Value="Model.Gender" class="pi-select">
@@ -127,6 +120,27 @@
                             <option value="@m">@m</option>
                         }
                     </InputSelect>
+                </div>
+                <div class="pi-field">
+                    <label class="pi-label">Philippines Resident?</label>
+                    <div class="pi-radio-group">
+                        <label class="pi-radio-card @(Model.IsResident ? "checked" : "")">
+                            <input type="radio" name="isResident" value="true"
+                                   checked="@Model.IsResident"
+                                   @onchange="() => Model.IsResident = true"
+                                   class="pi-radio-input" />
+                            <div class="pi-radio-dot"></div>
+                            <span>Yes</span>
+                        </label>
+                        <label class="pi-radio-card @(!Model.IsResident ? "checked" : "")">
+                            <input type="radio" name="isResident" value="false"
+                                   checked="@(!Model.IsResident)"
+                                   @onchange="() => Model.IsResident = false"
+                                   class="pi-radio-input" />
+                            <div class="pi-radio-dot"></div>
+                            <span>No</span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -373,8 +387,8 @@
 
 <style>
     /* ══════════════════════════════════════
-                   Root
-                ══════════════════════════════════════ */
+                       Root
+                    ══════════════════════════════════════ */
     .pi-wrap {
         display: flex;
         flex-direction: column;
@@ -383,8 +397,8 @@
     }
 
     /* ══════════════════════════════════════
-                   Section card
-                ══════════════════════════════════════ */
+                       Section card
+                    ══════════════════════════════════════ */
     .pi-section {
         background: #ffffff;
         border: 1px solid #edf0f4;
@@ -440,8 +454,8 @@
     }
 
     /* ══════════════════════════════════════
-                   Section header
-                ══════════════════════════════════════ */
+                       Section header
+                    ══════════════════════════════════════ */
     .pi-section-header {
         display: flex;
         align-items: center;
@@ -493,8 +507,8 @@
     }
 
     /* ══════════════════════════════════════
-                   Grid
-                ══════════════════════════════════════ */
+                       Grid
+                    ══════════════════════════════════════ */
     .pi-grid {
         display: grid;
         gap: 16px;
@@ -513,8 +527,8 @@
     }
 
     /* ══════════════════════════════════════
-                   Field
-                ══════════════════════════════════════ */
+                       Field
+                    ══════════════════════════════════════ */
     .pi-field {
         display: flex;
         flex-direction: column;
@@ -607,8 +621,78 @@
     }
 
     /* ══════════════════════════════════════
-                   Checkbox cards
-                ══════════════════════════════════════ */
+                       Checkbox cards
+                    ══════════════════════════════════════ */
+    .pi-radio-group {
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+    }
+
+    .pi-radio-card {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 18px;
+        height: 42px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 11px;
+        cursor: pointer;
+        font-size: 0.86rem;
+        font-weight: 500;
+        color: #475569;
+        background: #fff;
+        transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+        user-select: none;
+    }
+
+        .pi-radio-card:hover {
+            border-color: #94a3b8;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .pi-radio-card.checked {
+            border-color: #00a859;
+            background: linear-gradient(135deg, #f0fdf8 0%, #eff6ff 100%);
+            box-shadow: 0 2px 12px rgba(0,168,89,0.1);
+            color: #0f172a;
+        }
+
+    .pi-radio-input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+    }
+
+    .pi-radio-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 1.5px solid #cbd5e1;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.18s;
+    }
+
+    .pi-radio-card.checked .pi-radio-dot {
+        background: linear-gradient(135deg, #00a859, #0056b3);
+        border-color: transparent;
+        box-shadow: 0 2px 6px rgba(0,168,89,0.3);
+    }
+
+        .pi-radio-card.checked .pi-radio-dot::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #fff;
+        }
+
     .pi-checkbox-group {
         display: flex;
         flex-wrap: wrap;
@@ -685,8 +769,8 @@
     }
 
     /* ══════════════════════════════════════
-                   Toggle switch
-                ══════════════════════════════════════ */
+                       Toggle switch
+                    ══════════════════════════════════════ */
     .pi-toggle-row {
         display: flex;
         align-items: center;
@@ -747,8 +831,8 @@
     }
 
     /* ══════════════════════════════════════
-                   Divider
-                ══════════════════════════════════════ */
+                       Divider
+                    ══════════════════════════════════════ */
     .pi-divider {
         height: 1px;
         background: #f1f5f9;
@@ -760,8 +844,8 @@
     }
 
     /* ══════════════════════════════════════
-                   Footer
-                ══════════════════════════════════════ */
+                       Footer
+                    ══════════════════════════════════════ */
     .pi-footer {
         display: flex;
         align-items: center;
@@ -819,8 +903,8 @@
     }
 
     /* ══════════════════════════════════════
-                   Responsive
-                ══════════════════════════════════════ */
+                       Responsive
+                    ══════════════════════════════════════ */
     @@media (max-width: 768px) {
         .pi-grid-3 {
             grid-template-columns: repeat(2, 1fr);

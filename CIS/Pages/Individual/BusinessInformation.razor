@@ -1,126 +1,754 @@
 ﻿@using CIS.Assets.DTO
 @using CIS.Assets.Enum
+@using System.ComponentModel
+@using System.Reflection
+@inject IJSRuntime JS
 
-<EditForm Model="BusinessModel" OnValidSubmit="Next">
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white py-3">
-            <h5 class="mb-0">Step 1: Business Information</h5>
-        </div>
-        <div class="card-body p-4">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Sector</label>
-                    <InputSelect @bind-Value="BusinessModel.IsGovernment" class="form-select">
-                        <option value="false">Private</option>
-                        <option value="true">Government</option>
-                    </InputSelect>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Name of Business</label>
-                    <InputText @bind-Value="BusinessModel.NameOfBusiness" class="form-control" />
-                </div>
+<EditForm Model="BusinessModel" @ref="editForm">
+    <DataAnnotationsValidator />
 
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Type of Organization</label>
-                    <InputSelect @bind-Value="BusinessModel.TypeOfOrganization" class="form-select">
-                        <option value="">-- Select Type --</option>
-                        <option value="SoleProprietorship">Sole Proprietorship</option>
-                        <option value="Partnership">Partnership</option>
-                        <option value="Corporation">Corporation</option>
-                        <option value="Cooperative">Cooperative</option>
-                        <option value="Others">Others</option>
-                    </InputSelect>
-                </div>
+    <div class="bi-wrap">
 
-                @if (BusinessModel.TypeOfOrganization == TypeOfOrganization.Others)
-                {
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Please Specify Type</label>
-                        <InputText @bind-Value="BusinessModel.TypeOfOrganizationOther" class="form-control" />
+        @* ══════════════════════════════════════
+           SECTION 1 — Business Information
+        ══════════════════════════════════════ *@
+        <div class="bi-section" id="field-NameOfBusiness">
+            <div class="bi-section-header">
+                <div class="bi-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 22V12h6v10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <span class="bi-section-title">Business Information</span>
+            </div>
+
+            @* Row 1: Sector | Name of Business | Type of Organization *@
+            <div class="bif-grid bif-grid-3">
+                <div class="bi-field">
+                    <label class="bi-label">Sector <span class="bi-req">*</span></label>
+                    <div class="bi-radio-group">
+                        <label class="bi-radio-card @(sectorSelected && BusinessModel.IsPrivate == true ? "checked" : "")">
+                            <input type="radio" name="sector" class="bi-radio-input"
+                                   checked="@(sectorSelected && BusinessModel.IsPrivate == true)"
+                                   @onchange="@(() => SetSector(true))" />
+                            <div class="bi-radio-dot"></div>
+                            <span>Private</span>
+                        </label>
+                        <label class="bi-radio-card @(sectorSelected && BusinessModel.IsPrivate == false ? "checked" : "")">
+                            <input type="radio" name="sector" class="bi-radio-input"
+                                   checked="@(sectorSelected && BusinessModel.IsPrivate == false)"
+                                   @onchange="@(() => SetSector(false))" />
+                            <div class="bi-radio-dot"></div>
+                            <span>Government</span>
+                        </label>
                     </div>
-                }
-
-                <div class="col-12">
-                    <label class="form-label fw-bold">Business Address</label>
-                    <InputTextArea @bind-Value="AddressModel.BusinessAddress" class="form-control" rows="2" />
-                </div>
-
-                <div class="col-12">
-                    <div class="form-check form-switch mb-2">
-                        <InputCheckbox @bind-Value="showPrincipalAddress" class="form-check-input" id="pAddr" />
-                        <label class="form-check-label fw-bold" for="pAddr">Principal Address is different</label>
-                    </div>
-                    @if (showPrincipalAddress)
+                    @if (hasAttemptedSubmit && !sectorSelected)
                     {
-                        <InputTextArea @bind-Value="AddressModel.PrincipalAddress" class="form-control" rows="2" placeholder="Enter Principal Address" />
+                        <span class="bi-field-error">Sector is required.</span>
+                    }
+                </div>
+                <div class="bi-field">
+                    <label class="bi-label">Name of Business <span class="bi-req">*</span></label>
+                    <InputText @bind-Value="BusinessModel.NameOfBusiness" class="@(hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.NameOfBusiness) ? "bi-input bi-invalid" : "bi-input")" placeholder="e.g. Dela Cruz Trading Co." />
+                    @if (hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.NameOfBusiness))
+                    {
+                        <span class="bi-field-error">Name of business is required.</span>
+                    }
+                </div>
+                <div class="bi-field">
+                    <label class="bi-label">Type of Organization <span class="bi-req">*</span></label>
+                    <div class="bi-select-wrap">
+                        <InputSelect @bind-Value="BusinessModel.TypeOfOrganization" class="@(hasAttemptedSubmit && BusinessModel.TypeOfOrganization == TypeOfOrganization.None ? "bi-select bi-invalid" : "bi-select")">
+                            <option value="@TypeOfOrganization.None" disabled>Select Type of Organization</option>
+                            @foreach (TypeOfOrganization t in Enum.GetValues<TypeOfOrganization>())
+                            {
+                                if (t == TypeOfOrganization.None) continue;
+                                <option value="@t">@FormatEnum(t.ToString())</option>
+                            }
+                        </InputSelect>
+                        <svg class="bi-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    @if (hasAttemptedSubmit && BusinessModel.TypeOfOrganization == TypeOfOrganization.None)
+                    {
+                        <span class="bi-field-error">Type of organization is required.</span>
+                    }
+                    @if (BusinessModel.TypeOfOrganization == TypeOfOrganization.Others)
+                    {
+                        <InputText @bind-Value="BusinessModel.TypeOfOrganizationOther" class="bi-input mt-2" placeholder="Please specify" />
+                        @if (hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.TypeOfOrganizationOther))
+                        {
+                            <span class="bi-field-error">Please specify the type of organization.</span>
+                        }
+                    }
+                </div>
+            </div>
+
+            @* Row 2: Size of Business | Average Annual Income *@
+            <div class="bif-grid bif-grid-2" style="margin-top:16px;">
+                <div class="bi-field">
+                    <label class="bi-label">Size of Business <span class="bi-req">*</span></label>
+                    <div class="bi-select-wrap">
+                        <InputSelect @bind-Value="BusinessModel.SizeOfBusiness" class="@(hasAttemptedSubmit && BusinessModel.SizeOfBusiness == SizeOfBusiness.None ? "bi-select bi-invalid" : "bi-select")">
+                            <option value="@SizeOfBusiness.None" disabled>Select Size of Business</option>
+                            @foreach (SizeOfBusiness s in Enum.GetValues<SizeOfBusiness>())
+                            {
+                                if (s == SizeOfBusiness.None) continue;
+                                <option value="@s">@GetEnumDescription(s)</option>
+                            }
+                        </InputSelect>
+                        <svg class="bi-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    @if (hasAttemptedSubmit && BusinessModel.SizeOfBusiness == SizeOfBusiness.None)
+                    {
+                        <span class="bi-field-error">Size of business is required.</span>
+                    }
+                </div>
+                <div class="bi-field">
+                    <label class="bi-label">Average Annual Income <span class="bi-req">*</span></label>
+                    <div class="bi-select-wrap">
+                        <InputSelect @bind-Value="BusinessModel.AverageAnnualIncome" class="@(hasAttemptedSubmit && BusinessModel.AverageAnnualIncome == AverageAnnualIncome.None ? "bi-select bi-invalid" : "bi-select")">
+                            <option value="@AverageAnnualIncome.None" disabled>Select Average Annual Income</option>
+                            @foreach (AverageAnnualIncome a in Enum.GetValues<AverageAnnualIncome>())
+                            {
+                                if (a == AverageAnnualIncome.None) continue;
+                                <option value="@a">@GetEnumDescription(a)</option>
+                            }
+                        </InputSelect>
+                        <svg class="bi-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    @if (hasAttemptedSubmit && BusinessModel.AverageAnnualIncome == AverageAnnualIncome.None)
+                    {
+                        <span class="bi-field-error">Average annual income is required.</span>
+                    }
+                </div>
+            </div>
+
+            <div class="bi-divider"></div>
+
+            @* Business Address *@
+            <div class="bi-subsection-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                Business Address <span class="bi-req">*</span>
+            </div>
+            <div class="bi-field" id="field-BusinessAddress">
+                <InputTextArea @bind-Value="AddressModel.BusinessAddress" class="@(hasAttemptedSubmit && string.IsNullOrWhiteSpace(AddressModel.BusinessAddress) ? "bi-textarea bi-invalid" : "bi-textarea")" rows="2" placeholder="Enter full business address" />
+                @if (hasAttemptedSubmit && string.IsNullOrWhiteSpace(AddressModel.BusinessAddress))
+                {
+                    <span class="bi-field-error">Business address is required.</span>
+                }
+            </div>
+
+            <div class="bi-divider"></div>
+
+            @* Principal Address toggle *@
+            <label class="bi-toggle-row">
+                <div class="bi-toggle-info">
+                    <span class="bi-toggle-label">Principal Address is different</span>
+                    <span class="bi-toggle-sub">Toggle on if principal address differs from business address</span>
+                </div>
+                <div class="bi-toggle-switch @(showPrincipalAddress ? "on" : "")">
+                    <InputCheckbox @bind-Value="showPrincipalAddress" class="bi-toggle-input" />
+                    <div class="bi-toggle-thumb"></div>
+                </div>
+            </label>
+            @if (showPrincipalAddress)
+            {
+                <div class="bi-field mt-2">
+                    <label class="bi-label">Principal Address <span class="bi-req">*</span></label>
+                    <InputTextArea @bind-Value="AddressModel.PrincipalAddress" class="@(hasAttemptedSubmit && string.IsNullOrWhiteSpace(AddressModel.PrincipalAddress) ? "bi-textarea bi-invalid" : "bi-textarea")" rows="2" placeholder="Enter principal address" />
+                    @if (hasAttemptedSubmit && string.IsNullOrWhiteSpace(AddressModel.PrincipalAddress))
+                    {
+                        <span class="bi-field-error">Principal address is required.</span>
+                    }
+                </div>
+            }
+        </div>
+
+        @* ══════════════════════════════════════
+           SECTION 2 — Registration Details
+        ══════════════════════════════════════ *@
+        <div class="bi-section" id="field-NatureOfBusiness">
+            <div class="bi-section-header">
+                <div class="bi-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="white" stroke-width="2"/>
+                        <path d="M16 2v4M8 2v4M3 10h18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span class="bi-section-title">Registration Details</span>
+            </div>
+
+            <div class="bif-grid bif-grid-3">
+                <div class="bi-field">
+                    <label class="bi-label">Date of Registration <span class="bi-req">*</span></label>
+                    <InputDate @bind-Value="BusinessModel.DateOfRegistration" class="@(hasAttemptedSubmit && BusinessModel.DateOfRegistration == null ? "bi-input bi-invalid" : "bi-input")" TValue="DateOnly?" max="9999-12-31" />
+                    @if (hasAttemptedSubmit && BusinessModel.DateOfRegistration == null)
+                    {
+                        <span class="bi-field-error">Date of registration is required.</span>
+                    }
+                </div>
+                <div class="bi-field">
+                    <label class="bi-label">Business Reg. Number <span class="bi-req">*</span></label>
+                    <InputText @bind-Value="BusinessModel.BusinessRegNumber" class="@(hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.BusinessRegNumber) ? "bi-input bi-invalid" : "bi-input")" placeholder="e.g. 2024-123456" />
+                    @if (hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.BusinessRegNumber))
+                    {
+                        <span class="bi-field-error">Business registration number is required.</span>
+                    }
+                </div>
+                <div class="bi-field">
+                    <label class="bi-label">Registration Expiry <span class="bi-req">*</span></label>
+                    <InputDate @bind-Value="BusinessModel.BusinessRegExpiry" class="@(hasAttemptedSubmit && BusinessModel.BusinessRegExpiry == null ? "bi-input bi-invalid" : "bi-input")" TValue="DateOnly?" max="9999-12-31" />
+                    @if (hasAttemptedSubmit && BusinessModel.BusinessRegExpiry == null)
+                    {
+                        <span class="bi-field-error">Registration expiry is required.</span>
+                    }
+                </div>
+                <div class="bi-field">
+                    <label class="bi-label">Place of Registration / Origin <span class="bi-req">*</span></label>
+                    <InputText @bind-Value="BusinessModel.PlaceOfRegistration" class="@(hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.PlaceOfRegistration) ? "bi-input bi-invalid" : "bi-input")" placeholder="e.g. Manila, Philippines" />
+                    @if (hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.PlaceOfRegistration))
+                    {
+                        <span class="bi-field-error">Place of registration is required.</span>
+                    }
+                </div>
+                <div class="bi-field">
+                    <label class="bi-label">Nature of Business <span class="bi-req">*</span></label>
+                    <InputText @bind-Value="BusinessModel.NatureOfBusiness" class="@(hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.NatureOfBusiness) ? "bi-input bi-invalid" : "bi-input")" placeholder="e.g. Retail, Manufacturing" />
+                    @if (hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.NatureOfBusiness))
+                    {
+                        <span class="bi-field-error">Nature of business is required.</span>
+                    }
+                </div>
+                <div class="bi-field">
+                    <label class="bi-label">Tax Identification Number (TIN) <span class="bi-req">*</span></label>
+                    <InputText @bind-Value="BusinessModel.TaxIdentificationNumber" class="@(hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.TaxIdentificationNumber) ? "bi-input bi-invalid" : "bi-input")" placeholder="e.g. 123-456-789-000" />
+                    @if (hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.TaxIdentificationNumber))
+                    {
+                        <span class="bi-field-error">TIN is required.</span>
+                    }
+                </div>
+                <div class="bi-field">
+                    <label class="bi-label">DTI Cert Number <span class="bi-req">*</span></label>
+                    <InputText @bind-Value="BusinessModel.DTICertNumber" class="@(hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.DTICertNumber) ? "bi-input bi-invalid" : "bi-input")" placeholder="DTI certificate number" />
+                    @if (hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.DTICertNumber))
+                    {
+                        <span class="bi-field-error">DTI certificate number is required.</span>
+                    }
+                </div>
+                <div class="bi-field">
+                    <label class="bi-label">DTI Cert Expiry <span class="bi-req">*</span></label>
+                    <InputDate @bind-Value="BusinessModel.DTICertExpiry" class="@(hasAttemptedSubmit && BusinessModel.DTICertExpiry == null ? "bi-input bi-invalid" : "bi-input")" TValue="DateOnly?" max="9999-12-31" />
+                    @if (hasAttemptedSubmit && BusinessModel.DTICertExpiry == null)
+                    {
+                        <span class="bi-field-error">DTI certificate expiry is required.</span>
                     }
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light py-2 fw-bold">Registration Details</div>
-        <div class="card-body p-4">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label">Date of Registration</label>
-                    <InputDate @bind-Value="BusinessModel.DateOfRegistration" class="form-control" TValue="DateOnly?" />
+        @* ══════════════════════════════════════
+           FOOTER
+        ══════════════════════════════════════ *@
+        <div class="bi-footer">
+            <button type="button" class="bi-btn-back" @onclick="OnBack">
+                <div class="bi-btn-arrow-left">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label">Business Reg. Number</label>
-                    <InputText @bind-Value="BusinessModel.BusinessRegNumber" class="form-control" />
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Registration Expiry</label>
-                    <InputDate @bind-Value="BusinessModel.BusinessRegExpiry" class="form-control" TValue="DateOnly?" />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Place of Registration / Origin</label>
-                    <InputText @bind-Value="BusinessModel.PlaceOfRegistration" class="form-control" />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Nature of Business</label>
-                    <InputText @bind-Value="BusinessModel.NatureOfBusiness" class="form-control" />
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Tax Identification Number (TIN)</label>
-                    <InputText @bind-Value="BusinessModel.TaxIdentificationNumber" class="form-control" />
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">DTI Cert Number</label>
-                    <InputText @bind-Value="BusinessModel.DTICertNumber" class="form-control" />
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">DTI Cert Expiry</label>
-                    <InputDate @bind-Value="BusinessModel.DTICertExpiry" class="form-control" TValue="DateOnly?" />
-                </div>
+                <span>Back</span>
+            </button>
+            <div class="bi-footer-hint">
+                <span class="bi-req">*</span>&nbsp;Required fields must be filled before continuing
             </div>
+            <button type="submit" class="bi-btn-next" @onclick="async () => await TriggerValidation()">
+                <span>Continue</span>
+                <div class="bi-btn-arrow">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+            </button>
         </div>
-    </div>
 
-    <div class="d-flex justify-content-end mb-5">
-        <button type="button" class="btn btn-outline-secondary px-5" @onclick="OnBack">Back</button>
-        <button type="submit" class="btn btn-primary px-5 btn-lg shadow">Next Step <i class="bi bi-arrow-right ms-2"></i></button>
     </div>
 </EditForm>
 
+<style>
+    .bi-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .bi-section {
+        background: #ffffff;
+        border: 1px solid #edf0f4;
+        border-radius: 18px;
+        padding: 22px 24px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bi-section::after {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #00a859, #0056b3);
+        opacity: 0;
+        transition: opacity 0.25s;
+    }
+
+    .bi-section:focus-within { border-color: #c8e6d8; box-shadow: 0 4px 20px rgba(0,168,89,0.07); }
+    .bi-section:focus-within::after { opacity: 1; }
+
+    @@keyframes bi-slide-in {
+        from { opacity: 0; transform: translateY(-8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .bi-section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .bi-section-icon {
+        width: 28px; height: 28px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #00a859, #0056b3);
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(0,168,89,0.25);
+    }
+
+    .bi-section-title {
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        flex: 1;
+    }
+
+    .bi-subsection-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #475569;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        margin-top: 4px;
+    }
+
+    .bi-subsection-label svg { color: #00a859; flex-shrink: 0; }
+
+    .bif-grid { display: grid; gap: 16px; }
+    .bi-span-2 { grid-column: span 2; }
+    .bif-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .bif-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .mt-2 { margin-top: 8px; }
+
+    .bi-field { display: flex; flex-direction: column; gap: 6px; }
+
+    .bi-label {
+        font-size: 0.71rem;
+        font-weight: 700;
+        color: #64748b;
+        letter-spacing: 0.2px;
+        display: flex; align-items: center; gap: 3px;
+    }
+
+    .bi-req { color: #ef4444; font-size: 0.8rem; line-height: 1; }
+
+    .bi-input,
+    .bi-textarea {
+        padding: 0 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 11px;
+        font-size: 0.86rem;
+        color: #0f172a;
+        background: #fff;
+        outline: none;
+        transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+        width: 100%;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .bi-input { height: 42px; }
+    .bi-textarea { padding: 10px 14px; resize: vertical; min-height: 70px; }
+
+    .bi-input:hover, .bi-textarea:hover { border-color: #94a3b8; }
+
+    .bi-input:focus, .bi-textarea:focus {
+        border-color: #00a859;
+        box-shadow: 0 0 0 3px rgba(0,168,89,0.12);
+        background: #fafffe;
+    }
+
+    .bi-input[type="date"] { padding: 0 12px; }
+
+    .bi-input.bi-invalid, .bi-textarea.bi-invalid,
+    .bi-select.bi-invalid {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important;
+    }
+
+    /* Blazor validation state */
+    .bi-input.invalid, .bi-input.modified.invalid,
+    .bi-textarea.invalid, .bi-textarea.modified.invalid {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important;
+    }
+
+    .bi-input.modified.valid { border-color: #00a859 !important; }
+
+    .bi-field-error {
+        font-size: 0.7rem;
+        color: #dc2626;
+        font-weight: 500;
+        margin: 0; padding: 0;
+        display: block;
+    }
+
+    /* ── Radio group ── */
+    .bi-radio-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .bi-radio-card {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 16px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 11px;
+        cursor: pointer;
+        font-size: 0.86rem;
+        color: #0f172a;
+        background: #fff;
+        transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+        user-select: none;
+    }
+
+    .bi-radio-card:hover { border-color: #94a3b8; }
+
+    .bi-radio-card.checked {
+        border-color: #00a859;
+        background: #f0fdf8;
+        box-shadow: 0 0 0 3px rgba(0,168,89,0.1);
+    }
+
+    .bi-radio-input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+    }
+
+    .bi-radio-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: border-color 0.18s, background 0.18s;
+    }
+
+    .bi-radio-card.checked .bi-radio-dot {
+        border-color: #00a859;
+        background: #00a859;
+        box-shadow: inset 0 0 0 3px #fff;
+    }
+
+    .bi-select-wrap { position: relative; }
+
+    .bi-select {
+        height: 42px;
+        padding: 0 36px 0 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 11px;
+        font-size: 0.86rem;
+        color: #0f172a;
+        background: #fff;
+        outline: none;
+        transition: border-color 0.18s, box-shadow 0.18s;
+        width: 100%;
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+    }
+
+    .bi-select:hover { border-color: #94a3b8; }
+    .bi-select:focus { border-color: #00a859; box-shadow: 0 0 0 3px rgba(0,168,89,0.12); background: #fafffe; }
+
+    .bi-select-arrow {
+        position: absolute;
+        right: 12px; top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        pointer-events: none;
+    }
+
+    .bi-divider { height: 1px; background: #f1f5f9; margin: 16px 0; }
+
+    /* ── Toggle ── */
+    .bi-toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        user-select: none;
+        gap: 12px;
+    }
+
+    .bi-toggle-info { display: flex; flex-direction: column; gap: 2px; }
+    .bi-toggle-label { font-size: 0.86rem; font-weight: 700; color: #0f172a; }
+    .bi-toggle-sub   { font-size: 0.72rem; color: #94a3b8; }
+
+    .bi-toggle-switch {
+        position: relative;
+        width: 46px; height: 26px;
+        background: #e2e8f0;
+        border-radius: 99px;
+        transition: background 0.25s;
+        flex-shrink: 0;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .bi-toggle-switch.on {
+        background: linear-gradient(90deg, #00a859, #0056b3);
+        box-shadow: 0 2px 8px rgba(0,168,89,0.3);
+    }
+
+    .bi-toggle-input {
+        position: absolute;
+        opacity: 0; width: 0; height: 0;
+        pointer-events: none;
+    }
+
+    .bi-toggle-thumb {
+        position: absolute;
+        top: 3px; left: 3px;
+        width: 20px; height: 20px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+        transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+        pointer-events: none;
+    }
+
+    .bi-toggle-switch.on .bi-toggle-thumb { transform: translateX(20px); }
+
+    /* ── Footer ── */
+    .bi-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 6px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .bi-footer-hint { font-size: 0.72rem; color: #94a3b8; display: flex; align-items: center; gap: 3px; }
+
+    .bi-btn-next {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 28px;
+        background: linear-gradient(90deg, #00a859 0%, #0056b3 100%);
+        color: #fff;
+        border: none;
+        border-radius: 13px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: filter 0.18s, transform 0.15s, box-shadow 0.18s;
+        box-shadow: 0 4px 18px rgba(0,168,89,0.3);
+        letter-spacing: 0.2px;
+    }
+
+    .bi-btn-next:hover { filter: brightness(1.07); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,168,89,0.38); }
+    .bi-btn-next:active { transform: translateY(0); filter: brightness(0.97); }
+
+    .bi-btn-arrow {
+        width: 30px; height: 30px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 9px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .bi-btn-back {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 20px;
+        background: #fff;
+        color: #475569;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 13px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color 0.18s, color 0.18s, transform 0.15s;
+    }
+
+    .bi-btn-back:hover { border-color: #94a3b8; color: #0f172a; transform: translateY(-1px); }
+
+    .bi-btn-arrow-left {
+        width: 28px; height: 28px;
+        background: #f1f5f9;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    @@media (max-width: 768px) {
+        .bif-grid-3 { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @@media (max-width: 480px) {
+        .bif-grid-2, .bif-grid-3 { grid-template-columns: 1fr; }
+        .bi-section { padding: 16px; border-radius: 14px; }
+        .bi-footer { flex-direction: column; align-items: stretch; }
+        .bi-btn-next, .bi-btn-back { justify-content: center; }
+    }
+</style>
+
+<script>
+    window.scrollToFirstError = function (id) {
+        var el = document.getElementById(id);
+        if (!el) return false;
+        var err = el.querySelector('.bi-field-error');
+        if (!err || !err.textContent.trim()) return false;
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return true;
+    };
+</script>
+
 @code {
     [Parameter] public BusinessInfoDTO.PageModel BusinessModel { get; set; } = new();
-    
     [Parameter] public EventCallback<BusinessInfoDTO.PageModel> BusinessModelChanged { get; set; }
-
     [Parameter] public AddressDTO.PageModel AddressModel { get; set; } = new();
     [Parameter] public EventCallback OnNext { get; set; }
     [Parameter] public EventCallback OnBack { get; set; }
 
+    private EditForm? editForm;
+    private ValidationMessageStore? messageStore;
     private bool showPrincipalAddress;
+    private bool hasAttemptedSubmit = false;
+    private bool sectorSelected = false;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender) return;
+        var ctx = editForm?.EditContext;
+        if (ctx == null) return;
+
+        messageStore = new ValidationMessageStore(ctx);
+        ctx.OnFieldChanged += (_, _) =>
+        {
+            if (hasAttemptedSubmit)
+            {
+                messageStore?.Clear();
+                ctx.NotifyValidationStateChanged();
+            }
+        };
+    }
+
+    private static readonly string[] ScrollTargets =
+    [
+        "field-NameOfBusiness", "field-BusinessAddress", "field-NatureOfBusiness"
+    ];
+
+    private async Task TriggerValidation()
+    {
+        var ctx = editForm?.EditContext;
+        if (ctx == null) return;
+
+        hasAttemptedSubmit = true;
+        ctx.Validate();
+        ctx.NotifyValidationStateChanged();
+
+        if (!IsValid())
+        {
+            // Scroll to first section with an error
+            foreach (var id in ScrollTargets)
+            {
+                try { if (await JS.InvokeAsync<bool>("scrollToFirstError", id)) break; }
+                catch { /* element not in DOM */ }
+            }
+            return;
+        }
+
+        await Next();
+    }
+
+    private bool IsValid()
+    {
+        if (!sectorSelected) return false;
+        if (string.IsNullOrWhiteSpace(BusinessModel.NameOfBusiness)) return false;
+        if (BusinessModel.TypeOfOrganization == TypeOfOrganization.None) return false;
+        if (BusinessModel.TypeOfOrganization == TypeOfOrganization.Others
+            && string.IsNullOrWhiteSpace(BusinessModel.TypeOfOrganizationOther)) return false;
+        if (BusinessModel.SizeOfBusiness == SizeOfBusiness.None) return false;
+        if (BusinessModel.AverageAnnualIncome == AverageAnnualIncome.None) return false;
+        if (string.IsNullOrWhiteSpace(AddressModel.BusinessAddress)) return false;
+        if (showPrincipalAddress && string.IsNullOrWhiteSpace(AddressModel.PrincipalAddress)) return false;
+        if (BusinessModel.DateOfRegistration == null) return false;
+        if (string.IsNullOrWhiteSpace(BusinessModel.BusinessRegNumber)) return false;
+        if (BusinessModel.BusinessRegExpiry == null) return false;
+        if (string.IsNullOrWhiteSpace(BusinessModel.PlaceOfRegistration)) return false;
+        if (string.IsNullOrWhiteSpace(BusinessModel.NatureOfBusiness)) return false;
+        if (string.IsNullOrWhiteSpace(BusinessModel.TaxIdentificationNumber)) return false;
+        if (string.IsNullOrWhiteSpace(BusinessModel.DTICertNumber)) return false;
+        if (BusinessModel.DTICertExpiry == null) return false;
+        return true;
+    }
 
     private async Task Next()
     {
-        if (!showPrincipalAddress) AddressModel.PrincipalAddress = AddressModel.BusinessAddress;
-        
+        if (!showPrincipalAddress)
+            AddressModel.PrincipalAddress = AddressModel.BusinessAddress;
+
         await BusinessModelChanged.InvokeAsync(BusinessModel);
         await OnNext.InvokeAsync();
+    }
+
+    private void SetSector(bool isPrivate)
+    {
+        BusinessModel.IsPrivate = isPrivate;
+        BusinessModel.IsGovernment = !isPrivate;
+        sectorSelected = true;
+    }
+
+    private static string FormatEnum(string value)
+        => System.Text.RegularExpressions.Regex.Replace(
+            value, @"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ");
+
+    private static string GetEnumDescription<TEnum>(TEnum value) where TEnum : Enum
+    {
+        var field = value.GetType().GetField(value.ToString()!);
+        var attr  = field?.GetCustomAttribute<DescriptionAttribute>();
+        return attr?.Description ?? FormatEnum(value.ToString()!);
     }
 }

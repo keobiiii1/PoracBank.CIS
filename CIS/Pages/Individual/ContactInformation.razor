@@ -196,13 +196,25 @@
             <div class="ci-grid ci-grid-1" style="max-width: 320px;">
                 <div class="ci-field">
                     <label class="ci-label">Send Correspondence To <span class="ci-req">*</span></label>
-                    <InputSelect @bind-Value="AddressModel.MailingPreference" class="ci-select">
-                        @foreach (var pref in Enum.GetValues<MailingPreference>())
-                        {
-                            <option value="@pref">@GetMailingLabel(pref)</option>
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => AddressModel.MailingPreference)" class="ci-field-error" />
+                    @if (AddressModel.IsPresentSameAsPermanent)
+                    {
+                        <div class="ci-input ci-mailing-readonly">Permanent Address</div>
+                    }
+                    else
+                    {
+                        <div class="ci-select-wrap">
+                            <InputSelect @bind-Value="AddressModel.MailingPreference" class="@(AddressModel.MailingPreference == MailingPreference.None ? "ci-select" : "ci-select")">
+                                <option value="@MailingPreference.None" disabled>-- Select --</option>
+                                @foreach (var pref in Enum.GetValues<MailingPreference>())
+                                {
+                                    if (pref == MailingPreference.None) continue;
+                                    <option value="@pref">@GetMailingLabel(pref)</option>
+                                }
+                            </InputSelect>
+                            <svg class="ci-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <ValidationMessage For="@(() => AddressModel.MailingPreference)" class="ci-field-error" />
+                    }
                 </div>
             </div>
         </div>
@@ -322,6 +334,28 @@
 
     /* ── Field ── */
     .ci-field { display: flex; flex-direction: column; gap: 6px; }
+
+    .ci-mailing-readonly {
+        display: flex;
+        align-items: center;
+        height: 42px;
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        color: #64748b;
+        font-style: italic;
+        cursor: default;
+        pointer-events: none;
+    }
+
+    .ci-select-wrap { position: relative; }
+
+    .ci-select-arrow {
+        position: absolute;
+        right: 12px; top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        pointer-events: none;
+    }
 
     .ci-label {
         font-size: 0.71rem;
@@ -721,8 +755,8 @@
         else if (!InfoModel.EmailAddress.Contains('@') || !InfoModel.EmailAddress.Contains('.'))
             store.Add(() => InfoModel.EmailAddress, "Please enter a valid email address.");
 
-        // Mailing preference required
-        if (AddressModel.MailingPreference == MailingPreference.None)
+        // Mailing preference required only when addresses differ
+        if (!AddressModel.IsPresentSameAsPermanent && AddressModel.MailingPreference == MailingPreference.None)
             store.Add(() => AddressModel.MailingPreference, "Please select a mailing preference.");
 
         // Present address fields required when not same as permanent
