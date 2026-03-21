@@ -67,6 +67,8 @@ public class IndividualInfoDTO
         [Required(ErrorMessage = "Mother's given name is required.")]
         [MaxLength(100)]
         public string? MotherMaidenGivenName { get; set; }
+        [Required(ErrorMessage = "Mother's middle name is required.")]
+        [MaxLength(100)]
         public string? MotherMaidenMiddleName { get; set; }
         [Required(ErrorMessage = "Mother's last name is required.")]
         [MaxLength(100)]

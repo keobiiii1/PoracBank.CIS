@@ -254,8 +254,9 @@
                     <ValidationMessage For="@(() => Model.MotherMaidenGivenName)" class="pi-field-error" />
                 </div>
                 <div class="pi-field">
-                    <label class="pi-label">Middle Name</label>
+                    <label class="pi-label">Middle Name <span class="pi-req">*</span></label>
                     <InputText @bind-Value="Model.MotherMaidenMiddleName" class="pi-input" placeholder="Mother's Middle Name" />
+                    <ValidationMessage For="@(() => Model.MotherMaidenMiddleName)" class="pi-field-error" />
                 </div>
                 <div class="pi-field">
                     <label class="pi-label">Last Name <span class="pi-req">*</span></label>

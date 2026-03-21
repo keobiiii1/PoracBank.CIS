@@ -22,18 +22,39 @@ public static class IndividualIdentificationConfig
         entity.IsNvarchar(e => e.OtherIDType, 100);
         entity.IsNvarchar(e => e.OtherIDNumber, 100);
         entity.IsDateOnly(e => e.OtherIDExpiry);
-        entity.IsNvarchar(e => e.TINFrontImagePath, 500);
-        entity.IsNvarchar(e => e.TINBackImagePath, 500);
-        entity.IsNvarchar(e => e.SSSFrontImagePath, 500);
-        entity.IsNvarchar(e => e.SSSBackImagePath, 500);
-        entity.IsNvarchar(e => e.GSISFrontImagePath, 500);
-        entity.IsNvarchar(e => e.GSISBackImagePath, 500);
-        entity.IsNvarchar(e => e.SelfieImagePath, 500);
-        entity.IsNvarchar(e => e.DriversLicenseFrontImagePath, 500);
-        entity.IsNvarchar(e => e.DriversLicenseBackImagePath, 500);
-        entity.IsNvarchar(e => e.PassportFrontImagePath, 500);
-        entity.IsNvarchar(e => e.PassportBackImagePath, 500);
-        entity.IsNvarchar(e => e.OtherIDFrontImagePath, 500);
-        entity.IsNvarchar(e => e.OtherIDBackImagePath, 500);
+
+        // KYC binary image columns
+        entity.IsVarbinaryMax(e => e.SelfieImage);
+        entity.IsNvarchar(e => e.SelfieContentType, 50);
+
+        entity.IsVarbinaryMax(e => e.TINFrontImage);
+        entity.IsNvarchar(e => e.TINFrontContentType, 50);
+        entity.IsVarbinaryMax(e => e.TINBackImage);
+        entity.IsNvarchar(e => e.TINBackContentType, 50);
+
+        entity.IsVarbinaryMax(e => e.SSSFrontImage);
+        entity.IsNvarchar(e => e.SSSFrontContentType, 50);
+        entity.IsVarbinaryMax(e => e.SSSBackImage);
+        entity.IsNvarchar(e => e.SSSBackContentType, 50);
+
+        entity.IsVarbinaryMax(e => e.GSISFrontImage);
+        entity.IsNvarchar(e => e.GSISFrontContentType, 50);
+        entity.IsVarbinaryMax(e => e.GSISBackImage);
+        entity.IsNvarchar(e => e.GSISBackContentType, 50);
+
+        entity.IsVarbinaryMax(e => e.DriversLicenseFrontImage);
+        entity.IsNvarchar(e => e.DriversLicenseFrontContentType, 50);
+        entity.IsVarbinaryMax(e => e.DriversLicenseBackImage);
+        entity.IsNvarchar(e => e.DriversLicenseBackContentType, 50);
+
+        entity.IsVarbinaryMax(e => e.PassportFrontImage);
+        entity.IsNvarchar(e => e.PassportFrontContentType, 50);
+        entity.IsVarbinaryMax(e => e.PassportBackImage);
+        entity.IsNvarchar(e => e.PassportBackContentType, 50);
+
+        entity.IsVarbinaryMax(e => e.OtherIDFrontImage);
+        entity.IsNvarchar(e => e.OtherIDFrontContentType, 50);
+        entity.IsVarbinaryMax(e => e.OtherIDBackImage);
+        entity.IsNvarchar(e => e.OtherIDBackContentType, 50);
     }
 }

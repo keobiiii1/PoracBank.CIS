@@ -130,31 +130,38 @@
 
         .pb-bar-fill {
             height: 100%;
-            width: 0%;
+            width: 35%;
             border-radius: 99px;
             background: linear-gradient(90deg, #00a859, #0056b3);
-            animation: pb-bar-grow 2.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: pb-bar-slide 1.6s ease-in-out infinite;
+            background-size: 200% 100%;
         }
 
-        @keyframes pb-bar-grow {
+        @keyframes pb-bar-slide {
             0% {
-                width: 0%;
+                margin-left: 0%;
+                width: 30%;
             }
 
-            25% {
-                width: 38%;
-            }
-
-            55% {
-                width: 65%;
-            }
-
-            80% {
-                width: 88%;
+            50% {
+                margin-left: 40%;
+                width: 50%;
             }
 
             100% {
-                width: 100%;
+                margin-left: 70%;
+                width: 30%;
+            }
+        }
+
+        .pb-splash.pb-hiding {
+            animation: pb-fade-out 0.5s ease forwards;
+        }
+
+        @keyframes pb-fade-out {
+            to {
+                opacity: 0;
+                pointer-events: none;
             }
         }
 
@@ -244,7 +251,7 @@
                 <div class="pb-bar-track">
                     <div class="pb-bar-fill"></div>
                 </div>
-                <p class="pb-splash-status">Loading, please wait…</p>
+                <p class="pb-splash-status" id="pb-status">Initializing…</p>
             </div>
         </div>
     </div>
@@ -258,21 +265,57 @@
     <script src="js/signature.js"></script>
     <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
     <script>
+        // ── Service Worker ───────────────────────────────────────────
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
                 navigator.serviceWorker.register('./service-worker.js');
             });
         }
 
+        // ── Connectivity ─────────────────────────────────────────────
         window.connectivityStatus = {
-            checkStatus: function () {
-                return navigator.onLine;
-            },
+            checkStatus: function () { return navigator.onLine; },
             registerHandler: function (dotnetHelper) {
                 window.addEventListener('online', () => dotnetHelper.invokeMethodAsync('UpdateStatus', true));
                 window.addEventListener('offline', () => dotnetHelper.invokeMethodAsync('UpdateStatus', false));
             }
         };
+
+        // ── Splash: cycle status messages ────────────────────────────
+        var msgs = [
+            'Initializing…',
+            'Loading modules…',
+            'Setting up services…',
+            'Almost ready…'
+        ];
+        var mi = 0;
+        var statusEl = document.getElementById('pb-status');
+        var msgTimer = setInterval(function () {
+            mi = (mi + 1) % msgs.length;
+            if (statusEl) statusEl.textContent = msgs[mi];
+        }, 1800);
+
+        // ── Splash: hide once Blazor mounts #app ─────────────────────
+        var observer = new MutationObserver(function () {
+            var app = document.getElementById('app');
+            // Blazor replaces the splash div with its own content
+            if (app && !app.querySelector('.pb-splash')) {
+                clearInterval(msgTimer);
+                observer.disconnect();
+                return;
+            }
+            // Or: Blazor has rendered real content alongside the splash
+            if (app && app.children.length > 1) {
+                clearInterval(msgTimer);
+                var splash = app.querySelector('.pb-splash');
+                if (splash) {
+                    splash.classList.add('pb-hiding');
+                    setTimeout(function () { splash.remove(); }, 520);
+                }
+                observer.disconnect();
+            }
+        });
+        observer.observe(document.getElementById('app'), { childList: true, subtree: true });
     </script>
 
 </body>

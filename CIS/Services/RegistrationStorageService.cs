@@ -53,12 +53,18 @@ public class RegistrationStorageService
         contact.EntityID = customer.CustomerID;
         contact.EntityType = EntityType.Individual;
 
+        // Strip image data URLs before saving to localStorage.
+        // Data URLs are 1–5 MB each — storing them in localStorage (5–10 MB limit)
+        // will cause silent failures. Images are kept in memory only and sent
+        // directly to the API on final submit.
+        var identForStorage = StripImages(identification);
+
         var draft = new IndividualDraft
         {
             Customer = customer,
             Individual = individual,
             Address = address,
-            Identification = identification,
+            Identification = identForStorage,
             Employment = employment,
             Family = family,
             Contact = contact,
@@ -167,6 +173,28 @@ public class RegistrationStorageService
         => await _storage.RemoveItemAsync(BIZ_KEY);
 
     // ── Private helpers ────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Returns a shallow copy of the identification model with all image data URLs
+    /// set to null. Call this before persisting to localStorage to avoid exceeding
+    /// the ~5 MB storage limit. The originals remain in Blazor component memory.
+    /// </summary>
+    private static IndividualIdentificationDTO.PageModel StripImages(
+        IndividualIdentificationDTO.PageModel src) => new()
+        {
+            IdentificationID = src.IdentificationID,
+            CustomerID = src.CustomerID,
+            TINNumber = src.TINNumber,
+            SSSNumber = src.SSSNumber,
+            GSISNumber = src.GSISNumber,
+            DriversLicenseIDNo = src.DriversLicenseIDNo,
+            DriversLicenseExpiry = src.DriversLicenseExpiry,
+            PassportIDNo = src.PassportIDNo,
+            PassportIDExpiry = src.PassportIDExpiry,
+            OtherIDType = src.OtherIDType,
+            OtherIDNumber = src.OtherIDNumber,
+            OtherIDExpiry = src.OtherIDExpiry,
+        };
 
     private static void SyncFamilyFromPersonal(
         CustomerDTO.PageModel customer,

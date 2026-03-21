@@ -31,11 +31,14 @@ public class IndividualRepository
         try
         {
             // 1. Create the Master Customer Record
+            // Generate unique 10-digit CIDNumber: IND + 7 digits (e.g. IND0000001)
+            var cidNumber = await GenerateCIDNumberAsync(_db, "IND");
+
             var customer = new Customer
             {
                 EntityType = EntityType.Individual,
                 CustomerCategories = request.Individual.CustomerCategories,
-                CIDNumber = request.Individual.CIDNumber,
+                CIDNumber = cidNumber,
                 CreatedAt = DateTime.UtcNow
             };
             _db.Customers.Add(customer);
@@ -53,7 +56,7 @@ public class IndividualRepository
             _db.IndividualInfos.Add(individualInfo);
 
             // 4. Save Identification & Employment
-            _db.IndividualIdentifications.Add(_mapper.Map<IndividualIdentification>(request.Identification));
+            _db.IndividualIdentifications.Add(MapIdentification(request.Identification, customerId));
             _db.IndividualEmployments.Add(_mapper.Map<IndividualEmployment>(request.Employment));
 
             // 5. Save Family (Manual mapping ensures data is copied even if AutoMapper fails)
@@ -268,5 +271,94 @@ public class IndividualRepository
         }
 
         return response;
+    }
+
+    // ── CID Number Generator ──────────────────────────────────────────
+    // Format: {prefix}{7-digit sequence} e.g. IND0000001, BUS0000001
+    // Queries the last CID with the same prefix and increments by 1.
+    // Safe within a transaction — no race condition.
+    private static async Task<string> GenerateCIDNumberAsync(
+        CISDbContext db, string prefix)
+    {
+        var last = await db.Customers
+            .Where(c => c.CIDNumber != null && c.CIDNumber.StartsWith(prefix))
+            .OrderByDescending(c => c.CIDNumber)
+            .Select(c => c.CIDNumber)
+            .FirstOrDefaultAsync();
+
+        int next = 1;
+        if (last != null && last.Length > prefix.Length)
+        {
+            if (int.TryParse(last[prefix.Length..], out int parsed))
+                next = parsed + 1;
+        }
+
+        return $"{prefix}{next:D7}";
+    }
+
+    // ── Manual mapping for IndividualIdentification ────────────────
+    // AutoMapper ReverseMap() cannot invert custom MapFrom expressions,
+    // so we parse each DataUrl into bytes + contentType here.
+    private static IndividualIdentification MapIdentification(
+        IndividualIdentificationDTO.PageModel src, long customerId)
+    {
+        static (byte[]? b, string? ct) Parse(string? url)
+            => IndividualIdentificationDTO.ParseDataUrl(url);
+
+        var (selfieB, selfieCt) = Parse(src.SelfieDataUrl);
+        var (tinFB, tinFCt) = Parse(src.TINFrontDataUrl);
+        var (tinBB, tinBCt) = Parse(src.TINBackDataUrl);
+        var (sssFB, sssFCt) = Parse(src.SSSFrontDataUrl);
+        var (sssBB, sssBCt) = Parse(src.SSSBackDataUrl);
+        var (gsisFB, gsisFCt) = Parse(src.GSISFrontDataUrl);
+        var (gsisBB, gsisBCt) = Parse(src.GSISBackDataUrl);
+        var (dlFB, dlFCt) = Parse(src.DriversLicenseFrontDataUrl);
+        var (dlBB, dlBCt) = Parse(src.DriversLicenseBackDataUrl);
+        var (ppFB, ppFCt) = Parse(src.PassportFrontDataUrl);
+        var (ppBB, ppBCt) = Parse(src.PassportBackDataUrl);
+        var (othFB, othFCt) = Parse(src.OtherIDFrontDataUrl);
+        var (othBB, othBCt) = Parse(src.OtherIDBackDataUrl);
+
+        return new IndividualIdentification
+        {
+            CustomerID = customerId,
+            TINNumber = src.TINNumber,
+            SSSNumber = src.SSSNumber,
+            GSISNumber = src.GSISNumber,
+            DriversLicenseIDNo = src.DriversLicenseIDNo,
+            DriversLicenseExpiry = src.DriversLicenseExpiry,
+            PassportIDNo = src.PassportIDNo,
+            PassportIDExpiry = src.PassportIDExpiry,
+            OtherIDType = src.OtherIDType,
+            OtherIDNumber = src.OtherIDNumber,
+            OtherIDExpiry = src.OtherIDExpiry,
+
+            SelfieImage = selfieB,
+            SelfieContentType = selfieCt,
+            TINFrontImage = tinFB,
+            TINFrontContentType = tinFCt,
+            TINBackImage = tinBB,
+            TINBackContentType = tinBCt,
+            SSSFrontImage = sssFB,
+            SSSFrontContentType = sssFCt,
+            SSSBackImage = sssBB,
+            SSSBackContentType = sssBCt,
+            GSISFrontImage = gsisFB,
+            GSISFrontContentType = gsisFCt,
+            GSISBackImage = gsisBB,
+            GSISBackContentType = gsisBCt,
+            DriversLicenseFrontImage = dlFB,
+            DriversLicenseFrontContentType = dlFCt,
+            DriversLicenseBackImage = dlBB,
+            DriversLicenseBackContentType = dlBCt,
+            PassportFrontImage = ppFB,
+            PassportFrontContentType = ppFCt,
+            PassportBackImage = ppBB,
+            PassportBackContentType = ppBCt,
+            OtherIDFrontImage = othFB,
+            OtherIDFrontContentType = othFCt,
+            OtherIDBackImage = othBB,
+            OtherIDBackContentType = othBCt,
+        };
     }
 }

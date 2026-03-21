@@ -27,10 +27,13 @@ public class BusinessRepository
         try
         {
             // 1. Create the Master Customer Record
+            // Generate unique CIDNumber: BUS + 7 digits (e.g. BUS0000001)
+            var cidNumber = await GenerateCIDNumberAsync(_db, "BUS");
+
             var customer = new Customer
             {
                 EntityType = EntityType.Business,
-                CIDNumber = request.Business.CIDNumber,
+                CIDNumber = cidNumber,
                 CreatedAt = DateTime.UtcNow
             };
             _db.Customers.Add(customer);
@@ -101,5 +104,24 @@ public class BusinessRepository
             if (tx != null) await tx.RollbackAsync();
             throw;
         }
+    }
+
+    private static async Task<string> GenerateCIDNumberAsync(
+        CISDbContext db, string prefix)
+    {
+        var last = await db.Customers
+            .Where(c => c.CIDNumber != null && c.CIDNumber.StartsWith(prefix))
+            .OrderByDescending(c => c.CIDNumber)
+            .Select(c => c.CIDNumber)
+            .FirstOrDefaultAsync();
+
+        int next = 1;
+        if (last != null && last.Length > prefix.Length)
+        {
+            if (int.TryParse(last[prefix.Length..], out int parsed))
+                next = parsed + 1;
+        }
+
+        return $"{prefix}{next:D7}";
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Linq.Expressions;
 
 namespace CIS.Assets.Components.MSSql;
 
@@ -74,5 +75,12 @@ public static class MSSqlExtensions
     public static PropertyBuilder<decimal?> IsDecimal<TEntity>(this EntityTypeBuilder<TEntity> builder, System.Linq.Expressions.Expression<Func<TEntity, decimal?>> propertyExpression, int precision, int scale) where TEntity : class
     {
         return builder.Property(propertyExpression).HasPrecision(precision, scale);
+    }
+
+    public static PropertyBuilder<byte[]?> IsVarbinaryMax<TEntity>(
+    this EntityTypeBuilder<TEntity> builder,
+    Expression<Func<TEntity, byte[]?>> propertyExpression) where TEntity : class
+    {
+        return builder.Property(propertyExpression).HasColumnType("varbinary(max)");
     }
 }

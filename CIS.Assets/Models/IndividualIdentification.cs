@@ -19,28 +19,43 @@ public class IndividualIdentification
     public string? OtherIDNumber { get; set; }
     public DateOnly? OtherIDExpiry { get; set; }
 
-    // KYC — Government ID photos (shown when TIN / SSS / GSIS has a value)
-    public string? TINFrontImagePath { get; set; }
-    public string? TINBackImagePath { get; set; }
-    public string? SSSFrontImagePath { get; set; }
-    public string? SSSBackImagePath { get; set; }
-    public string? GSISFrontImagePath { get; set; }
-    public string? GSISBackImagePath { get; set; }
+    // KYC — Selfie (stored as binary in DB)
+    public byte[]? SelfieImage { get; set; }
+    public string? SelfieContentType { get; set; }
 
-    // KYC — Selfie
-    public string? SelfieImagePath { get; set; }
+    // KYC — Government ID photos
+    public byte[]? TINFrontImage { get; set; }
+    public string? TINFrontContentType { get; set; }
+    public byte[]? TINBackImage { get; set; }
+    public string? TINBackContentType { get; set; }
+
+    public byte[]? SSSFrontImage { get; set; }
+    public string? SSSFrontContentType { get; set; }
+    public byte[]? SSSBackImage { get; set; }
+    public string? SSSBackContentType { get; set; }
+
+    public byte[]? GSISFrontImage { get; set; }
+    public string? GSISFrontContentType { get; set; }
+    public byte[]? GSISBackImage { get; set; }
+    public string? GSISBackContentType { get; set; }
 
     // KYC — Driver's License photos
-    public string? DriversLicenseFrontImagePath { get; set; }
-    public string? DriversLicenseBackImagePath { get; set; }
+    public byte[]? DriversLicenseFrontImage { get; set; }
+    public string? DriversLicenseFrontContentType { get; set; }
+    public byte[]? DriversLicenseBackImage { get; set; }
+    public string? DriversLicenseBackContentType { get; set; }
 
     // KYC — Passport photo
-    public string? PassportFrontImagePath { get; set; }
-    public string? PassportBackImagePath { get; set; }
+    public byte[]? PassportFrontImage { get; set; }
+    public string? PassportFrontContentType { get; set; }
+    public byte[]? PassportBackImage { get; set; }
+    public string? PassportBackContentType { get; set; }
 
     // KYC — Other ID photos
-    public string? OtherIDFrontImagePath { get; set; }
-    public string? OtherIDBackImagePath { get; set; }
+    public byte[]? OtherIDFrontImage { get; set; }
+    public string? OtherIDFrontContentType { get; set; }
+    public byte[]? OtherIDBackImage { get; set; }
+    public string? OtherIDBackContentType { get; set; }
 
     public Customer Customer { get; set; } = null!;
 }

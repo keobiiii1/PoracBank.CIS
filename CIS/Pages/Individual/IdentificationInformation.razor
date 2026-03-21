@@ -2,7 +2,6 @@
 @using CIS.Assets.DTO
 @using Microsoft.AspNetCore.Components.Forms
 @inject IndividualService IndividualService
-@inject HttpClient Http
 @inject IJSRuntime JS
 
 <EditForm Model="IdModel" OnValidSubmit="Next" @ref="editForm">
@@ -551,10 +550,7 @@
         {
             <div class="ii-field-error mt-2">@kycError</div>
         }
-        @if (uploadStatus != null)
-        {
-            <div class="ii-upload-status">@uploadStatus</div>
-        }
+
 
         @* ══════════════════════════════════════
            FOOTER
@@ -1142,7 +1138,6 @@
     private string? otherFrontPreview;
     private string? otherBackPreview;
     private string? kycError;
-    private string? uploadStatus;
 
     private IBrowserFile? selfieFile;
     private IBrowserFile? dlFrontFile;
@@ -1397,55 +1392,26 @@
     private void ClearOtherFront()    { otherFrontPreview    = null; otherFrontFile    = null; }
     private void ClearOtherBack()     { otherBackPreview     = null; otherBackFile     = null; }
 
-    private async Task UploadKYCImages()
+    // Images are stored as data URLs directly in the DTO.
+    // The API repository reads them via IndividualIdentificationDTO.ParseDataUrl()
+    // and saves the bytes + content type into the DB binary columns.
+    private void SaveKYCImagesToModel()
     {
-        uploadStatus = "Uploading images...";
-
-        async Task<string?> Upload(IBrowserFile? file, string folder)
-        {
-            if (file == null) return null;
-            using var content = new MultipartFormDataContent();
-            var stream = file.OpenReadStream(5 * 1024 * 1024);
-            content.Add(new StreamContent(stream), "file", file.Name);
-            var response = await Http.PostAsync($"api/upload/kyc/{folder}/{CustomerId}", content);
-            if (response.IsSuccessStatusCode)
-                return await response.Content.ReadAsStringAsync();
-            return null;
-        }
-
-        IdModel.SelfieImagePath                = await Upload(selfieFile,        "selfie");
-        if (!string.IsNullOrWhiteSpace(IdModel.TINNumber))
-        {
-            IdModel.TINFrontImagePath             = await Upload(tinFrontFile,       "tinfront");
-            IdModel.TINBackImagePath              = await Upload(tinBackFile,        "tinback");
-        }
-        if (!string.IsNullOrWhiteSpace(IdModel.SSSNumber))
-        {
-            IdModel.SSSFrontImagePath             = await Upload(sssFrontFile,       "sssfront");
-            IdModel.SSSBackImagePath              = await Upload(sssBackFile,        "sssback");
-        }
-        if (!string.IsNullOrWhiteSpace(IdModel.GSISNumber))
-        {
-            IdModel.GSISFrontImagePath            = await Upload(gsisFrontFile,      "gsisfront");
-            IdModel.GSISBackImagePath             = await Upload(gsisBackFile,       "gsisback");
-        }
-        if (ShowDL)
-        {
-            IdModel.DriversLicenseFrontImagePath  = await Upload(dlFrontFile,       "dlfront");
-            IdModel.DriversLicenseBackImagePath   = await Upload(dlBackFile,        "dlback");
-        }
-        if (ShowPassport)
-        {
-            IdModel.PassportFrontImagePath        = await Upload(passportFrontFile, "passportfront");
-            IdModel.PassportBackImagePath         = await Upload(passportBackFile,  "passportback");
-        }
-        if (ShowOthers)
-        {
-            IdModel.OtherIDFrontImagePath         = await Upload(otherFrontFile,    "otherfront");
-            IdModel.OtherIDBackImagePath          = await Upload(otherBackFile,     "otherback");
-        }
-
-        uploadStatus = null;
+        // Data URLs are already set during capture via ReadImageDataUrl()
+        // Just map preview strings → DTO fields here
+        IdModel.SelfieDataUrl               = selfiePreview;
+        IdModel.TINFrontDataUrl             = tinFrontPreview;
+        IdModel.TINBackDataUrl              = tinBackPreview;
+        IdModel.SSSFrontDataUrl             = sssFrontPreview;
+        IdModel.SSSBackDataUrl              = sssBackPreview;
+        IdModel.GSISFrontDataUrl            = gsisFrontPreview;
+        IdModel.GSISBackDataUrl             = gsisBackPreview;
+        IdModel.DriversLicenseFrontDataUrl  = dlFrontPreview;
+        IdModel.DriversLicenseBackDataUrl   = dlBackPreview;
+        IdModel.PassportFrontDataUrl        = passportFrontPreview;
+        IdModel.PassportBackDataUrl         = passportBackPreview;
+        IdModel.OtherIDFrontDataUrl         = otherFrontPreview;
+        IdModel.OtherIDBackDataUrl          = otherBackPreview;
     }
 
     // ── Submit ─────────────────────────────────────────────────────
@@ -1471,7 +1437,7 @@
             return;
         }
 
-        await UploadKYCImages();
+        SaveKYCImagesToModel();
 
         IdModel.CustomerID = CustomerId;
 
