@@ -50,7 +50,7 @@
                               : "todo";
                     var label = StepLabels[idx - 1];
 
-                    <div class="ist-step ist-step-@state @(idx < CurrentStep ? "ist-step-clickable" : "")"
+                    <div class="ist-step ist-step-@state ist-step-clickable"
                          @onclick="() => GoToStep(idx)">
                         <div class="ist-step-circle">
                             @if (state == "done")
@@ -195,8 +195,8 @@
 
 <style>
     /* ══════════════════════════════════════
-       Shell card
-    ══════════════════════════════════════ */
+           Shell card
+        ══════════════════════════════════════ */
     .ist-shell {
         background: #fff;
         border-radius: 20px;
@@ -207,8 +207,8 @@
     }
 
     /* ══════════════════════════════════════
-       Top bar
-    ══════════════════════════════════════ */
+           Top bar
+        ══════════════════════════════════════ */
     .ist-topbar {
         display: flex;
         align-items: center;
@@ -301,8 +301,8 @@
     }
 
     /* ══════════════════════════════════════
-       Full-width step track
-    ══════════════════════════════════════ */
+           Full-width step track
+        ══════════════════════════════════════ */
     .ist-track-wrap {
         padding: 16px 20px 0;
     }
@@ -415,8 +415,8 @@
         }
 
     /* ══════════════════════════════════════
-       Current step banner
-    ══════════════════════════════════════ */
+           Current step banner
+        ══════════════════════════════════════ */
     .ist-current-banner {
         display: flex;
         align-items: center;
@@ -450,8 +450,8 @@
     }
 
     /* ══════════════════════════════════════
-       Tablet (≤ 768px) — tighter circles, smaller labels
-    ══════════════════════════════════════ */
+           Tablet (≤ 768px) — tighter circles, smaller labels
+        ══════════════════════════════════════ */
     @@media (max-width: 768px) {
         .ist-track-wrap {
             padding: 14px 14px 0;
@@ -487,8 +487,8 @@
     }
 
     /* ══════════════════════════════════════
-       Mobile (≤ 480px) — hide labels, smallest circles
-    ══════════════════════════════════════ */
+           Mobile (≤ 480px) — hide labels, smallest circles
+        ══════════════════════════════════════ */
     @@media (max-width: 480px) {
         .ist-track-wrap {
             padding: 12px 10px 0;
@@ -635,7 +635,7 @@
 
     private void GoToStep(int step)
     {
-        if (step >= 1 && step < CurrentStep && validatedSteps.Contains(step))
+        if (step >= 1 && step <= TotalSteps)
         {
             CurrentStep = step;
             StateHasChanged();
