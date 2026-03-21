@@ -1,8 +1,7 @@
 ﻿using AutoMapper;
-using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 using CIS.Assets.Enum;
 using CIS.Assets.Models;
-using CIS.Assets.DTO;
 
 namespace CIS.Assets.DTO;
 
@@ -20,32 +19,35 @@ public class AddressDTO
         public long EntityID { get; set; }
         public EntityType EntityType { get; set; }
 
-        // Permanent Address Fields
+        [Required(ErrorMessage = "Permanent address is required.")]
+        [MaxLength(500, ErrorMessage = "Address cannot exceed 500 characters.")]
         public string? PermanentAddress { get; set; }
+
+        [Required(ErrorMessage = "Zip code is required.")]
+        [MaxLength(20, ErrorMessage = "Zip code cannot exceed 20 characters.")]
         public string? PermanentZipCode { get; set; }
-        public string? PermanentCountry { get; set; } // Added
 
-        // Present Address Fields
+        [Required(ErrorMessage = "Country is required.")]
+        [MaxLength(100)]
+        public string? PermanentCountry { get; set; }
+
+        // Present Address — conditionally required (handled via ValidationMessageStore)
+        [MaxLength(500)]
         public string? PresentAddress { get; set; }
-        public string? PresentZipCode { get; set; }
-        public string? PresentCountry { get; set; } // Added
 
-        // New Business Fields
+        [MaxLength(20)]
+        public string? PresentZipCode { get; set; }
+
+        [MaxLength(100)]
+        public string? PresentCountry { get; set; }
+
+        // Business Fields
         public string? BusinessAddress { get; set; }
         public string? PrincipalAddress { get; set; }
 
         public bool IsPresentSameAsPermanent { get; set; }
 
         public MailingPreference MailingPreference { get; set; }
-
-        public class Validator : AbstractValidator<PageModel>
-        {
-            public Validator()
-            {
-                RuleFor(x => x.PermanentAddress).NotEmpty().MaximumLength(500);
-                RuleFor(x => x.PermanentZipCode).NotEmpty().MaximumLength(20);
-            }
-        }
     }
 
     public class MappingProfile : Profile

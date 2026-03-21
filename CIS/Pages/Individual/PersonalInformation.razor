@@ -132,37 +132,6 @@
         </div>
 
         @* ══════════════════════════════════════
-           SECTION 4 — Birth Details
-        ══════════════════════════════════════ *@
-        <div class="pi-section" id="field-DateOfBirth">
-            <div class="pi-section-header">
-                <div class="pi-section-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="white" stroke-width="2" />
-                        <path d="M16 2v4M8 2v4M3 10h18" stroke="white" stroke-width="2" stroke-linecap="round" />
-                    </svg>
-                </div>
-                <span class="pi-section-title">Birth Details</span>
-            </div>
-            <div class="pi-grid pi-grid-3">
-                <div class="pi-field">
-                    <label class="pi-label">Date of Birth <span class="pi-req">*</span></label>
-                    <InputDate @bind-Value="Model.DateOfBirth" class="pi-input" max="@maxDate" />
-                    <ValidationMessage For="@(() => Model.DateOfBirth)" class="pi-field-error" />
-                </div>
-                <div class="pi-field">
-                    <label class="pi-label">Place of Birth</label>
-                    <InputText @bind-Value="Model.PlaceOfBirth" class="pi-input" placeholder="e.g. Manila" />
-                </div>
-                <div class="pi-field">
-                    <label class="pi-label">Country of Origin <span class="pi-req">*</span></label>
-                    <InputText @bind-Value="Model.CountryOfOrigin" class="pi-input" placeholder="e.g. Philippines" />
-                    <ValidationMessage For="@(() => Model.CountryOfOrigin)" class="pi-field-error" />
-                </div>
-            </div>
-        </div>
-
-        @* ══════════════════════════════════════
            CONDITIONAL — Maiden Name Details
            (Female AND Married)
         ══════════════════════════════════════ *@
@@ -180,12 +149,14 @@
                 </div>
                 <div class="pi-grid pi-grid-3">
                     <div class="pi-field">
-                        <label class="pi-label">Maiden First Name</label>
+                        <label class="pi-label">Maiden First Name <span class="pi-req">*</span></label>
                         <InputText @bind-Value="Model.MaidenName" class="pi-input" placeholder="First name before marriage" />
+                        <ValidationMessage For="@(() => Model.MaidenName)" class="pi-field-error" />
                     </div>
                     <div class="pi-field">
                         <label class="pi-label">Maiden Middle Name</label>
                         <InputText @bind-Value="Model.MaidenMiddleName" class="pi-input" placeholder="Middle name" />
+                        <ValidationMessage For="@(() => Model.MaidenMiddleName)" class="pi-field-error" />
                     </div>
                     <div class="pi-field">
                         <label class="pi-label">Maiden Last Name <span class="pi-req">*</span></label>
@@ -233,6 +204,37 @@
         }
 
         @* ══════════════════════════════════════
+           SECTION 4 — Birth Details
+        ══════════════════════════════════════ *@
+        <div class="pi-section" id="field-DateOfBirth">
+            <div class="pi-section-header">
+                <div class="pi-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="white" stroke-width="2" />
+                        <path d="M16 2v4M8 2v4M3 10h18" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <span class="pi-section-title">Birth Details</span>
+            </div>
+            <div class="pi-grid pi-grid-3">
+                <div class="pi-field">
+                    <label class="pi-label">Date of Birth <span class="pi-req">*</span></label>
+                    <InputDate @bind-Value="Model.DateOfBirth" class="pi-input" max="@maxDate" />
+                    <ValidationMessage For="@(() => Model.DateOfBirth)" class="pi-field-error" />
+                </div>
+                <div class="pi-field">
+                    <label class="pi-label">Place of Birth</label>
+                    <InputText @bind-Value="Model.PlaceOfBirth" class="pi-input" placeholder="e.g. Manila" />
+                </div>
+                <div class="pi-field">
+                    <label class="pi-label">Country of Origin <span class="pi-req">*</span></label>
+                    <InputText @bind-Value="Model.CountryOfOrigin" class="pi-input" placeholder="e.g. Philippines" />
+                    <ValidationMessage For="@(() => Model.CountryOfOrigin)" class="pi-field-error" />
+                </div>
+            </div>
+        </div>
+
+        @* ══════════════════════════════════════
            SECTION 5 — Mother's Maiden Name
         ══════════════════════════════════════ *@
         <div class="pi-section" id="field-MotherMaidenGivenName">
@@ -248,16 +250,16 @@
             <div class="pi-grid pi-grid-3">
                 <div class="pi-field">
                     <label class="pi-label">Given Name <span class="pi-req">*</span></label>
-                    <InputText @bind-Value="Model.MotherMaidenGivenName" class="pi-input" placeholder="Mother's given name" />
+                    <InputText @bind-Value="Model.MotherMaidenGivenName" class="pi-input" placeholder="Mother's Given Name" />
                     <ValidationMessage For="@(() => Model.MotherMaidenGivenName)" class="pi-field-error" />
                 </div>
                 <div class="pi-field">
                     <label class="pi-label">Middle Name</label>
-                    <InputText @bind-Value="Model.MotherMaidenMiddleName" class="pi-input" placeholder="Mother's middle name" />
+                    <InputText @bind-Value="Model.MotherMaidenMiddleName" class="pi-input" placeholder="Mother's Middle Name" />
                 </div>
                 <div class="pi-field">
                     <label class="pi-label">Last Name <span class="pi-req">*</span></label>
-                    <InputText @bind-Value="Model.MotherMaidenLastName" class="pi-input" placeholder="Mother's maiden last name" />
+                    <InputText @bind-Value="Model.MotherMaidenLastName" class="pi-input" placeholder="Mother's Maiden Last Name" />
                     <ValidationMessage For="@(() => Model.MotherMaidenLastName)" class="pi-field-error" />
                 </div>
             </div>
@@ -270,7 +272,7 @@
             <label class="pi-toggle-row">
                 <div class="pi-toggle-info">
                     <span class="pi-toggle-label">Foreign National</span>
-                    <span class="pi-toggle-sub">Applicant holds a foreign passport</span>
+                    <span class="pi-toggle-sub">Applicant Holds a Foreign Passport</span>
                 </div>
                 <div class="pi-toggle-switch @(Model.IsForeigner ? "on" : "")">
                     <InputCheckbox @bind-Value="Model.IsForeigner" class="pi-toggle-input" id="chkForeigner" />
@@ -301,7 +303,7 @@
                     </div>
                     <div class="pi-field">
                         <label class="pi-label">Passport Expiry <span class="pi-req">*</span></label>
-                        <InputDate @bind-Value="Model.PassportExpiry" class="pi-input" />
+                        <InputDate @bind-Value="Model.PassportExpiry" class="pi-input" min="1900-01-01" max="2999-12-31" />
                         <ValidationMessage For="@(() => Model.PassportExpiry)" class="pi-field-error" />
                     </div>
                 </div>
@@ -370,8 +372,8 @@
 
 <style>
     /* ══════════════════════════════════════
-       Root
-    ══════════════════════════════════════ */
+                   Root
+                ══════════════════════════════════════ */
     .pi-wrap {
         display: flex;
         flex-direction: column;
@@ -380,8 +382,8 @@
     }
 
     /* ══════════════════════════════════════
-       Section card
-    ══════════════════════════════════════ */
+                   Section card
+                ══════════════════════════════════════ */
     .pi-section {
         background: #ffffff;
         border: 1px solid #edf0f4;
@@ -437,8 +439,8 @@
     }
 
     /* ══════════════════════════════════════
-       Section header
-    ══════════════════════════════════════ */
+                   Section header
+                ══════════════════════════════════════ */
     .pi-section-header {
         display: flex;
         align-items: center;
@@ -490,8 +492,8 @@
     }
 
     /* ══════════════════════════════════════
-       Grid
-    ══════════════════════════════════════ */
+                   Grid
+                ══════════════════════════════════════ */
     .pi-grid {
         display: grid;
         gap: 16px;
@@ -510,8 +512,8 @@
     }
 
     /* ══════════════════════════════════════
-       Field
-    ══════════════════════════════════════ */
+                   Field
+                ══════════════════════════════════════ */
     .pi-field {
         display: flex;
         flex-direction: column;
@@ -604,8 +606,8 @@
     }
 
     /* ══════════════════════════════════════
-       Checkbox cards
-    ══════════════════════════════════════ */
+                   Checkbox cards
+                ══════════════════════════════════════ */
     .pi-checkbox-group {
         display: flex;
         flex-wrap: wrap;
@@ -682,8 +684,8 @@
     }
 
     /* ══════════════════════════════════════
-       Toggle switch
-    ══════════════════════════════════════ */
+                   Toggle switch
+                ══════════════════════════════════════ */
     .pi-toggle-row {
         display: flex;
         align-items: center;
@@ -744,8 +746,8 @@
     }
 
     /* ══════════════════════════════════════
-       Divider
-    ══════════════════════════════════════ */
+                   Divider
+                ══════════════════════════════════════ */
     .pi-divider {
         height: 1px;
         background: #f1f5f9;
@@ -757,8 +759,8 @@
     }
 
     /* ══════════════════════════════════════
-       Footer
-    ══════════════════════════════════════ */
+                   Footer
+                ══════════════════════════════════════ */
     .pi-footer {
         display: flex;
         align-items: center;
@@ -816,8 +818,8 @@
     }
 
     /* ══════════════════════════════════════
-       Responsive
-    ══════════════════════════════════════ */
+                   Responsive
+                ══════════════════════════════════════ */
     @@media (max-width: 768px) {
         .pi-grid-3 {
             grid-template-columns: repeat(2, 1fr);
@@ -951,9 +953,15 @@
                 store.Add(() => Model.SpouseLastName, "Spouse last name is required.");
         }
 
-        if (Model.Gender == Gender.Female && Model.MaritalStatus == MaritalStatus.Married
-            && string.IsNullOrWhiteSpace(Model.MaidenLastName))
-            store.Add(() => Model.MaidenLastName, "Maiden last name is required.");
+        if (Model.Gender == Gender.Female && Model.MaritalStatus == MaritalStatus.Married)
+        {
+            if (string.IsNullOrWhiteSpace(Model.MaidenName))
+                store.Add(() => Model.MaidenName, "Maiden first name is required.");
+            if (string.IsNullOrWhiteSpace(Model.MaidenMiddleName))
+                store.Add(() => Model.MaidenMiddleName, "Maiden first name is required.");
+            if (string.IsNullOrWhiteSpace(Model.MaidenLastName))
+                store.Add(() => Model.MaidenLastName, "Maiden last name is required.");
+        }
 
         if (Model.IsForeigner)
         {
@@ -961,6 +969,7 @@
                 store.Add(() => Model.PassportIDNumber, "Passport ID number is required.");
             if (Model.PassportExpiry == null)
                 store.Add(() => Model.PassportExpiry, "Passport expiry date is required.");
+
         }
     }
 

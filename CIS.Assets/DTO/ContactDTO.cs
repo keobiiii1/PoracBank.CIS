@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 using CIS.Assets.Enum;
 using CIS.Assets.Models;
 
@@ -19,19 +19,19 @@ public class ContactDTO
         public long ContactID { get; set; }
         public long EntityID { get; set; }
         public EntityType EntityType { get; set; }
-        public string? HomePhoneNumber { get; set; }
-        public string? MobilePhoneNumber { get; set; }
-        public string? EmailAddress { get; set; }
-        public string? ContactPerson { get; set; }
 
-        public class Validator : AbstractValidator<PageModel>
-        {
-            public Validator()
-            {
-                RuleFor(x => x.MobilePhoneNumber).NotEmpty().MaximumLength(50);
-                RuleFor(x => x.EmailAddress).EmailAddress().MaximumLength(200);
-            }
-        }
+        [MaxLength(50)]
+        public string? HomePhoneNumber { get; set; }
+
+        [MaxLength(50)]
+        public string? MobilePhoneNumber { get; set; }
+
+        [MaxLength(200)]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
+        public string? EmailAddress { get; set; }
+
+        [MaxLength(200)]
+        public string? ContactPerson { get; set; }
     }
 
     public class MappingProfile : Profile
