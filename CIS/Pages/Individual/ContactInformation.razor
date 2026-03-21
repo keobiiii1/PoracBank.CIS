@@ -198,13 +198,13 @@
                     <label class="ci-label">Send Correspondence To <span class="ci-req">*</span></label>
                     @if (AddressModel.IsPresentSameAsPermanent)
                     {
-                        <div class="ci-input ci-mailing-readonly">Permanent Address</div>
+                        <input class="ci-input" value="Permanent Address" disabled />
                     }
                     else
                     {
                         <div class="ci-select-wrap">
                             <InputSelect @bind-Value="AddressModel.MailingPreference" class="@(AddressModel.MailingPreference == MailingPreference.None ? "ci-select" : "ci-select")">
-                                <option value="@MailingPreference.None" disabled>-- Select --</option>
+                                <option value="@MailingPreference.None" disabled>Select</option>
                                 @foreach (var pref in Enum.GetValues<MailingPreference>())
                                 {
                                     if (pref == MailingPreference.None) continue;

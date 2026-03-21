@@ -11,6 +11,6 @@ public class ClientAcknowledgement
     public EntityType EntityType { get; set; } = EntityType.Individual;
     public string? SignatureData { get; set; }
     public string? PrintedName { get; set; }
-    public DateTime DateSigned { get; set; } = DateTime.UtcNow;
+    public DateOnly? DateSigned { get; set; }
     public bool IsAgreed { get; set; } = true;
 }
