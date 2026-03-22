@@ -25,7 +25,7 @@
 
             @* Row 1: Sector | Name of Business | Type of Organization *@
             <div class="bif-grid bif-grid-3">
-                <div class="bi-field">
+                <div class="bi-field bif-sector">
                     <label class="bi-label">Sector <span class="bi-req">*</span></label>
                     <div class="bi-radio-group">
                         <label class="bi-radio-card @(sectorSelected && BusinessModel.IsPrivate == true ? "checked" : "")">
@@ -48,7 +48,7 @@
                         <span class="bi-field-error">Sector is required.</span>
                     }
                 </div>
-                <div class="bi-field">
+                <div class="bi-field bif-bizname">
                     <label class="bi-label">Name of Business <span class="bi-req">*</span></label>
                     <InputText @bind-Value="BusinessModel.NameOfBusiness" class="@(hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.NameOfBusiness) ? "bi-input bi-invalid" : "bi-input")" placeholder="e.g. Dela Cruz Trading Co." />
                     @if (hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.NameOfBusiness))
@@ -56,7 +56,7 @@
                         <span class="bi-field-error">Name of business is required.</span>
                     }
                 </div>
-                <div class="bi-field">
+                <div class="bi-field bif-orgtype">
                     <label class="bi-label">Type of Organization <span class="bi-req">*</span></label>
                     <div class="bi-select-wrap">
                         <InputSelect @bind-Value="BusinessModel.TypeOfOrganization" class="@(hasAttemptedSubmit && BusinessModel.TypeOfOrganization == TypeOfOrganization.None ? "bi-select bi-invalid" : "bi-select")">
@@ -185,10 +185,14 @@
             <div class="bif-grid bif-grid-3">
                 <div class="bi-field">
                     <label class="bi-label">Date of Registration <span class="bi-req">*</span></label>
-                    <InputDate @bind-Value="BusinessModel.DateOfRegistration" class="@(hasAttemptedSubmit && BusinessModel.DateOfRegistration == null ? "bi-input bi-invalid" : "bi-input")" TValue="DateOnly?" max="9999-12-31" />
+                    <InputDate @bind-Value="BusinessModel.DateOfRegistration" class="@(hasAttemptedSubmit && BusinessModel.DateOfRegistration == null ? "bi-input bi-invalid" : "bi-input")" TValue="DateOnly?" min="1900-01-01" max="2999-12-31" />
                     @if (hasAttemptedSubmit && BusinessModel.DateOfRegistration == null)
                     {
                         <span class="bi-field-error">Date of registration is required.</span>
+                    }
+                    else if (hasAttemptedSubmit && (BusinessModel.DateOfRegistration < new DateOnly(1900, 1, 1) || BusinessModel.DateOfRegistration > new DateOnly(2999, 12, 31)))
+                    {
+                        <span class="bi-field-error">Date must be between 01/01/1900 and 12/31/2999.</span>
                     }
                 </div>
                 <div class="bi-field">
@@ -201,10 +205,14 @@
                 </div>
                 <div class="bi-field">
                     <label class="bi-label">Registration Expiry <span class="bi-req">*</span></label>
-                    <InputDate @bind-Value="BusinessModel.BusinessRegExpiry" class="@(hasAttemptedSubmit && BusinessModel.BusinessRegExpiry == null ? "bi-input bi-invalid" : "bi-input")" TValue="DateOnly?" max="9999-12-31" />
+                    <InputDate @bind-Value="BusinessModel.BusinessRegExpiry" class="@(hasAttemptedSubmit && BusinessModel.BusinessRegExpiry == null ? "bi-input bi-invalid" : "bi-input")" TValue="DateOnly?" min="1900-01-01" max="2999-12-31" />
                     @if (hasAttemptedSubmit && BusinessModel.BusinessRegExpiry == null)
                     {
                         <span class="bi-field-error">Registration expiry is required.</span>
+                    }
+                    else if (hasAttemptedSubmit && (BusinessModel.BusinessRegExpiry < new DateOnly(1900, 1, 1) || BusinessModel.BusinessRegExpiry > new DateOnly(2999, 12, 31)))
+                    {
+                        <span class="bi-field-error">Date must be between 01/01/1900 and 12/31/2999.</span>
                     }
                 </div>
                 <div class="bi-field">
@@ -225,10 +233,20 @@
                 </div>
                 <div class="bi-field">
                     <label class="bi-label">Tax Identification Number (TIN) <span class="bi-req">*</span></label>
-                    <InputText @bind-Value="BusinessModel.TaxIdentificationNumber" class="@(hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.TaxIdentificationNumber) ? "bi-input bi-invalid" : "bi-input")" placeholder="e.g. 123-456-789-000" />
+                    <input type="text"
+                           value="@BusinessModel.TaxIdentificationNumber"
+                           class="@(hasAttemptedSubmit && (string.IsNullOrWhiteSpace(BusinessModel.TaxIdentificationNumber) || BusinessModel.TaxIdentificationNumber.Length < 15) ? "bi-input bi-invalid" : "bi-input")"
+                           placeholder="000-000-000-000"
+                           maxlength="15"
+                           inputmode="numeric"
+                           @oninput="OnTINInput" />
                     @if (hasAttemptedSubmit && string.IsNullOrWhiteSpace(BusinessModel.TaxIdentificationNumber))
                     {
                         <span class="bi-field-error">TIN is required.</span>
+                    }
+                    else if (hasAttemptedSubmit && BusinessModel.TaxIdentificationNumber?.Length < 15)
+                    {
+                        <span class="bi-field-error">TIN must follow the format 000-000-000-000.</span>
                     }
                 </div>
                 <div class="bi-field">
@@ -241,10 +259,14 @@
                 </div>
                 <div class="bi-field">
                     <label class="bi-label">DTI Cert Expiry <span class="bi-req">*</span></label>
-                    <InputDate @bind-Value="BusinessModel.DTICertExpiry" class="@(hasAttemptedSubmit && BusinessModel.DTICertExpiry == null ? "bi-input bi-invalid" : "bi-input")" TValue="DateOnly?" max="9999-12-31" />
+                    <InputDate @bind-Value="BusinessModel.DTICertExpiry" class="@(hasAttemptedSubmit && BusinessModel.DTICertExpiry == null ? "bi-input bi-invalid" : "bi-input")" TValue="DateOnly?" min="1900-01-01" max="2999-12-31" />
                     @if (hasAttemptedSubmit && BusinessModel.DTICertExpiry == null)
                     {
                         <span class="bi-field-error">DTI certificate expiry is required.</span>
+                    }
+                    else if (hasAttemptedSubmit && (BusinessModel.DTICertExpiry < new DateOnly(1900, 1, 1) || BusinessModel.DTICertExpiry > new DateOnly(2999, 12, 31)))
+                    {
+                        <span class="bi-field-error">Date must be between 01/01/1900 and 12/31/2999.</span>
                     }
                 </div>
             </div>
@@ -359,6 +381,10 @@
     .bif-grid-2 { grid-template-columns: repeat(2, 1fr); }
     .bif-grid-3 { grid-template-columns: repeat(3, 1fr); }
     .mt-2 { margin-top: 8px; }
+
+    /* Desktop: collapse the gap between Sector and Name of Business */
+    .bif-grid-3 { column-gap: 16px; row-gap: 16px; }
+    .bif-grid-3 .bif-sector { padding-right: 0; }
 
     .bi-field { display: flex; flex-direction: column; gap: 6px; }
 
@@ -623,7 +649,11 @@
     }
 
     @@media (max-width: 768px) {
-        .bif-grid-3 { grid-template-columns: repeat(2, 1fr); }
+        /* Sector full width, Name of Business below it, then Type of Org */
+        .bif-grid-3 { grid-template-columns: 1fr 1fr; }
+        .bif-grid-3 .bif-sector  { grid-column: 1 / -1; order: 1; padding-right: 0; }
+        .bif-grid-3 .bif-bizname { grid-column: 1 / -1; order: 2; margin-left: 0; }
+        .bif-grid-3 .bif-orgtype { grid-column: 1 / -1; order: 3; }
     }
 
     @@media (max-width: 480px) {
@@ -657,6 +687,18 @@
     private bool showPrincipalAddress;
     private bool hasAttemptedSubmit = false;
     private bool sectorSelected = false;
+
+    protected override void OnInitialized()
+    {
+        // Restore sectorSelected from saved model so radio buttons re-check on back navigation
+        if (BusinessModel.IsPrivate || BusinessModel.IsGovernment)
+            sectorSelected = true;
+
+        // Restore principal address toggle
+        if (!string.IsNullOrWhiteSpace(AddressModel.PrincipalAddress) &&
+            AddressModel.PrincipalAddress != AddressModel.BusinessAddress)
+            showPrincipalAddress = true;
+    }
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -715,13 +757,20 @@
         if (string.IsNullOrWhiteSpace(AddressModel.BusinessAddress)) return false;
         if (showPrincipalAddress && string.IsNullOrWhiteSpace(AddressModel.PrincipalAddress)) return false;
         if (BusinessModel.DateOfRegistration == null) return false;
+        if (BusinessModel.DateOfRegistration < new DateOnly(1900, 1, 1) ||
+            BusinessModel.DateOfRegistration > new DateOnly(2999, 12, 31)) return false;
         if (string.IsNullOrWhiteSpace(BusinessModel.BusinessRegNumber)) return false;
         if (BusinessModel.BusinessRegExpiry == null) return false;
+        if (BusinessModel.BusinessRegExpiry < new DateOnly(1900, 1, 1) ||
+            BusinessModel.BusinessRegExpiry > new DateOnly(2999, 12, 31)) return false;
         if (string.IsNullOrWhiteSpace(BusinessModel.PlaceOfRegistration)) return false;
         if (string.IsNullOrWhiteSpace(BusinessModel.NatureOfBusiness)) return false;
         if (string.IsNullOrWhiteSpace(BusinessModel.TaxIdentificationNumber)) return false;
+        if (BusinessModel.TaxIdentificationNumber.Length < 15) return false;
         if (string.IsNullOrWhiteSpace(BusinessModel.DTICertNumber)) return false;
         if (BusinessModel.DTICertExpiry == null) return false;
+        if (BusinessModel.DTICertExpiry < new DateOnly(1900, 1, 1) ||
+            BusinessModel.DTICertExpiry > new DateOnly(2999, 12, 31)) return false;
         return true;
     }
 
@@ -744,6 +793,22 @@
     private static string FormatEnum(string value)
         => System.Text.RegularExpressions.Regex.Replace(
             value, @"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ");
+
+    private void OnTINInput(ChangeEventArgs e)
+    {
+        var raw = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
+        if (raw.Length > 12) raw = raw[..12];
+
+        var formatted = raw.Length switch
+        {
+            <= 3  => raw,
+            <= 6  => $"{raw[..3]}-{raw[3..]}",
+            <= 9  => $"{raw[..3]}-{raw[3..6]}-{raw[6..]}",
+            _     => $"{raw[..3]}-{raw[3..6]}-{raw[6..9]}-{raw[9..]}"
+        };
+
+        BusinessModel.TaxIdentificationNumber = formatted;
+    }
 
     private static string GetEnumDescription<TEnum>(TEnum value) where TEnum : Enum
     {

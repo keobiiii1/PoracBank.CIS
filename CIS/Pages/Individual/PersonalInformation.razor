@@ -18,7 +18,7 @@
                     </svg>
                 </div>
                 <span class="pi-section-title">Customer Category</span>
-                <span class="pi-req pi-section-req">*</span>
+                <span class="pi-cat-note">Select at least one</span>
             </div>
             <div class="pi-checkbox-group">
                 @foreach (var cat in Enum.GetValues<CustomerCategory>().Where(c => c != CustomerCategory.None))
@@ -233,7 +233,7 @@
             <div class="pi-grid pi-grid-3">
                 <div class="pi-field">
                     <label class="pi-label">Date of Birth <span class="pi-req">*</span></label>
-                    <InputDate @bind-Value="Model.DateOfBirth" class="pi-input" max="@maxDate" />
+                    <InputDate @bind-Value="Model.DateOfBirth" class="pi-input" min="1900-01-01" max="2999-12-31" />
                     <ValidationMessage For="@(() => Model.DateOfBirth)" class="pi-field-error" />
                 </div>
                 <div class="pi-field">
@@ -902,6 +902,13 @@
         flex-shrink: 0;
     }
 
+    .pi-cat-note {
+        font-size: 0.68rem;
+        font-weight: 500;
+        color: #94a3b8;
+        margin-left: 4px;
+    }
+
     /* ══════════════════════════════════════
                        Responsive
                     ══════════════════════════════════════ */
@@ -968,7 +975,6 @@
     // ── State ──────────────────────────────────────────────────────
     private EditForm? editForm;
     private ValidationMessageStore? messageStore;
-    private string maxDate => DateTime.Today.ToString("yyyy-MM-dd");
 
     // ── Lifecycle ──────────────────────────────────────────────────
     protected override void OnInitialized()

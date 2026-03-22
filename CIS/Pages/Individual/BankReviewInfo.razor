@@ -223,7 +223,7 @@
         </div>
 
         <div class="br-sig-grid">
-            <div class="br-field">
+            <div class="br-field br-sig-field">
                 <label class="br-label">Signature Authenticated <span class="br-req">*</span></label>
                 <div class="br-canvas-wrap">
                     <canvas id="auth-sig-pad" style="cursor:crosshair; display:block; width:100%; height:140px;"></canvas>
@@ -233,25 +233,25 @@
                     Clear
                 </button>
             </div>
-            <div class="br-field">
+            <div class="br-field br-text-field">
                 <label class="br-label">Verified By <span class="br-req">*</span></label>
-                <InputTextArea @bind-Value="ReviewModel.VerifiedBy" class="@(showErrors && string.IsNullOrWhiteSpace(ReviewModel.VerifiedBy) ? "br-sig-textarea br-invalid" : "br-sig-textarea")" placeholder="Name of verifier" rows="5" />
+                <InputTextArea @bind-Value="ReviewModel.VerifiedBy" class="@(showErrors && string.IsNullOrWhiteSpace(ReviewModel.VerifiedBy) ? "br-sig-textarea br-text-ta br-invalid" : "br-sig-textarea br-text-ta")" placeholder="Name of verifier" rows="3" />
                 @if (showErrors && string.IsNullOrWhiteSpace(ReviewModel.VerifiedBy))
                 {
                     <span class="br-field-error">Verified by is required.</span>
                 }
             </div>
-            <div class="br-field">
+            <div class="br-field br-text-field">
                 <label class="br-label">Approved By <span class="br-req">*</span></label>
-                <InputTextArea @bind-Value="ReviewModel.ApprovedBy" class="@(showErrors && string.IsNullOrWhiteSpace(ReviewModel.ApprovedBy) ? "br-sig-textarea br-invalid" : "br-sig-textarea")" placeholder="Name of approver" rows="5" />
+                <InputTextArea @bind-Value="ReviewModel.ApprovedBy" class="@(showErrors && string.IsNullOrWhiteSpace(ReviewModel.ApprovedBy) ? "br-sig-textarea br-text-ta br-invalid" : "br-sig-textarea br-text-ta")" placeholder="Name of approver" rows="3" />
                 @if (showErrors && string.IsNullOrWhiteSpace(ReviewModel.ApprovedBy))
                 {
                     <span class="br-field-error">Approved by is required.</span>
                 }
             </div>
-            <div class="br-field">
+            <div class="br-field br-text-field">
                 <label class="br-label">Remarks (If Any) <span class="br-req">*</span></label>
-                <InputTextArea @bind-Value="ReviewModel.Remarks" class="@(showErrors && string.IsNullOrWhiteSpace(ReviewModel.Remarks) ? "br-sig-textarea br-invalid" : "br-sig-textarea")" placeholder="Optional remarks" rows="5" />
+                <InputTextArea @bind-Value="ReviewModel.Remarks" class="@(showErrors && string.IsNullOrWhiteSpace(ReviewModel.Remarks) ? "br-sig-textarea br-text-ta br-invalid" : "br-sig-textarea br-text-ta")" placeholder="Optional remarks" rows="3" />
                 @if (showErrors && string.IsNullOrWhiteSpace(ReviewModel.Remarks))
                 {
                     <span class="br-field-error">Remarks is required.</span>
@@ -542,6 +542,9 @@
         padding-top: 50px;
     }
 
+    /* Text-only textareas — no centered/padded-top styling */
+    .br-text-ta { text-align: left; padding-top: 10px; min-height: 80px; }
+
     .br-sig-textarea:hover { border-color: #94a3b8; }
     .br-sig-textarea.br-invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important; }
 
@@ -676,12 +679,18 @@
     @@media (max-width: 900px) {
         .br-two-col { grid-template-columns: 1fr; }
         .br-col-left { border-right: none; padding-right: 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; }
-        .br-sig-grid { grid-template-columns: 1fr 1fr; }
+        /* Signature full width, text fields in 3-column row below */
+        .br-sig-grid { grid-template-columns: 1fr 1fr 1fr; }
+        .br-sig-field { grid-column: 1 / -1; }
+        .br-text-ta { text-align: left; padding-top: 10px; min-height: 80px; }
     }
 
     @@media (max-width: 480px) {
         .br-check-grid { grid-template-columns: 1fr; }
+        /* On mobile: all fields stack vertically */
         .br-sig-grid { grid-template-columns: 1fr; }
+        .br-sig-field { grid-column: 1; }
+        .br-text-ta { text-align: left; padding-top: 10px; min-height: 80px; }
         .br-section { padding: 16px; border-radius: 14px; }
         .br-footer { flex-direction: column; align-items: stretch; }
         .br-btn-next, .br-btn-back { justify-content: center; }

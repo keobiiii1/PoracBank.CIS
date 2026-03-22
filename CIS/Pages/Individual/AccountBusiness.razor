@@ -155,16 +155,50 @@
         @if (InfoModel.IsGovOfficial)
         {
             <div class="ab-divider"></div>
-            <div class="ab-grid ab-grid-2">
-                <div class="ab-field">
-                    <label class="ab-label">Highest Position Occuabed <span class="ab-req">*</span></label>
-                    <InputText @bind-Value="InfoModel.GovPosition" class="ab-input" placeholder="e.g. Barangay Captain" />
-                </div>
-                <div class="ab-field">
-                    <label class="ab-label">Period Covered <span class="ab-req">*</span></label>
-                    <InputText @bind-Value="InfoModel.GovPeriod" class="ab-input" placeholder="e.g. 2018–2022" />
-                </div>
+            <div class="ab-section-header" style="margin-bottom:12px;">
+                <span class="ab-section-title" style="font-size:0.68rem;">Official Positions</span>
+                <button type="button" class="ab-add-btn" @onclick="AddGovPosition">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                    Add Position
+                </button>
             </div>
+
+            @if (InfoModel.GovOfficialPositions.Count == 0)
+            {
+                <div class="ab-empty-hint">No positions added. Click "Add Position" to add one.</div>
+            }
+            else
+            {
+                <div class="ab-list-header ab-grid-pep">
+                    <span class="ab-list-col-label">Highest Position Occupied <span class="ab-req">*</span></span>
+                    <span class="ab-list-col-label">Period Covered <span class="ab-req">*</span></span>
+                    <span></span>
+                </div>
+
+                @for (int i = 0; i < InfoModel.GovOfficialPositions.Count; i++)
+                {
+                    var idx = i;
+                    <div class="ab-list-row ab-grid-pep">
+                        <div class="ab-field">
+                            <InputText @bind-Value="InfoModel.GovOfficialPositions[idx].Position" class="@(showErrors && string.IsNullOrWhiteSpace(InfoModel.GovOfficialPositions[idx].Position) ? "ab-input ab-invalid" : "ab-input")" placeholder="e.g. Barangay Captain" />
+                            @if (showErrors && string.IsNullOrWhiteSpace(InfoModel.GovOfficialPositions[idx].Position))
+                            {
+                                <span class="ab-field-error">Position is required.</span>
+                            }
+                        </div>
+                        <div class="ab-field">
+                            <InputText @bind-Value="InfoModel.GovOfficialPositions[idx].Period" class="@(showErrors && string.IsNullOrWhiteSpace(InfoModel.GovOfficialPositions[idx].Period) ? "ab-input ab-invalid" : "ab-input")" placeholder="e.g. 2018–2022" />
+                            @if (showErrors && string.IsNullOrWhiteSpace(InfoModel.GovOfficialPositions[idx].Period))
+                            {
+                                <span class="ab-field-error">Period is required.</span>
+                            }
+                        </div>
+                        <button type="button" class="ab-remove-btn" @onclick="() => RemoveGovPosition(idx)" title="Remove">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                        </button>
+                    </div>
+                }
+            }
         }
     </div>
 
@@ -200,11 +234,12 @@
             }
             else
             {
-                <div class="ab-list-header ab-grid-rel">
+                @* Desktop header — hidden on mobile *@
+                <div class="ab-list-header ab-grid-rel ab-rel-desktop-header">
                     <span class="ab-list-col-label">Full Name <span class="ab-req">*</span></span>
                     <span class="ab-list-col-label">Relationship <span class="ab-req">*</span></span>
-                    <span class="ab-list-col-label">Position</span>
-                    <span class="ab-list-col-label">Period Covered</span>
+                    <span class="ab-list-col-label">Position <span class="ab-req">*</span></span>
+                    <span class="ab-list-col-label">Period Covered <span class="ab-req">*</span></span>
                     <span></span>
                 </div>
 
@@ -212,38 +247,59 @@
                 {
                     var idx = i;
                     var rel = InfoModel.GovRelatives[idx];
-                    <div class="ab-list-row ab-grid-rel">
+                    @* Desktop row *@
+                    <div class="ab-list-row ab-grid-rel ab-rel-desktop-row">
                         <div class="ab-field">
                             <InputText @bind-Value="rel.Name" class="@(showErrors && string.IsNullOrWhiteSpace(rel.Name) ? "ab-input ab-invalid" : "ab-input")" placeholder="Full name" />
-                            @if (showErrors && string.IsNullOrWhiteSpace(rel.Name))
-                            {
-                                <span class="ab-field-error">Full name is required.</span>
-                            }
+                            @if (showErrors && string.IsNullOrWhiteSpace(rel.Name)) { <span class="ab-field-error">Full name is required.</span> }
                         </div>
                         <div class="ab-field">
                             <InputText @bind-Value="rel.Relationship" class="@(showErrors && string.IsNullOrWhiteSpace(rel.Relationship) ? "ab-input ab-invalid" : "ab-input")" placeholder="e.g. Father, Spouse" />
-                            @if (showErrors && string.IsNullOrWhiteSpace(rel.Relationship))
-                            {
-                                <span class="ab-field-error">Relationship is required.</span>
-                            }
+                            @if (showErrors && string.IsNullOrWhiteSpace(rel.Relationship)) { <span class="ab-field-error">Relationship is required.</span> }
                         </div>
                         <div class="ab-field">
                             <InputText @bind-Value="rel.Position" class="@(showErrors && string.IsNullOrWhiteSpace(rel.Position) ? "ab-input ab-invalid" : "ab-input")" placeholder="e.g. Mayor" />
-                            @if (showErrors && string.IsNullOrWhiteSpace(rel.Position))
-                            {
-                                <span class="ab-field-error">Position is required.</span>
-                            }
+                            @if (showErrors && string.IsNullOrWhiteSpace(rel.Position)) { <span class="ab-field-error">Position is required.</span> }
                         </div>
                         <div class="ab-field">
                             <InputText @bind-Value="rel.PeriodCovered" class="@(showErrors && string.IsNullOrWhiteSpace(rel.PeriodCovered) ? "ab-input ab-invalid" : "ab-input")" placeholder="e.g. 2019–present" />
-                            @if (showErrors && string.IsNullOrWhiteSpace(rel.PeriodCovered))
-                            {
-                                <span class="ab-field-error">Period covered is required.</span>
-                            }
+                            @if (showErrors && string.IsNullOrWhiteSpace(rel.PeriodCovered)) { <span class="ab-field-error">Period covered is required.</span> }
                         </div>
                         <button type="button" class="ab-remove-btn" @onclick="() => RemoveGovRelative(idx)" title="Remove">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
                         </button>
+                    </div>
+
+                    @* Mobile / tablet card *@
+                    <div class="ab-rel-card ab-rel-mobile-row">
+                        <div class="ab-rel-card-header">
+                            <span class="ab-rel-card-num">Relative #@(idx + 1)</span>
+                            <button type="button" class="ab-remove-btn" @onclick="() => RemoveGovRelative(idx)" title="Remove">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                            </button>
+                        </div>
+                        <div class="ab-rel-card-grid">
+                            <div class="ab-field">
+                                <label class="ab-label">Full Name <span class="ab-req">*</span></label>
+                                <InputText @bind-Value="rel.Name" class="@(showErrors && string.IsNullOrWhiteSpace(rel.Name) ? "ab-input ab-invalid" : "ab-input")" placeholder="Full name" />
+                                @if (showErrors && string.IsNullOrWhiteSpace(rel.Name)) { <span class="ab-field-error">Full name is required.</span> }
+                            </div>
+                            <div class="ab-field">
+                                <label class="ab-label">Relationship <span class="ab-req">*</span></label>
+                                <InputText @bind-Value="rel.Relationship" class="@(showErrors && string.IsNullOrWhiteSpace(rel.Relationship) ? "ab-input ab-invalid" : "ab-input")" placeholder="e.g. Father, Spouse" />
+                                @if (showErrors && string.IsNullOrWhiteSpace(rel.Relationship)) { <span class="ab-field-error">Relationship is required.</span> }
+                            </div>
+                            <div class="ab-field">
+                                <label class="ab-label">Position <span class="ab-req">*</span></label>
+                                <InputText @bind-Value="rel.Position" class="@(showErrors && string.IsNullOrWhiteSpace(rel.Position) ? "ab-input ab-invalid" : "ab-input")" placeholder="e.g. Mayor" />
+                                @if (showErrors && string.IsNullOrWhiteSpace(rel.Position)) { <span class="ab-field-error">Position is required.</span> }
+                            </div>
+                            <div class="ab-field">
+                                <label class="ab-label">Period Covered <span class="ab-req">*</span></label>
+                                <InputText @bind-Value="rel.PeriodCovered" class="@(showErrors && string.IsNullOrWhiteSpace(rel.PeriodCovered) ? "ab-input ab-invalid" : "ab-input")" placeholder="e.g. 2019–present" />
+                                @if (showErrors && string.IsNullOrWhiteSpace(rel.PeriodCovered)) { <span class="ab-field-error">Period covered is required.</span> }
+                            </div>
+                        </div>
                     </div>
                 }
             }
@@ -613,17 +669,75 @@
         flex-shrink: 0;
     }
 
+    .ab-grid-pep {
+        display: grid;
+        grid-template-columns: 2fr 2fr 36px;
+        gap: 10px;
+        align-items: start;
+    }
+
+    /* ── Relative card for mobile/tablet ── */
+    .ab-rel-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 10px;
+        animation: ab-slide-in 0.18s ease;
+    }
+
+    .ab-rel-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    .ab-rel-card-num {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .ab-rel-card-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    /* Show desktop rows, hide mobile cards by default */
+    .ab-rel-desktop-header { display: grid; }
+    .ab-rel-desktop-row    { display: grid; }
+    .ab-rel-mobile-row     { display: none; }
+
     @@media (max-width: 900px) {
         .ab-grid-biz { grid-template-columns: 1fr 100px 36px; }
         .ab-grid-rel { grid-template-columns: 1fr 1fr 36px; }
+        .ab-grid-pep { grid-template-columns: 1fr 1fr 36px; }
     }
 
     @@media (max-width: 640px) {
         .ab-grid-2 { grid-template-columns: 1fr; }
-        .ab-grid-biz, .ab-grid-rel { grid-template-columns: 1fr; }
+        .ab-grid-biz, .ab-grid-rel, .ab-grid-pep { grid-template-columns: 1fr; }
         .ab-section { padding: 16px; border-radius: 14px; }
         .ab-footer { flex-direction: column; align-items: stretch; }
         .ab-btn-next, .ab-btn-back { justify-content: center; }
+
+        /* Switch to card layout for relatives on mobile */
+        .ab-rel-desktop-header { display: none; }
+        .ab-rel-desktop-row    { display: none; }
+        .ab-rel-mobile-row     { display: block; }
+        .ab-rel-card-grid      { grid-template-columns: 1fr; }
+    }
+
+    @@media (max-width: 900px) and (min-width: 641px) {
+        /* Tablet: also use card layout for relatives */
+        .ab-rel-desktop-header { display: none; }
+        .ab-rel-desktop-row    { display: none; }
+        .ab-rel-mobile-row     { display: block; }
+        .ab-rel-card-grid      { grid-template-columns: 1fr 1fr; }
     }
 </style>
 
@@ -641,10 +755,29 @@
 
     private bool showErrors = false;
 
+
+
     protected override void OnInitialized()
     {
-        // Reset so errors never bleed in from a previous navigation
         showErrors = false;
+        // Seed from existing single-field values if any
+        if (!string.IsNullOrWhiteSpace(InfoModel.GovPosition))
+        {
+            InfoModel.GovOfficialPositions.Add(new IndividualInfoDTO.PageModel.GovOfficialPositionModel
+            {
+                Position = InfoModel.GovPosition,
+                Period   = InfoModel.GovPeriod ?? ""
+            });
+        }
+    }
+
+    private void AddGovPosition()
+        => InfoModel.GovOfficialPositions.Add(new IndividualInfoDTO.PageModel.GovOfficialPositionModel());
+
+    private void RemoveGovPosition(int index)
+    {
+        if (index >= 0 && index < InfoModel.GovOfficialPositions.Count)
+            InfoModel.GovOfficialPositions.RemoveAt(index);
     }
 
     // ── List helpers ───────────────────────────────────────────────
@@ -688,8 +821,12 @@
         // Gov Official — required fields when toggled on
         if (InfoModel.IsGovOfficial)
         {
-            if (string.IsNullOrWhiteSpace(InfoModel.GovPosition)) return false;
-            if (string.IsNullOrWhiteSpace(InfoModel.GovPeriod)) return false;
+            if (InfoModel.GovOfficialPositions.Count == 0) return false;
+            foreach (var p in InfoModel.GovOfficialPositions)
+            {
+                if (string.IsNullOrWhiteSpace(p.Position)) return false;
+                if (string.IsNullOrWhiteSpace(p.Period)) return false;
+            }
         }
 
         // Gov Relatives — all fields required if any rows exist
@@ -740,6 +877,13 @@
         {
             InfoModel.GovPosition = null;
             InfoModel.GovPeriod   = null;
+        }
+        else
+        {
+            // Sync first entry back to model (primary position)
+            var first = InfoModel.GovOfficialPositions.FirstOrDefault();
+            InfoModel.GovPosition = first?.Position;
+            InfoModel.GovPeriod   = first?.Period;
         }
 
         BusintModel.CustomerID = CustomerId;

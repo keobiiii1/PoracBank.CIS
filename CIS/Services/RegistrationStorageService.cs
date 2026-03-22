@@ -53,6 +53,15 @@ public class RegistrationStorageService
         contact.EntityID = customer.CustomerID;
         contact.EntityType = EntityType.Individual;
 
+        // Ensure CustomerID is stamped on all list items so they survive round-trips
+        if (individual.BusinessInterests != null)
+            foreach (var b in individual.BusinessInterests)
+                b.CustomerID = customer.CustomerID;
+
+        if (individual.GovRelatives != null)
+            foreach (var r in individual.GovRelatives)
+                r.CustomerID = customer.CustomerID;
+
         // Strip image data URLs before saving to localStorage.
         // Data URLs are 1–5 MB each — storing them in localStorage (5–10 MB limit)
         // will cause silent failures. Images are kept in memory only and sent
@@ -111,6 +120,15 @@ public class RegistrationStorageService
         address.EntityType = EntityType.Individual;
         contact.EntityID = customer.CustomerID;
         contact.EntityType = EntityType.Individual;
+
+        // Stamp CustomerID on all list items before building the final request
+        if (individual.BusinessInterests != null)
+            foreach (var b in individual.BusinessInterests)
+                b.CustomerID = customer.CustomerID;
+
+        if (individual.GovRelatives != null)
+            foreach (var r in individual.GovRelatives)
+                r.CustomerID = customer.CustomerID;
 
         return new IndividualRegistrationRequest
         {

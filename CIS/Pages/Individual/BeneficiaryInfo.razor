@@ -45,7 +45,7 @@
 
             <div class="bn-field">
                 <label class="bn-label">Birthday <span class="bn-req">*</span></label>
-                <InputDate @bind-Value="BeneficiaryModel.Birthday" class="@(showErrors && BeneficiaryModel.Birthday == null ? "bn-input bn-invalid" : "bn-input")" TValue="DateOnly?" max="9999-12-31" />
+                <InputDate @bind-Value="BeneficiaryModel.Birthday" class="@(showErrors && BeneficiaryModel.Birthday == null ? "bn-input bn-invalid" : "bn-input")" TValue="DateOnly?" min="1900-01-01" max="2999-12-31" />
                 @if (showErrors && BeneficiaryModel.Birthday == null)
                 {
                     <span class="bn-field-error">Birthday is required.</span>
@@ -107,6 +107,7 @@
                 <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
             Source of Funds
+            <span class="bn-sof-note">— Select at least one</span>
         </div>
         <div class="bn-radio-group">
             @foreach (var src in sourceOptions)
@@ -445,6 +446,13 @@
         border-radius: 8px;
         display: flex; align-items: center; justify-content: center;
         flex-shrink: 0;
+    }
+
+    .bn-sof-note {
+        font-size: 0.68rem;
+        font-weight: 500;
+        color: #94a3b8;
+        margin-left: 2px;
     }
 
     @@media (max-width: 768px) {

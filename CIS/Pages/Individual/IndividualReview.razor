@@ -167,7 +167,15 @@
         }
 
         @* ── Government IDs ── *@
-        <div class="rv-subsection">Government IDs</div>
+        @{
+            var hasAnyGovId = !string.IsNullOrWhiteSpace(Identification.TINNumber)
+                || !string.IsNullOrWhiteSpace(Identification.SSSNumber)
+                || !string.IsNullOrWhiteSpace(Identification.GSISNumber);
+        }
+        @if (hasAnyGovId)
+        {
+            <div class="rv-subsection">Government IDs</div>
+        }
 
         @* TIN *@
         @if (!string.IsNullOrWhiteSpace(Identification.TINNumber))
@@ -197,10 +205,6 @@
                     </div>
                 }
             </div>
-        }
-        else
-        {
-            <div class="rv-id-block"><div class="rv-id-block-header"><span class="rv-id-block-name">TIN</span><span class="rv-same">—</span></div></div>
         }
 
         @* SSS *@
@@ -232,10 +236,6 @@
                 }
             </div>
         }
-        else
-        {
-            <div class="rv-id-block"><div class="rv-id-block-header"><span class="rv-id-block-name">SSS</span><span class="rv-same">—</span></div></div>
-        }
 
         @* GSIS *@
         @if (!string.IsNullOrWhiteSpace(Identification.GSISNumber))
@@ -266,15 +266,18 @@
                 }
             </div>
         }
-        else
-        {
-            <div class="rv-id-block"><div class="rv-id-block-header"><span class="rv-id-block-name">GSIS</span><span class="rv-same">—</span></div></div>
-        }
-
-        <div class="rv-divider"></div>
 
         @* ── IDs Presented ── *@
-        <div class="rv-subsection">IDs Presented</div>
+        @{
+            var hasAnyIdPresented = !string.IsNullOrWhiteSpace(Identification.DriversLicenseIDNo)
+                || !string.IsNullOrWhiteSpace(Identification.PassportIDNo)
+                || !string.IsNullOrWhiteSpace(Identification.OtherIDType);
+        }
+        @if (hasAnyIdPresented)
+        {
+            <div class="rv-divider"></div>
+            <div class="rv-subsection">IDs Presented</div>
+        }
 
         @* Driver's License *@
         @if (!string.IsNullOrWhiteSpace(Identification.DriversLicenseIDNo))
@@ -369,12 +372,7 @@
             </div>
         }
 
-        @if (string.IsNullOrWhiteSpace(Identification.DriversLicenseIDNo) &&
-             string.IsNullOrWhiteSpace(Identification.PassportIDNo) &&
-             string.IsNullOrWhiteSpace(Identification.OtherIDType))
-        {
-            <div class="rv-item rv-full"><span class="rv-val rv-same">No IDs presented</span></div>
-        }
+
     </div>
 
     @* ══════════════════════════════════════
@@ -597,14 +595,29 @@
                     </span>
                 </div>
 
-                @* Contact Info [cite: 765-770] *@
-                <div class="rv-item"><span class="rv-key">Office Phone</span><span class="rv-val">@OrDash(AccountContact.OfficePhoneNo)</span></div>
-                <div class="rv-item"><span class="rv-key">Email Address</span><span class="rv-val">@OrDash(AccountContact.EmailAddress)</span></div>
-                <div class="rv-item"><span class="rv-key">Contact Person</span><span class="rv-val">@OrDash(AccountContact.ContactPerson)</span></div>
+                @* Contact Info — only show if data exists *@
+                @if (!string.IsNullOrWhiteSpace(AccountContact.OfficePhoneNo))
+                {
+                    <div class="rv-item"><span class="rv-key">Office Phone</span><span class="rv-val">@AccountContact.OfficePhoneNo</span></div>
+                }
+                @if (!string.IsNullOrWhiteSpace(AccountContact.EmailAddress))
+                {
+                    <div class="rv-item"><span class="rv-key">Email Address</span><span class="rv-val">@AccountContact.EmailAddress</span></div>
+                }
+                @if (!string.IsNullOrWhiteSpace(AccountContact.ContactPerson))
+                {
+                    <div class="rv-item"><span class="rv-key">Contact Person</span><span class="rv-val">@AccountContact.ContactPerson</span></div>
+                }
 
-                @* Keep existing size/income if they are used elsewhere in your logic [cite: 89-90] *@
-                <div class="rv-item"><span class="rv-key">Size of Business</span><span class="rv-val">@GetEnumDescription(AccountContact.SizeOfBusiness)</span></div>
-                <div class="rv-item"><span class="rv-key">Avg. Annual Income</span><span class="rv-val">@GetEnumDescription(AccountContact.AverageAnnualIncome)</span></div>
+                @* Size / Income — only show if a real value was chosen *@
+                @if (AccountContact.SizeOfBusiness != default)
+                {
+                    <div class="rv-item"><span class="rv-key">Size of Business</span><span class="rv-val">@GetEnumDescription(AccountContact.SizeOfBusiness)</span></div>
+                }
+                @if (AccountContact.AverageAnnualIncome != default)
+                {
+                    <div class="rv-item"><span class="rv-key">Avg. Annual Income</span><span class="rv-val">@GetEnumDescription(AccountContact.AverageAnnualIncome)</span></div>
+                }
             </div>
         </div>
     }
@@ -750,11 +763,33 @@
             <div class="rv-subsection">Documents Presented</div>
             <div class="rv-item rv-full">
                 <span class="rv-val" style="font-size: 0.8rem;">
-                    @if (BankReview.DocsList.Any() || BankReview.AdditionalDocsList.Any())
+                    @{
+                        var docLabels = new Dictionary<string, string>
+                        {
+                            ["A"] = "A. For Sole Proprietors: Certified True Copy of Certificate of Business Name Registration issued by the Department of Trade and Industry",
+                            ["B"] = "B. For Partners and Corporations: Certified True Copy of Certificate of Business Name Registration issued by the Securities and Exchange Commission or Insurance Commission",
+                            ["C"] = "C. For Money Changers, Foreign Exchange Dealers and Remittance Agents: Certified True Copy of Certificate of Business Name Registration issued by the Bangko Sentral ng Pilipinas",
+                            ["D"] = "D. For Entities Registered Outside the Philippines: Similar documents and/or information stated above authenticated by the Philippine Consulate where said entities are registered",
+                        };
+                        var addlDocLabels = new Dictionary<string, string>
+                        {
+                            ["ARTICLES"] = "Certified True Copy of Articles of Incorporation / Association",
+                            ["BYLAWS"]   = "Certified True Copy of By Laws",
+                            ["BOARD_RES"] = "Board of Partner's Resolution duly certified by Corporate / Partner's Secretary authorizing a representative to sign on behalf of the entity",
+                            ["GIS"]      = "Latest General Information Sheet",
+                        };
+                    }
+                    @if (BankReview.DocsList.Any() || BankReview.AdditionalDocsList.Any() || !string.IsNullOrWhiteSpace(BankReview.DocumentsOther))
                     {
                         <ul style="margin: 0; padding-left: 20px;">
-                            @foreach (var doc in BankReview.DocsList) { <li>@doc</li> }
-                            @foreach (var doc in BankReview.AdditionalDocsList) { <li>@doc</li> }
+                            @foreach (var doc in BankReview.DocsList)
+                            {
+                                <li>@(docLabels.TryGetValue(doc, out var lbl) ? lbl : doc)</li>
+                            }
+                            @foreach (var doc in BankReview.AdditionalDocsList)
+                            {
+                                <li>@(addlDocLabels.TryGetValue(doc, out var lbl2) ? lbl2 : doc)</li>
+                            }
                             @if (!string.IsNullOrWhiteSpace(BankReview.DocumentsOther)) { <li>Other: @BankReview.DocumentsOther</li> }
                         </ul>
                     }
@@ -969,7 +1004,7 @@
     }
 
     .rv-grid-biz { grid-template-columns: 2fr 1fr; }
-    .rv-grid-rel { grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr; }
+    .rv-grid-rel { grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr; min-width: 0; }
 
     .rv-signature {
         display: block;
@@ -1143,12 +1178,13 @@
 
     @@media (max-width: 768px) {
         .rv-grid-3, .rv-grid-4 { grid-template-columns: repeat(2, 1fr); }
-        .rv-grid-rel { grid-template-columns: 1fr 1fr; }
+        .rv-grid-rel { grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr; }
     }
 
     @@media (max-width: 480px) {
         .rv-grid-2, .rv-grid-3, .rv-grid-4 { grid-template-columns: 1fr; }
-        .rv-grid-biz, .rv-grid-rel { grid-template-columns: 1fr; }
+        .rv-grid-biz { grid-template-columns: 1fr; }
+        .rv-grid-rel { grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr; font-size: 0.75rem; }
         .rv-section { padding: 16px; border-radius: 14px; }
         .rv-footer { flex-direction: column; align-items: stretch; }
         .rv-btn-submit, .rv-btn-back { justify-content: center; }

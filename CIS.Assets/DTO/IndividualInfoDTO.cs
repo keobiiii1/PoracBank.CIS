@@ -100,10 +100,12 @@ public class IndividualInfoDTO
 
         public List<BusinessInterestModel> BusinessInterests { get; set; } = new();
         public List<GovRelativeModel> GovRelatives { get; set; } = new();
+        public List<GovOfficialPositionModel> GovOfficialPositions { get; set; } = new();
 
 
         public class BusinessInterestModel
         {
+            public long CustomerID { get; set; }
             public string? BusinessName { get; set; }
             public string? Relationship { get; set; }
             public decimal? OwnershipPercentage { get; set; }
@@ -112,10 +114,18 @@ public class IndividualInfoDTO
 
         public class GovRelativeModel
         {
+            public long CustomerID { get; set; }
             public string? Name { get; set; }
             public string? Relationship { get; set; }
             public string? Position { get; set; }
             public string? PeriodCovered { get; set; }
+        }
+
+        public class GovOfficialPositionModel
+        {
+            public long CustomerID { get; set; }
+            public string? Position { get; set; }
+            public string? Period { get; set; }
         }
     }
 

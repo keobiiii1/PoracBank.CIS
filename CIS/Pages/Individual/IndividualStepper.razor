@@ -195,8 +195,8 @@
 
 <style>
     /* ══════════════════════════════════════
-           Shell card
-        ══════════════════════════════════════ */
+               Shell card
+            ══════════════════════════════════════ */
     .ist-shell {
         background: #fff;
         border-radius: 20px;
@@ -207,8 +207,8 @@
     }
 
     /* ══════════════════════════════════════
-           Top bar
-        ══════════════════════════════════════ */
+               Top bar
+            ══════════════════════════════════════ */
     .ist-topbar {
         display: flex;
         align-items: center;
@@ -301,8 +301,8 @@
     }
 
     /* ══════════════════════════════════════
-           Full-width step track
-        ══════════════════════════════════════ */
+               Full-width step track
+            ══════════════════════════════════════ */
     .ist-track-wrap {
         padding: 16px 20px 0;
     }
@@ -360,9 +360,10 @@
     .ist-step-label {
         font-size: 0.58rem;
         font-weight: 500;
-        white-space: normal;
-        word-break: normal;
-        max-width: 70px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 56px;
         text-align: center;
         line-height: 1.25;
         transition: color 0.2s;
@@ -415,19 +416,20 @@
         }
 
     /* ══════════════════════════════════════
-           Current step banner
-        ══════════════════════════════════════ */
+               Current step banner
+            ══════════════════════════════════════ */
     .ist-current-banner {
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 9px 20px;
+        padding: 11px 20px;
         background: linear-gradient(90deg, #f0fdf8 0%, #eff6ff 100%);
         border-top: 1px solid #e8f5ee;
-        font-size: 0.76rem;
-        font-weight: 600;
+        font-size: 0.95rem;
+        font-weight: 700;
         color: #0f172a;
         margin-top: 10px;
+        letter-spacing: 0.01em;
     }
 
     .ist-banner-dot {
@@ -450,11 +452,11 @@
     }
 
     /* ══════════════════════════════════════
-           Tablet (≤ 768px) — tighter circles, smaller labels
-        ══════════════════════════════════════ */
+               Tablet (≤ 768px) — tighter circles, smaller labels
+            ══════════════════════════════════════ */
     @@media (max-width: 768px) {
         .ist-track-wrap {
-            padding: 14px 14px 0;
+            padding: 14px 14px 8px;
         }
 
         .ist-topbar {
@@ -462,7 +464,8 @@
         }
 
         .ist-current-banner {
-            padding: 8px 14px;
+            padding: 10px 14px;
+            font-size: 0.88rem;
         }
 
         .ist-step-circle {
@@ -470,11 +473,9 @@
             height: 26px;
             font-size: 0.68rem;
         }
-
+        /* Hide labels on tablet — banner shows current step name */
         .ist-step-label {
-            font-size: 0.55rem;
-            max-width: 44px;
-            white-space: nowrap;
+            display: none;
         }
 
         .ist-connector {
@@ -487,8 +488,8 @@
     }
 
     /* ══════════════════════════════════════
-           Mobile (≤ 480px) — hide labels, smallest circles
-        ══════════════════════════════════════ */
+               Mobile (≤ 480px) — hide labels, smallest circles
+            ══════════════════════════════════════ */
     @@media (max-width: 480px) {
         .ist-track-wrap {
             padding: 12px 10px 0;
@@ -521,8 +522,8 @@
         }
 
         .ist-current-banner {
-            padding: 7px 12px;
-            font-size: 0.72rem;
+            padding: 9px 12px;
+            font-size: 0.82rem;
         }
     }
 </style>

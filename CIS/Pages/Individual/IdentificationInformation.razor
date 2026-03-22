@@ -329,7 +329,7 @@
                         </div>
                         <div class="ii-field">
                             <label class="ii-label">Expiry Date <span class="ii-req">*</span></label>
-                            <InputDate @bind-Value="IdModel.DriversLicenseExpiry" class="ii-input" />
+                            <InputDate @bind-Value="IdModel.DriversLicenseExpiry" class="ii-input" min="1900-01-01" max="2999-12-31" />
                             <ValidationMessage For="@(() => IdModel.DriversLicenseExpiry)" class="ii-field-error" />
                         </div>
                     </div>
@@ -408,7 +408,7 @@
                         </div>
                         <div class="ii-field">
                             <label class="ii-label">Expiry Date <span class="ii-req">*</span></label>
-                            <InputDate @bind-Value="IdModel.PassportIDExpiry" class="ii-input" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            <InputDate @bind-Value="IdModel.PassportIDExpiry" class="ii-input" min="1900-01-01" max="2999-12-31" />
                             <ValidationMessage For="@(() => IdModel.PassportIDExpiry)" class="ii-field-error" />
                         </div>
                     </div>
@@ -492,7 +492,7 @@
                         </div>
                         <div class="ii-field">
                             <label class="ii-label">Expiry Date</label>
-                            <InputDate @bind-Value="IdModel.OtherIDExpiry" class="ii-input" />
+                            <InputDate @bind-Value="IdModel.OtherIDExpiry" class="ii-input" min="1900-01-01" max="2999-12-31" />
                         </div>
                     </div>
                     <div class="ii-id-card-photos">
