@@ -83,7 +83,7 @@
                 </div>
                 <span class="pi-section-title">Personal Details</span>
             </div>
-            <div class="pi-grid pi-grid-4">               
+            <div class="pi-grid pi-grid-4">
                 <div class="pi-field">
                     <label class="pi-label">Gender <span class="pi-req">*</span></label>
                     <InputSelect @bind-Value="Model.Gender" class="pi-select">
@@ -113,13 +113,14 @@
                     </div>
                 }
                 <div class="pi-field">
-                    <label class="pi-label">Marital Status</label>
+                    <label class="pi-label">Marital Status <span class="pi-req">*</span></label>
                     <InputSelect @bind-Value="Model.MaritalStatus" class="pi-select">
                         @foreach (var m in Enum.GetValues<MaritalStatus>())
                         {
                             <option value="@m">@m</option>
                         }
                     </InputSelect>
+                    <ValidationMessage For="@(() => Model.MaritalStatus)" class="pi-field-error" />
                 </div>
                 <div class="pi-field">
                     <label class="pi-label">Philippines Resident?</label>
@@ -387,8 +388,8 @@
 
 <style>
     /* ══════════════════════════════════════
-                       Root
-                    ══════════════════════════════════════ */
+                           Root
+                        ══════════════════════════════════════ */
     .pi-wrap {
         display: flex;
         flex-direction: column;
@@ -397,8 +398,8 @@
     }
 
     /* ══════════════════════════════════════
-                       Section card
-                    ══════════════════════════════════════ */
+                           Section card
+                        ══════════════════════════════════════ */
     .pi-section {
         background: #ffffff;
         border: 1px solid #edf0f4;
@@ -454,8 +455,8 @@
     }
 
     /* ══════════════════════════════════════
-                       Section header
-                    ══════════════════════════════════════ */
+                           Section header
+                        ══════════════════════════════════════ */
     .pi-section-header {
         display: flex;
         align-items: center;
@@ -507,8 +508,8 @@
     }
 
     /* ══════════════════════════════════════
-                       Grid
-                    ══════════════════════════════════════ */
+                           Grid
+                        ══════════════════════════════════════ */
     .pi-grid {
         display: grid;
         gap: 16px;
@@ -527,8 +528,8 @@
     }
 
     /* ══════════════════════════════════════
-                       Field
-                    ══════════════════════════════════════ */
+                           Field
+                        ══════════════════════════════════════ */
     .pi-field {
         display: flex;
         flex-direction: column;
@@ -621,8 +622,8 @@
     }
 
     /* ══════════════════════════════════════
-                       Checkbox cards
-                    ══════════════════════════════════════ */
+                           Checkbox cards
+                        ══════════════════════════════════════ */
     .pi-radio-group {
         display: flex;
         gap: 10px;
@@ -769,8 +770,8 @@
     }
 
     /* ══════════════════════════════════════
-                       Toggle switch
-                    ══════════════════════════════════════ */
+                           Toggle switch
+                        ══════════════════════════════════════ */
     .pi-toggle-row {
         display: flex;
         align-items: center;
@@ -831,8 +832,8 @@
     }
 
     /* ══════════════════════════════════════
-                       Divider
-                    ══════════════════════════════════════ */
+                           Divider
+                        ══════════════════════════════════════ */
     .pi-divider {
         height: 1px;
         background: #f1f5f9;
@@ -844,8 +845,8 @@
     }
 
     /* ══════════════════════════════════════
-                       Footer
-                    ══════════════════════════════════════ */
+                           Footer
+                        ══════════════════════════════════════ */
     .pi-footer {
         display: flex;
         align-items: center;
@@ -910,8 +911,8 @@
     }
 
     /* ══════════════════════════════════════
-                       Responsive
-                    ══════════════════════════════════════ */
+                           Responsive
+                        ══════════════════════════════════════ */
     @@media (max-width: 768px) {
         .pi-grid-3 {
             grid-template-columns: repeat(2, 1fr);
@@ -1001,7 +1002,7 @@
     private static readonly string[] ScrollTargets =
     [
         "field-CustomerCategories", "field-FirstName",
-        "field-Gender", "field-DateOfBirth", "field-MotherMaidenGivenName"
+        "field-Gender", "field-MaritalStatus", "field-DateOfBirth", "field-MotherMaidenGivenName"
     ];
 
     private async Task TriggerValidation()

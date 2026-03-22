@@ -206,11 +206,28 @@ public class IndividualRepository
             .FirstOrDefaultAsync(e => e.CustomerID == customerId);
         response.Individual = _mapper.Map<IndividualInfoDTO.PageModel>(infoModel);
 
-        if (response.Individual != null)
+        if (response.Individual != null && infoModel != null)
         {
+            // IsGov in DB → IsGovOfficial in DTO (names differ — AutoMapper won't auto-map)
+            response.Individual.IsGovOfficial = infoModel.IsGov;
             // Sync Step 1 & Meta Data from Customer Table
             response.Individual.CustomerCategories = customer.CustomerCategories;
             response.Individual.CIDNumber = customer.CIDNumber;
+
+            // Populate GovOfficialPositions from IndividualInfo.GovPosition / GovPeriod
+            // These fields hold the past/present government official's position directly on IndividualInfo
+            if (infoModel.IsGov && !string.IsNullOrWhiteSpace(infoModel.GovPosition))
+            {
+                response.Individual.GovOfficialPositions = new List<IndividualInfoDTO.PageModel.GovOfficialPositionModel>
+                {
+                    new()
+                    {
+                        CustomerID = customerId,
+                        Position   = infoModel.GovPosition,
+                        Period     = infoModel.GovPeriod
+                    }
+                };
+            }
 
             // 3. Table: BusinessInterests (Dynamic List)
             response.Individual.BusinessInterests = await _db.BusinessInterests
@@ -268,6 +285,74 @@ public class IndividualRepository
         if (purpose != null)
         {
             response.AccountPurpose = _mapper.Map<AccountPurposeDTO.PageModel>(purpose);
+
+            // AccountContact mirrors the individual's account purpose data for the print form
+            response.AccountContact = new BusinessInfoDTO.PageModel
+            {
+                AccountPurpose = purpose.PurposeOfAccount,
+                AccountPurposeOther = purpose.PurposeOfAccountOther,
+                ProductsAvailed = purpose.ProductsAvailed,
+                ProductsAvailedOther = purpose.ProductsAvailedOther,
+                OfficePhoneNo = contact?.MobilePhoneNumber,
+                EmailAddress = contact?.EmailAddress,
+                ContactPerson = contact?.ContactPerson,
+            };
+        }
+
+        // 11. Table: BusinessInfo (optional — only for customers with business)
+        var biz = await _db.BusinessInfos.AsNoTracking()
+            .FirstOrDefaultAsync(e => e.CustomerID == customerId);
+        if (biz != null)
+            response.Business = _mapper.Map<BusinessInfoDTO.PageModel>(biz);
+
+        // 12. Table: Beneficiaries (optional)
+        var beneficiary = await _db.Beneficiaries.AsNoTracking()
+            .FirstOrDefaultAsync(e => e.CustomerID == customerId);
+        if (beneficiary != null)
+            response.Beneficiary = _mapper.Map<BeneficiaryDTO.PageModel>(beneficiary);
+
+        // 13. Table: ClientAcknowledgements
+        var ack = await _db.ClientAcknowledgements.AsNoTracking()
+            .FirstOrDefaultAsync(e => e.CustomerID == customerId);
+        if (ack != null)
+            response.Acknowledgement = _mapper.Map<ClientAcknowledgementDTO.PageModel>(ack);
+
+        // 14. Table: BankReview
+        var bankReview = await _db.BankReviews.AsNoTracking()
+            .FirstOrDefaultAsync(e => e.CustomerID == customerId);
+        if (bankReview != null)
+        {
+            var br = new BankReviewDTO.PageModel
+            {
+                BankReviewID = bankReview.BankReviewID,
+                CustomerID = bankReview.CustomerID,
+                IsEmployee = bankReview.IsEmployee,
+                IsDosri = bankReview.IsDosri,
+                IsRpt = bankReview.IsRpt,
+                Position = bankReview.Position,
+                IsRelative = bankReview.IsRelative,
+                RelativeEmployeeName = bankReview.RelativeEmployeeName,
+                RelativePosition = bankReview.RelativePosition,
+                RelativeRelationship = bankReview.RelativeRelationship,
+                IsEntityOwnedByEmployee = bankReview.IsEntityOwnedByEmployee,
+                NatureOfWorkBusinessOther = bankReview.NatureOfWorkBusinessOther,
+                SelectedWork = !string.IsNullOrEmpty(bankReview.NatureOfWorkBusinessOther) ? "OTHERS" : null,
+                IsOwnedByPEP = bankReview.IsOwnedByPEP,
+                DocumentsOther = bankReview.DocumentsOther,
+                SignatureAuthenticated = bankReview.ReviewerSignature,
+                VerifiedBy = bankReview.VerifiedBy,
+                ApprovedBy = bankReview.ApprovedBy,
+                Remarks = bankReview.Remarks,
+                ScreeningList = string.IsNullOrEmpty(bankReview.CheckedAgainst)
+                    ? new() : bankReview.CheckedAgainst.Split(',').Select(x => x.Trim()).Where(x => x.Length > 0).ToList(),
+                WorkList = string.IsNullOrEmpty(bankReview.NatureOfWorkBusiness)
+                    ? new() : bankReview.NatureOfWorkBusiness.Split(',').Select(x => x.Trim()).Where(x => x.Length > 0).ToList(),
+                DocsList = string.IsNullOrEmpty(bankReview.DocumentsPresented)
+                    ? new() : bankReview.DocumentsPresented.Split(',').Select(x => x.Trim()).Where(x => x.Length > 0).ToList(),
+                AdditionalDocsList = string.IsNullOrEmpty(bankReview.AdditionalDocuments)
+                    ? new() : bankReview.AdditionalDocuments.Split(',').Select(x => x.Trim()).Where(x => x.Length > 0).ToList(),
+            };
+            response.BankReview = br;
         }
 
         return response;

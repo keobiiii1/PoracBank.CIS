@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Content Remove="Pages\Business\BusinessStepper.razor" />
+    <Content Remove="Pages\Business\ClientAcknowledgement.razor" />
   </ItemGroup>
 
   <ItemGroup>

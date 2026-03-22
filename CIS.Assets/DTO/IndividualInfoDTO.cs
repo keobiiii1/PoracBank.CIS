@@ -54,6 +54,7 @@ public class IndividualInfoDTO
         [MaxLength(100)]
         public string? MaidenLastName { get; set; }
 
+        [Range(1, int.MaxValue, ErrorMessage = "Marital status is required.")]
         public MaritalStatus MaritalStatus { get; set; }
 
         // Spouse Details

@@ -7,6 +7,48 @@
 @inject IJSRuntime JS
 @inject IndividualService IndividualService
 
+<HeadContent>
+    <style>
+        @@media print {
+            /* Hide the entire Blazor app shell — only the cis-page prints */
+            body > * { display: none !important; }
+            body > app > * { display: none !important; }
+
+            /* Show only the Blazor-rendered article/main that contains our page */
+            body .cis-page,
+            body article .cis-page,
+            body main .cis-page,
+            body .content .cis-page,
+            body .page .cis-page,
+            body .mud-main-content .cis-page { display: block !important; width: 100% !important; }
+
+            /* Un-hide each ancestor wrapper of .cis-page so it renders */
+            body > app,
+            body > app > div,
+            body > app > div > div,
+            body article,
+            body main,
+            body .content,
+            body .page,
+            body .mud-main-content,
+            body .mud-layout,
+            body #app { display: block !important; }
+
+            /* Kill any padding/margin on wrappers */
+            body, html { margin: 0 !important; padding: 0 !important; }
+            body article, body main, body .content, body .page,
+            body .mud-main-content { margin: 0 !important; padding: 0 !important; }
+
+            /* Hide nav, sidebar, appbar, header explicitly too */
+            nav, aside, header, footer,
+            .sidebar, .top-row, .nav-menu, .navbar,
+            .mud-drawer, .mud-appbar, .mud-layout-drawer,
+            .mud-nav-menu, .mud-overlay,
+            .app-bar, .no-print { display: none !important; }
+        }
+    </style>
+</HeadContent>
+
 <div class="cis-page">
 
     @* ══════════════════════════════════════
@@ -17,8 +59,7 @@
         @* ── Header ── *@
         <div class="cis-header">
             <div>
-                <div class="cis-title">CUSTOMER INFORMATION</div>
-                <div class="cis-title">SHEET</div>
+                <div class="cis-title">CUSTOMER INFORMATION SHEET</div>
             </div>
             <div class="cis-bank">
                 <div class="cis-bank-name">PoracBank</div>
@@ -182,10 +223,7 @@
 
         @* Mother's Maiden Name *@
         <div class="cis-row">
-            <div class="cis-cell grow-1">
-                @* spacer *@
-            </div>
-            <div class="cis-cell grow-2 border-l">
+            <div class="cis-cell grow-3 border-l">
                 <span class="lbl">MOTHER'S MAIDEN NAME*</span>
                 <div class="name-grid">
                     <div><span class="val">@Family.MotherMaidenLastName</span><div class="sub-lbl">Last name</div></div>
@@ -310,17 +348,24 @@
                 <div><span class="cis-chk">@(AccPurpose.PurposeOfAccount == PurposeOfAccount.PersonalSavings ? "✓" : "")</span> <small>PERSONAL SAVINGS</small></div>
                 <div><span class="cis-chk">@(AccPurpose.PurposeOfAccount == PurposeOfAccount.LoanPurposes ? "✓" : "")</span> <small>FOR LOAN PURPOSES</small></div>
                 <div><span class="cis-chk">@(AccPurpose.PurposeOfAccount == PurposeOfAccount.BusinessPurposes ? "✓" : "")</span> <small>FOR BUSINESS PURPOSES</small></div>
+                <div><span class="cis-chk">@(AccPurpose.PurposeOfAccount == PurposeOfAccount.BusinessOperations ? "✓" : "")</span> <small>BUSINESS OPERATIONS</small></div>
+                <div><span class="cis-chk">@(AccPurpose.PurposeOfAccount == PurposeOfAccount.Payroll ? "✓" : "")</span> <small>PAYROLL</small></div>
+                <div><span class="cis-chk">@(AccPurpose.PurposeOfAccount == PurposeOfAccount.Investment ? "✓" : "")</span> <small>INVESTMENT</small></div>
                 <div><span class="cis-chk">@(AccPurpose.PurposeOfAccount == PurposeOfAccount.Others ? "✓" : "")</span> <small>OTHERS @AccPurpose.PurposeOfAccountOther</small></div>
             </div>
             <div class="cis-cell grow-2 border-l">
                 <span class="lbl">PRODUCTS TO BE AVAILED*</span>
+                @{
+                    // DB stores comma-separated display values e.g. "Savings,Current,TD,Loan,Sale Of ROPA,Others"
+                    var acpProducts = (AccPurpose.ProductsAvailed ?? "").Split(',').Select(x => x.Trim()).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                }
                 <div class="products-grid">
-                    <span><span class="cis-chk">@(AccPurpose.ProductsAvailed == "Savings" ? "✓" : "")</span> <small>SAVINGS</small></span>
-                    <span><span class="cis-chk">@(AccPurpose.ProductsAvailed == "TimeDeposit" ? "✓" : "")</span> <small>TIME DEPOSIT</small></span>
-                    <span><span class="cis-chk">@(AccPurpose.ProductsAvailed == "SaleOfRopa" ? "✓" : "")</span> <small>SALE OF ROPA</small></span>
-                    <span><span class="cis-chk">@(AccPurpose.ProductsAvailed == "Checking" ? "✓" : "")</span> <small>CURRENT</small></span>
-                    <span><span class="cis-chk">@(AccPurpose.ProductsAvailed == "Loan" ? "✓" : "")</span> <small>LOAN</small></span>
-                    <span><span class="cis-chk">@(AccPurpose.ProductsAvailed == "Others" ? "✓" : "")</span> <small>OTHERS @AccPurpose.ProductsAvailedOther</small></span>
+                    <span><span class="cis-chk">@(acpProducts.Contains("Savings") ? "✓" : "")</span> <small>SAVINGS</small></span>
+                    <span><span class="cis-chk">@(acpProducts.Contains("TD") || acpProducts.Contains("TimeDeposit") ? "✓" : "")</span> <small>TIME DEPOSIT</small></span>
+                    <span><span class="cis-chk">@(acpProducts.Contains("Sale Of ROPA") || acpProducts.Contains("SaleOfRopa") ? "✓" : "")</span> <small>SALE OF ROPA</small></span>
+                    <span><span class="cis-chk">@(acpProducts.Contains("Current") || acpProducts.Contains("Checking") ? "✓" : "")</span> <small>CURRENT</small></span>
+                    <span><span class="cis-chk">@(acpProducts.Contains("Loan") ? "✓" : "")</span> <small>LOAN</small></span>
+                    <span><span class="cis-chk">@(acpProducts.Contains("Others") ? "✓" : "")</span> <small>OTHERS @AccPurpose.ProductsAvailedOther</small></span>
                 </div>
             </div>
         </div>
@@ -349,11 +394,20 @@
                         <tr><th>HIGHEST POSITION OCCUPIED</th><th>PERIOD COVERED</th></tr>
                     </thead>
                     <tbody>
-                        @if (Personal.IsGovOfficial)
+                        @foreach (var pep in Personal.GovOfficialPositions)
+                        {
+                            <tr><td class="val">@pep.Position</td><td class="val">@pep.Period</td></tr>
+                        }
+                        @if (!Personal.GovOfficialPositions.Any() && (Personal.IsGovOfficial || !string.IsNullOrWhiteSpace(Personal.GovPosition)))
                         {
                             <tr><td class="val">@Personal.GovPosition</td><td class="val">@Personal.GovPeriod</td></tr>
                         }
-                        @for (int i = Personal.IsGovOfficial ? 1 : 0; i < 3; i++) { <tr><td>&nbsp;</td><td></td></tr> }
+                        @{
+                            int pepFilled = Personal.GovOfficialPositions.Any()
+                                ? Personal.GovOfficialPositions.Count
+                                : (Personal.IsGovOfficial || !string.IsNullOrWhiteSpace(Personal.GovPosition) ? 1 : 0);
+                        }
+                        @for (int i = pepFilled; i < 3; i++) { <tr><td>&nbsp;</td><td></td></tr> }
                     </tbody>
                 </table>
             </div>
@@ -403,7 +457,7 @@
             <div class="cis-cell grow-1">
                 <span class="lbl">SECTOR</span>
                 <div><span class="cis-chk">@(BusinessInfo.IsGovernment ? "✓" : "")</span> <small>GOVERNMENT</small></div>
-                <div><span class="cis-chk">@(!BusinessInfo.IsGovernment && !string.IsNullOrEmpty(BusinessInfo.NameOfBusiness) ? "✓" : "")</span> <small>PRIVATE</small></div>
+                <div><span class="cis-chk">@(BusinessInfo.IsPrivate ? "✓" : "")</span> <small>PRIVATE</small></div>
             </div>
             <div class="cis-cell grow-3 border-l">
                 <span class="lbl">NAME OF BUSINESS*</span>
@@ -467,26 +521,33 @@
         <div class="cis-row">
             <div class="cis-cell grow-2">
                 <span class="lbl">PURPOSE OF THE ACCOUNT*</span>
-                <div><span class="cis-chk">@(AccountContact.AccountPurpose == PurposeOfAccount.BusinessPurposes ? "✓" : "")</span> <small>BUSINESS</small></div>
-                <div><span class="cis-chk">@(AccountContact.AccountPurpose == PurposeOfAccount.LoanPurposes ? "✓" : "")</span> <small>LOAN</small></div>
+                <div><span class="cis-chk">@(AccountContact.AccountPurpose == PurposeOfAccount.PersonalSavings ? "✓" : "")</span> <small>PERSONAL SAVINGS</small></div>
+                <div><span class="cis-chk">@(AccountContact.AccountPurpose == PurposeOfAccount.LoanPurposes ? "✓" : "")</span> <small>FOR LOAN PURPOSES</small></div>
+                <div><span class="cis-chk">@(AccountContact.AccountPurpose == PurposeOfAccount.BusinessPurposes ? "✓" : "")</span> <small>FOR BUSINESS PURPOSES</small></div>
+                <div><span class="cis-chk">@(AccountContact.AccountPurpose == PurposeOfAccount.BusinessOperations ? "✓" : "")</span> <small>BUSINESS OPERATIONS</small></div>
+                <div><span class="cis-chk">@(AccountContact.AccountPurpose == PurposeOfAccount.Payroll ? "✓" : "")</span> <small>PAYROLL</small></div>
+                <div><span class="cis-chk">@(AccountContact.AccountPurpose == PurposeOfAccount.Investment ? "✓" : "")</span> <small>INVESTMENT</small></div>
                 <div><span class="cis-chk">@(AccountContact.AccountPurpose == PurposeOfAccount.Others ? "✓" : "")</span> <small>OTHERS @AccountContact.AccountPurposeOther</small></div>
             </div>
             <div class="cis-cell grow-2 border-l">
                 <span class="lbl">PRODUCT TO BE AVAILED*</span>
+                @{
+                    var acctProducts = (AccountContact.ProductsAvailed ?? "").Split(',').Select(x => x.Trim()).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                }
                 <div class="products-grid">
-                    <span><span class="cis-chk">@(AccountContact.ProductsAvailed == "Savings" ? "✓" : "")</span> <small>SAVINGS</small></span>
-                    <span><span class="cis-chk">@(AccountContact.ProductsAvailed == "TimeDeposit" ? "✓" : "")</span> <small>TD</small></span>
-                    <span><span class="cis-chk">@(AccountContact.ProductsAvailed == "SaleOfRopa" ? "✓" : "")</span> <small>SALE OF ROPA</small></span>
-                    <span><span class="cis-chk">@(AccountContact.ProductsAvailed == "Checking" ? "✓" : "")</span> <small>CURRENT</small></span>
-                    <span><span class="cis-chk">@(AccountContact.ProductsAvailed == "Loan" ? "✓" : "")</span> <small>LOAN</small></span>
+                    <span><span class="cis-chk">@(acctProducts.Contains("Savings") ? "✓" : "")</span> <small>SAVINGS</small></span>
+                    <span><span class="cis-chk">@(acctProducts.Contains("TD") || acctProducts.Contains("TimeDeposit") ? "✓" : "")</span> <small>TD</small></span>
+                    <span><span class="cis-chk">@(acctProducts.Contains("Sale Of ROPA") || acctProducts.Contains("SaleOfRopa") ? "✓" : "")</span> <small>SALE OF ROPA</small></span>
+                    <span><span class="cis-chk">@(acctProducts.Contains("Current") || acctProducts.Contains("Checking") ? "✓" : "")</span> <small>CURRENT</small></span>
+                    <span><span class="cis-chk">@(acctProducts.Contains("Loan") ? "✓" : "")</span> <small>LOAN</small></span>
                 </div>
             </div>
             <div class="cis-cell grow-2 border-l">
                 <span class="lbl">CONTACT INFORMATION*</span>
                 <div class="contact-stack">
-                    <span>PHONE NUMBER <span class="val">@BusinessInfo.OfficePhoneNo</span></span>
-                    <span>E-MAIL ADDRESS <span class="val">@BusinessInfo.EmailAddress</span></span>
-                    <span>CONTACT PERSON <span class="val">@BusinessInfo.ContactPerson</span></span>
+                    <span>PHONE NUMBER <span class="val">@AccountContact.OfficePhoneNo</span></span>
+                    <span>E-MAIL ADDRESS <span class="val">@AccountContact.EmailAddress</span></span>
+                    <span>CONTACT PERSON <span class="val">@AccountContact.ContactPerson</span></span>
                 </div>
             </div>
         </div>
@@ -571,29 +632,39 @@
         <div class="sec-title">CLIENT'S ACKNOWLEDGEMENT</div>
         <div class="ack-text">
             By signing this form, I/We certify that all information provided herein is true and correct to the best of my knowledge. I/We further agree:<br/>
-            i. To allow Porac Bank to verify the above information and inform Porac Bank of any changes in the information provided in the form;<br/>
-            ii. That all deposit products and credit facilities that I/We have availed, or shall, in the future, avail from Porac Bank shall be governed by the terms and conditions set forth by Porac Bank as well as the rules and regulations of the Bangko Sentral ng Pilipinas (BSP) and such other laws, rules and regulations relative to said products and facilities.<br/>
-            iii. To grant Porac Bank access to all information relating to my/our present and future accounts and to disclose such data and papers pertaining to my/our accounts as may be required by government regulatory authorities for purposes of compliance with relevant laws and regulations issued by appropriate regulatory authorities and agencies of the government.
+            i.&nbsp; To allow Porac Bank to verify the above information and inform Porac Bank of any changes in the information provided in the form;<br/>
+            ii.&nbsp; That all deposit products and credit facilities that I/We have availed, or shall, in the future, avail from Porac Bank shall be governed by the terms and conditions set forth by Porac Bank as well as the rules and regulations of the Bangko Sentral ng Pilipinas (BSP) and such other laws, rules and regulations relative to said products and facilities.<br/>
+            iii.&nbsp; To grant Porac Bank access to all information relating to my/our present and future accounts and to disclose such data and papers pertaining to my/our accounts as may be required by government regulatory authorities for purposes of compliance with relevant laws and regulations issued by appropriate regulatory authorities and agencies of the government.
         </div>
         <div class="cis-row sig-row">
             <div class="cis-cell grow-2 center">
-                <div class="sig-line">
+                <div class="sig-wrapper">
                     @if (!string.IsNullOrEmpty(Acknowledgement.SignatureData))
                     {
                         <img src="@Acknowledgement.SignatureData" class="sig-img" alt="Signature" />
                     }
+                    else { <div class="sig-spacer"></div> }
+                    <div class="val">@Acknowledgement.PrintedName</div>
                 </div>
                 <div class="sub-lbl">PRINTED NAME AND SIGNATURE OF DEPOSITOR</div>
-                <div class="val">@Acknowledgement.PrintedName</div>
             </div>
             <div class="cis-cell grow-2 center border-l">
-                <div class="sig-line"></div>
+                <div class="sig-wrapper">
+                    @if (!string.IsNullOrEmpty(Acknowledgement.SignatureData))
+                    {
+                        <img src="@Acknowledgement.SignatureData" class="sig-img" alt="Signature" />
+                    }
+                    else { <div class="sig-spacer"></div> }
+                    <div class="val">@Acknowledgement.PrintedName</div>
+                </div>
                 <div class="sub-lbl">PRINTED NAME AND SIGNATURE OF DEPOSITOR</div>
             </div>
             <div class="cis-cell grow-1 center border-l">
-                <div class="sig-line"></div>
+                <div class="sig-wrapper">
+                    <div class="sig-spacer"></div>
+                    <div class="val">@Acknowledgement.DateSigned?.ToString("MM/dd/yyyy")</div>
+                </div>
                 <div class="sub-lbl">DATE</div>
-                <div class="val">@Acknowledgement.DateSigned?.ToString("MM/dd/yyyy")</div>
             </div>
         </div>
 
@@ -604,14 +675,15 @@
         <div class="cis-row">
             <div class="cis-cell grow-2">
                 <span class="lbl">CUSTOMER WAS CHECKED AGAINST: *</span>
-                <div><span class="cis-chk">@(BankReview.ScreeningList != null && BankReview.ScreeningList.Contains("NEGATIVE LIST") ? "✓" : "")</span> <small>NEGATIVE LIST (OFAC/ UN SANCTION LIST)</small></div>
-                <div><span class="cis-chk">@(BankReview.ScreeningList != null && BankReview.ScreeningList.Contains("PEPLIST") ? "✓" : "")</span> <small>PEPLIST</small></div>
+                <div><span class="cis-chk">@(BankReview.ScreeningList.Contains("NEGATIVE LIST") ? "✓" : "")</span> <small>NEGATIVE LIST (OFAC/ UN SANCTION LIST)</small></div>
+                <div><span class="cis-chk">@(BankReview.ScreeningList.Contains("PEPLIST") ? "✓" : "")</span> <small>PEPLIST</small></div>
             </div>
             <div class="cis-cell grow-2 border-l">
                 <span class="lbl">CUSTOMER IS A PORAC BANK EMPLOYEE*</span>
                 <div>
-                    <span class="cis-chk">@(BankReview.IsEmployee ? "✓" : "")</span> <small>DOSRI</small> &nbsp;
-                    <span class="cis-chk"></span> <small>RPT</small> &nbsp;
+                    <span class="cis-chk">@(BankReview.IsEmployee ? "✓" : "")</span> <small>EMPLOYEE</small> &nbsp;
+                    <span class="cis-chk">@(BankReview.IsDosri ? "✓" : "")</span> <small>DOSRI</small> &nbsp;
+                    <span class="cis-chk">@(BankReview.IsRpt ? "✓" : "")</span> <small>RPT</small> &nbsp;
                     <small>POSITION* <span class="val">@BankReview.Position</span></small>
                 </div>
             </div>
@@ -645,10 +717,32 @@
         <div class="cis-row">
             <div class="cis-cell grow-2">
                 <span class="lbl">NATURE OF WORK/ BUSINESS*</span>
+                @{
+                    var workLabels = new Dictionary<string, string>
+                    {
+                        ["AGRICULTURE"] = "Agriculture / Animal Farming", ["MONEY_CHANGER"] = "Money Changer / FX Dealer",
+                        ["BANKING"] = "Banking / Financial Services",      ["ONLINE_BIZ"] = "Online Business",
+                        ["BPO"] = "BPO / KPO",                             ["PROFESSIONAL"] = "Professional Practice",
+                        ["BROKERAGE"] = "Brokerage",                       ["QUARRYING"] = "Quarrying / Trucking / Mining",
+                        ["CANTEEN"] = "Canteen / Eatery / Resto / Bar",    ["REAL_ESTATE"] = "Real Estate Activities",
+                        ["CASINO"] = "Casino / Dealer",                    ["RENTAL"] = "Rental",
+                        ["DRUGS"] = "Drugs / Pharmaceuticals",             ["REMITTANCE"] = "Remittance Agent",
+                        ["EDUCATION"] = "Education",                       ["RESORTS"] = "Resorts / Hotel / Accommodation",
+                        ["GOVERNMENT"] = "Government Service",             ["STUDENT"] = "Student",
+                        ["INFORMAL"] = "Informal Lending",                 ["TRANSPORT"] = "Transportation",
+                        ["IMPORT"] = "Import / Export",                    ["WHOLESALE"] = "Wholesale / Retail Trade",
+                        ["MANUFACTURING"] = "Manufacturing",               ["UNEMPLOYED"] = "Unemployed",
+                        ["MARKET_VENDOR"] = "Market Vendor",               ["MEDICAL"] = "Medical Services",
+                    };
+                }
                 <div class="nature-grid">
                     @foreach (var nw in BankReview.WorkList)
                     {
-                        <span><span class="cis-chk">✓</span> <small>@nw</small></span>
+                        <span><span class="cis-chk">✓</span> <small>@(workLabels.TryGetValue(nw, out var wlbl) ? wlbl : nw)</small></span>
+                    }
+                    @if (BankReview.SelectedWork == "OTHERS" && !string.IsNullOrEmpty(BankReview.NatureOfWorkBusinessOther))
+                    {
+                        <span><span class="cis-chk">✓</span> <small>Others: @BankReview.NatureOfWorkBusinessOther</small></span>
                     }
                 </div>
             </div>
@@ -662,47 +756,65 @@
         <div class="cis-row">
             <div class="cis-cell grow-1">
                 <span class="lbl">DOCUMENTS PRESENTED*</span>
+                @{
+                    var docLabels = new Dictionary<string, string>
+                    {
+                        ["A"] = "A. FOR SOLE PROPRIETORS: Certified True Copy of Certificate of Business Name Registration issued by the Department of Trade and Industry",
+                        ["B"] = "B. FOR PARTNERS AND CORPORATIONS: Certified True Copy of Certificate of Business Name Registration issued by the Securities and Exchange Commission or Insurance Commission",
+                        ["C"] = "C. FOR MONEY CHANGERS, FOREIGN EXCHANGE DEALERS AND REMITTANCE AGENTS: Certified True Copy of Certificate of Business Name Registration issued by the Bangko Sentral ng Pilipinas",
+                        ["D"] = "D. FOR ENTITIES REGISTERED OUTSIDE THE PHILIPPINES: Similar documents and/or information stated above authenticated by the Philippine Consulate where said entities are registered",
+                    };
+                    var addlDocLabels = new Dictionary<string, string>
+                    {
+                        ["ARTICLES"]  = "Certified True Copy of Articles of Incorporation / Association",
+                        ["BYLAWS"]    = "Certified True Copy of By Laws",
+                        ["BOARD_RES"] = "Board of Partner's Resolution duly certified by Corporate / Partner's Secretary authorizing a representative to sign on behalf of the entity",
+                        ["GIS"]       = "Latest General Information Sheet",
+                    };
+                }
                 <div class="doc-list">
                     @foreach (var doc in BankReview.DocsList)
                     {
-                        <div><span class="cis-chk">✓</span> <small>@doc</small></div>
+                        <div><span class="cis-chk">✓</span> <small>@(docLabels.TryGetValue(doc, out var lbl) ? lbl : doc)</small></div>
                     }
                     @foreach (var doc in BankReview.AdditionalDocsList)
                     {
-                        <div><span class="cis-chk">✓</span> <small>@doc</small></div>
+                        <div><span class="cis-chk">✓</span> <small>@(addlDocLabels.TryGetValue(doc, out var lbl2) ? lbl2 : doc)</small></div>
                     }
                     @if (!string.IsNullOrEmpty(BankReview.DocumentsOther))
                     {
-                        <div><span class="cis-chk">✓</span> <small>OTHERS: @BankReview.DocumentsOther</small></div>
+                        <div><span class="cis-chk">✓</span> <small>OTHERS (Please specify): @BankReview.DocumentsOther</small></div>
                     }
                 </div>
             </div>
         </div>
 
-        @* Signature / Verified / Approved *@
-        <div class="cis-row sig-row">
+        @* Signature / Verified / Approved / Remarks *@
+        <div class="cis-row bank-sig-row">
             <div class="cis-cell grow-1 center">
-                <div class="sig-line">
+                <div class="bank-sig-content">
                     @if (!string.IsNullOrEmpty(BankReview.SignatureAuthenticated))
                     {
                         <img src="@BankReview.SignatureAuthenticated" class="sig-img" alt="Auth Signature" />
                     }
                 </div>
-                <div class="sub-lbl">SIGNATURE AUTHENTICATED</div>
+                <div class="bank-sig-bottom">SIGNATURE AUTHENTICATED</div>
             </div>
             <div class="cis-cell grow-1 center border-l">
-                <div class="sig-line"></div>
-                <div class="sub-lbl">VERIFIED BY</div>
-                <div class="val">@BankReview.VerifiedBy</div>
+                <div class="bank-sig-content">
+                    <div class="bank-val">@BankReview.VerifiedBy</div>
+                </div>
+                <div class="bank-sig-bottom">VERIFIED BY</div>
             </div>
             <div class="cis-cell grow-1 center border-l">
-                <div class="sig-line"></div>
-                <div class="sub-lbl">APPROVED BY</div>
-                <div class="val">@BankReview.ApprovedBy</div>
+                <div class="bank-sig-content">
+                    <div class="bank-val">@BankReview.ApprovedBy</div>
+                </div>
+                <div class="bank-sig-bottom">APPROVED BY</div>
             </div>
-            <div class="cis-cell grow-2 border-l">
+            <div class="cis-cell grow-2 border-l remarks-cell">
                 <span class="lbl">REMARKS (IF ANY)</span>
-                <div class="val">@BankReview.Remarks</div>
+                <div class="val" style="margin-top:3px;">@BankReview.Remarks</div>
             </div>
         </div>
 
@@ -727,14 +839,14 @@
 
     .cis-page {
         font-family: Arial, sans-serif;
-        font-size: 8pt;
+        font-size: 7.5pt;
         color: #000;
     }
 
     .cis-sheet {
-        width: 8.5in;
-        margin: 0 auto 0.3in;
-        padding: 0.35in 0.4in;
+        width: 210mm;
+        margin: 0 auto 6mm;
+        padding: 8mm 9mm;
         background: #fff;
         box-shadow: 0 2px 16px rgba(0,0,0,0.12);
     }
@@ -745,43 +857,44 @@
         justify-content: space-between;
         align-items: flex-end;
         border-bottom: 2.5px solid #000;
-        padding-bottom: 6px;
-        margin-bottom: 6px;
+        padding-bottom: 4px;
+        margin-bottom: 4px;
     }
-    .cis-title { font-size: 18pt; font-weight: 900; line-height: 1.1; }
-    .cis-bank-name { font-size: 22pt; font-weight: 900; text-align: right; }
-    .cis-bank-sub  { font-size: 8pt; font-style: italic; text-align: right; }
+    .cis-title { font-size: 13pt; font-weight: 900; line-height: 1.1; }
+    .cis-bank-name { font-size: 18pt; font-weight: 900; text-align: right; }
+    .cis-bank-sub  { font-size: 7pt; font-style: italic; text-align: right; }
+
 
     /* ── Meta ── */
     .cis-meta {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 4px 0;
+        padding: 3px 0;
         border-bottom: 1px solid #000;
-        margin-bottom: 3px;
+        margin-bottom: 2px;
     }
     .cis-meta-left, .cis-meta-mid { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
     .cis-meta-right { text-align: right; }
 
     .cis-guidelines {
-        font-size: 6.5pt;
+        font-size: 6pt;
         font-style: italic;
         color: #444;
-        margin-bottom: 4px;
+        margin-bottom: 3px;
         border-bottom: 1px solid #ccc;
-        padding-bottom: 3px;
+        padding-bottom: 2px;
     }
 
     /* ── Section titles ── */
     .sec-title {
         background: #333;
         color: #fff;
-        padding: 3px 8px;
+        padding: 2px 6px;
         font-weight: bold;
-        font-size: 8.5pt;
+        font-size: 8pt;
         text-transform: uppercase;
-        margin-top: 4px;
+        margin-top: 3px;
         text-align: center;
     }
     .black-bg { background: #000; }
@@ -796,8 +909,8 @@
     .cis-row:first-of-type { border-top: 1px solid #000; }
 
     .cis-cell {
-        padding: 4px 7px;
-        min-height: 28px;
+        padding: 3px 5px;
+        min-height: 22px;
     }
     .cis-cell.center { text-align: center; }
     .border-l { border-left: 1px solid #000; }
@@ -811,50 +924,50 @@
     /* ── Labels & Values ── */
     .lbl {
         display: block;
-        font-size: 6.5pt;
+        font-size: 6pt;
         font-weight: bold;
         color: #333;
         text-transform: uppercase;
-        margin-bottom: 2px;
+        margin-bottom: 1px;
     }
     .lbl-standalone {
-        font-size: 6.5pt;
+        font-size: 6pt;
         font-weight: bold;
         color: #333;
         text-transform: uppercase;
-        padding: 3px 7px;
+        padding: 2px 5px;
         border: 1px solid #000;
         border-top: none;
         display: block;
         background: #f8f8f8;
     }
     .val {
-        font-size: 10pt;
+        font-size: 8.5pt;
         font-weight: bold;
         font-family: 'Courier New', monospace;
         text-transform: uppercase;
     }
     .val-lg {
-        font-size: 12pt;
+        font-size: 10pt;
         font-weight: bold;
         font-family: 'Courier New', monospace;
     }
     .sub-lbl {
-        font-size: 6pt;
+        font-size: 5.5pt;
         color: #666;
         margin-top: 1px;
     }
-    .chk-lbl { font-size: 7.5pt; margin-right: 8px; }
+    .chk-lbl { font-size: 7pt; margin-right: 6px; }
 
     /* ── Checkbox ── */
     .cis-chk {
         display: inline-block;
-        width: 12px; height: 12px;
+        width: 10px; height: 10px;
         border: 1px solid #000;
         vertical-align: middle;
         text-align: center;
-        line-height: 11px;
-        font-size: 9pt;
+        line-height: 9px;
+        font-size: 8pt;
         font-weight: bold;
         margin-right: 2px;
     }
@@ -862,7 +975,7 @@
     /* ── Grids ── */
     .name-grid {
         display: flex;
-        gap: 12px;
+        gap: 10px;
     }
     .name-grid > div { flex: 1; border-bottom: 1px solid #999; }
 
@@ -871,33 +984,33 @@
     .products-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; }
     .nature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
 
-    .two-col-row { display: flex; gap: 12px; flex-wrap: wrap; }
-    .contact-stack span { display: block; margin-bottom: 2px; }
+    .two-col-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .contact-stack span { display: block; margin-bottom: 1px; }
     .id-row { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
     .id-stack div { margin-bottom: 2px; }
-    .employer-addr { display: flex; gap: 10px; }
+    .employer-addr { display: flex; gap: 8px; }
     .employer-addr > span { flex: 1; border-bottom: 1px solid #999; }
-    .doc-list div { margin-bottom: 1px; }
+    .doc-list div { margin-bottom: 1px; font-size: 6.5pt; }
 
     /* ── Tables ── */
     .inline-table, .full-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 7.5pt;
-        margin-top: 4px;
+        font-size: 7pt;
+        margin-top: 3px;
     }
     .inline-table th, .full-table th {
         background: #eee;
         font-weight: bold;
         border: 1px solid #000;
-        padding: 2px 6px;
+        padding: 2px 4px;
         text-align: left;
-        font-size: 6.5pt;
+        font-size: 6pt;
     }
     .inline-table td, .full-table td {
         border: 1px solid #000;
-        padding: 3px 6px;
-        min-height: 18px;
+        padding: 2px 4px;
+        min-height: 14px;
     }
     .full-table {
         border: 1px solid #000;
@@ -906,31 +1019,71 @@
 
     /* ── Acknowledgement ── */
     .ack-text {
-        font-size: 7pt;
-        line-height: 1.5;
-        padding: 6px 7px;
+        font-size: 6.5pt;
+        line-height: 1.4;
+        padding: 5px 6px;
         border: 1px solid #000;
         border-top: none;
     }
-    .sig-row { min-height: 60px; }
-    .sig-line {
+
+    /* ── Acknowledgement signature row ── */
+    .sig-row { min-height: 55px; }
+    .sig-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
         min-height: 50px;
         border-bottom: 1px solid #000;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        margin-bottom: 3px;
+        padding-bottom: 2px;
+        margin-bottom: 2px;
     }
-    .sig-img {
-        max-height: 45px;
-        max-width: 100%;
-        object-fit: contain;
+    .sig-wrapper .sig-img { max-height: 38px; width: auto; }
+    .sig-spacer { height: 38px; }
+
+    /* ── Bank Use Only signature row ── */
+    .bank-sig-row { min-height: 60px; }
+    .bank-sig-row .cis-cell {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding-bottom: 0;
+    }
+    .bank-sig-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        padding-bottom: 2px;
+        border-bottom: 1px solid #000;
+        min-height: 48px;
+    }
+    .bank-sig-content .sig-img { max-height: 38px; width: auto; }
+    .bank-sig-bottom {
+        font-size: 5.5pt;
+        color: #666;
+        text-align: center;
+        padding: 2px 0 3px;
+        text-transform: uppercase;
+    }
+    .bank-val {
+        font-size: 8.5pt;
+        font-weight: bold;
+        font-family: 'Courier New', monospace;
+        text-transform: uppercase;
+        text-align: center;
+    }
+    /* Remarks cell — aligned to top not bottom */
+    .bank-sig-row .remarks-cell {
+        justify-content: flex-start;
+        padding-top: 3px;
     }
 
     /* ── Spacers ── */
-    .mt4 { margin-top: 4px; }
-    .mt6 { margin-top: 6px; }
-    .mt8 { margin-top: 8px; }
+    .mt4 { margin-top: 3px; }
+    .mt6 { margin-top: 4px; }
+    .mt8 { margin-top: 6px; }
 
     /* ── Print button ── */
     .print-bar {
@@ -955,33 +1108,82 @@
     .btn-print:hover { filter: brightness(1.08); }
 
     /* ── Page break ── */
-    .page-break { margin-top: 0.3in; }
+    .page-break { margin-top: 0; }
 
     @@media print {
-        body { background: #fff; }
+        @@page {
+            size: A4 portrait;
+            margin: 8mm 9mm;
+        }
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        body { background: #fff; margin: 0; }
+
+        /* ── Hide app shell elements ── */
         .no-print { display: none !important; }
-        .cis-sheet { margin: 0; padding: 0.25in 0.3in; box-shadow: none; width: 100%; }
-        .page-break { page-break-before: always; margin-top: 0; }
+
+        /* Blazor default layout sidebar / nav / top bar */
+        .sidebar         { display: none !important; }
+        .top-row         { display: none !important; }
+        .nav-menu        { display: none !important; }
+        .navbar          { display: none !important; }
+        nav              { display: none !important; }
+        header           { display: none !important; }
+        aside            { display: none !important; }
+
+        /* MudBlazor / custom app shells */
+        .mud-drawer        { display: none !important; }
+        .mud-appbar        { display: none !important; }
+        .mud-layout-drawer { display: none !important; }
+        .app-bar           { display: none !important; }
+        .mud-main-content  { padding: 0 !important; margin: 0 !important; }
+
+        /* Generic layout wrappers — push content to fill page */
+        .page            { padding: 0 !important; margin: 0 !important; }
+        .main            { padding: 0 !important; margin: 0 !important; }
+        .content         { padding: 0 !important; margin: 0 !important; }
+        .layout          { padding: 0 !important; margin: 0 !important; }
+        article          { padding: 0 !important; margin: 0 !important; }
+
+        .cis-sheet {
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 6mm 8mm !important;
+            box-shadow: none !important;
+
+            page-break-after: always !important;
+            break-after: page !important;
+            display: block !important;
+
+            height: auto !important;
+            min-height: 280mm;
+            overflow: visible !important;
+        }
+        .cis-sheet:last-of-type {
+            page-break-after: auto;
+            break-after: auto;
+        }
+        .sec-title, .black-bg { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
 </style>
 
 @code {
     [SupplyParameterFromQuery] public long CustomerId { get; set; }
 
-    public CustomerDTO.PageModel Customer { get; set; } = new();
-    public IndividualInfoDTO.PageModel Personal { get; set; } = new();
-    public AddressDTO.PageModel Address { get; set; } = new();
-    public ContactDTO.PageModel Contact { get; set; } = new();
+    // Flat props used throughout the template — populated from IndividualRegistrationRequest
+    public CustomerDTO.PageModel             Customer       { get; set; } = new();
+    public IndividualInfoDTO.PageModel       Personal       { get; set; } = new();
+    public AddressDTO.PageModel              Address        { get; set; } = new();
+    public ContactDTO.PageModel              Contact        { get; set; } = new();
     public IndividualIdentificationDTO.PageModel Identification { get; set; } = new();
-    public IndividualEmploymentDTO.PageModel Employment { get; set; } = new();
-    public IndividualFamilyDTO.PageModel Family { get; set; } = new();
-    public IndividualForeignerDTO.PageModel Foreigner { get; set; } = new();
-    public AccountPurposeDTO.PageModel AccPurpose { get; set; } = new();
-    public BusinessInfoDTO.PageModel BusinessInfo { get; set; } = new();
-    public BusinessInfoDTO.PageModel AccountContact { get; set; } = new();
-    public BeneficiaryDTO.PageModel Beneficiary { get; set; } = new();
+    public IndividualEmploymentDTO.PageModel Employment     { get; set; } = new();
+    public IndividualFamilyDTO.PageModel     Family         { get; set; } = new();
+    public IndividualForeignerDTO.PageModel  Foreigner      { get; set; } = new();
+    public AccountPurposeDTO.PageModel       AccPurpose     { get; set; } = new();
+    public BusinessInfoDTO.PageModel         BusinessInfo   { get; set; } = new();
+    public BusinessInfoDTO.PageModel         AccountContact { get; set; } = new();
+    public BeneficiaryDTO.PageModel          Beneficiary    { get; set; } = new();
     public ClientAcknowledgementDTO.PageModel Acknowledgement { get; set; } = new();
-    public BankReviewDTO.PageModel BankReview { get; set; } = new();
+    public BankReviewDTO.PageModel           BankReview     { get; set; } = new();
 
     private long _loadedId;
 
@@ -992,24 +1194,35 @@
             _loadedId = CustomerId;
 
             var data = await IndividualService.GetRegistrationDetailsAsync(CustomerId);
-            if (data != null)
-            {
-                Personal        = data.Individual      ?? new();
-                Customer.CIDNumber          = Personal.CIDNumber;
-                Customer.CustomerCategories = Personal.CustomerCategories;
-                Address         = data.Address         ?? new();
-                Identification  = data.Identification  ?? new();
-                Employment      = data.Employment      ?? new();
-                Family          = data.Family          ?? new();
-                Contact         = data.Contact         ?? new();
-                Foreigner       = data.Foreigner       ?? new();
-                AccPurpose      = data.AccountPurpose  ?? new();
-                BusinessInfo    = data.Business        ?? new();
-                AccountContact  = data.AccountContact  ?? new();
-                Beneficiary     = data.Beneficiary     ?? new();
-                Acknowledgement = data.Acknowledgement ?? new();
-                BankReview      = data.BankReview      ?? new();
-            }
+            if (data == null) return;
+
+            // ── Personal & meta ──────────────────────────────────────────
+            Personal = data.Individual ?? new();
+            Customer.CIDNumber          = Personal.CIDNumber;
+            Customer.CustomerCategories = Personal.CustomerCategories;
+
+            // ── Supporting tables ────────────────────────────────────────
+            Address        = data.Address        ?? new();
+            Identification = data.Identification ?? new();
+            Employment     = data.Employment     ?? new();
+            Family         = data.Family         ?? new();
+            Contact        = data.Contact        ?? new();
+            Foreigner      = data.Foreigner      ?? new();
+
+            // ── Account purpose (individual) ─────────────────────────────
+            AccPurpose     = data.AccountPurpose ?? new();
+
+            // ── Business info ────────────────────────────────────────────
+            BusinessInfo   = data.Business       ?? new();
+
+            // ── AccountContact — comes from the business-contact step ────
+            // The repository fills this from AccountPurpose + Contact tables.
+            AccountContact = data.AccountContact ?? new();
+
+            // ── Beneficiary, Ack, BankReview ─────────────────────────────
+            Beneficiary     = data.Beneficiary    ?? new();
+            Acknowledgement = data.Acknowledgement ?? new();
+            BankReview      = data.BankReview     ?? new();
         }
     }
 }
