@@ -119,7 +119,13 @@
                         }
                     </div>
                     <div class="ab-field">
-                        <input type="number" value="@biz.OwnershipPercentage" class="@(showErrors && (biz.OwnershipPercentage == null || biz.OwnershipPercentage < 1 || biz.OwnershipPercentage > 100) ? "ab-input ab-invalid" : "ab-input")" placeholder="1–100" min="1" max="100" step="0.01" @oninput="e => ClampOwnership(biz, e.Value?.ToString())" />
+                        <input type="text"
+                                class="form-control"
+                                placeholder="1–100"
+                                inputmode="numeric"
+                                maxlength="3"
+                                value="@biz.OwnershipPercentage"
+                                @oninput="(e) => HandleOwnershipInput(e, biz)" />
                         @if (showErrors && biz.OwnershipPercentage == null)
                         {
                             <span class="ab-field-error">Ownership % is required.</span>
@@ -741,6 +747,17 @@
     }
 </style>
 
+<script>
+    window.scrollToFirstError = function(id) {
+        var el = document.getElementById(id);
+        if (!el) return false;
+        var err = el.querySelector('.ab-field-error');
+        if (!err || !err.textContent.trim()) return false;
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return true;
+    };
+</script>
+
 @code {
     [Parameter] public IndividualInfoDTO.PageModel InfoModel { get; set; } = new();
     [Parameter] public long CustomerId { get; set; }
@@ -754,20 +771,42 @@
     [Parameter] public EventCallback OnBack { get; set; }
 
     private bool showErrors = false;
-
-
+    private int OwnershipPercentage = 1;
 
     protected override void OnInitialized()
     {
         showErrors = false;
-        // Seed from existing single-field values if any
-        if (!string.IsNullOrWhiteSpace(InfoModel.GovPosition))
+        if (InfoModel.GovOfficialPositions.Count == 0 && !string.IsNullOrWhiteSpace(InfoModel.GovPosition))
         {
             InfoModel.GovOfficialPositions.Add(new IndividualInfoDTO.PageModel.GovOfficialPositionModel
             {
                 Position = InfoModel.GovPosition,
                 Period   = InfoModel.GovPeriod ?? ""
             });
+        }
+    }
+
+    private void HandleOwnershipInput(ChangeEventArgs e, IndividualInfoDTO.PageModel.BusinessInterestModel item)
+    {
+        var input = e.Value?.ToString() ?? "";
+
+        input = new string(input.Where(char.IsDigit).ToArray());
+
+        if (input.Length > 3)
+            input = input.Substring(0, 3);
+
+        if (string.IsNullOrEmpty(input))
+        {
+            item.OwnershipPercentage = null;
+            return;
+        }
+
+        if (int.TryParse(input, out int parsed))
+        {
+            if (parsed > 100) parsed = 100;
+            if (parsed < 1) parsed = 1;
+
+            item.OwnershipPercentage = parsed;
         }
     }
 
@@ -780,7 +819,6 @@
             InfoModel.GovOfficialPositions.RemoveAt(index);
     }
 
-    // ── List helpers ───────────────────────────────────────────────
     private void AddBusiness()
         => InfoModel.BusinessInterests.Add(new BusinessInterestModel());
 
@@ -850,17 +888,6 @@
         return result;
     }
 
-    private void ClampOwnership(BusinessInterestModel biz, string? raw)
-    {
-        if (decimal.TryParse(raw, out var val))
-        {
-            if (val < 1)   val = 1;    // snap to minimum
-            if (val > 100) val = 100;  // snap to maximum
-            biz.OwnershipPercentage = Math.Round(val, 2);
-        }
-        else biz.OwnershipPercentage = null;
-    }
-
     // ── Submit ─────────────────────────────────────────────────────
     private async Task Next()
     {
@@ -875,12 +902,12 @@
             InfoModel.ProductsAvailedOther = null;
         if (!InfoModel.IsGovOfficial)
         {
+            InfoModel.GovOfficialPositions.Clear();
             InfoModel.GovPosition = null;
             InfoModel.GovPeriod   = null;
         }
         else
         {
-            // Sync first entry back to model (primary position)
             var first = InfoModel.GovOfficialPositions.FirstOrDefault();
             InfoModel.GovPosition = first?.Position;
             InfoModel.GovPeriod   = first?.Period;

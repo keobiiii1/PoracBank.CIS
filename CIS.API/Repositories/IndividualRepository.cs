@@ -141,10 +141,27 @@ public class IndividualRepository
                     {
                         CustomerID = customerId,
                         EntityType = EntityType.Individual,
+                        RelationType = RelationType.Relative,
                         Name = rel.Name,
                         Relationship = rel.Relationship,
                         HighestPositionOccupied = rel.Position,
                         PeriodCovered = rel.PeriodCovered
+                    });
+                }
+            }
+
+            // 10b. Save Gov Official Positions List (PEP — stored in GovernmentRelation with RelationType.Self)
+            if (request.Individual.IsGovOfficial && request.Individual.GovOfficialPositions != null)
+            {
+                foreach (var pos in request.Individual.GovOfficialPositions)
+                {
+                    _db.GovernmentRelations.Add(new GovernmentRelation
+                    {
+                        CustomerID = customerId,
+                        EntityType = EntityType.Individual,
+                        RelationType = RelationType.Self,
+                        HighestPositionOccupied = pos.Position,
+                        PeriodCovered = pos.Period
                     });
                 }
             }
@@ -214,20 +231,15 @@ public class IndividualRepository
             response.Individual.CustomerCategories = customer.CustomerCategories;
             response.Individual.CIDNumber = customer.CIDNumber;
 
-            // Populate GovOfficialPositions from IndividualInfo.GovPosition / GovPeriod
-            // These fields hold the past/present government official's position directly on IndividualInfo
-            if (infoModel.IsGov && !string.IsNullOrWhiteSpace(infoModel.GovPosition))
-            {
-                response.Individual.GovOfficialPositions = new List<IndividualInfoDTO.PageModel.GovOfficialPositionModel>
+            // Populate GovOfficialPositions from GovernmentRelation (RelationType.Self = PEP self-positions)
+            response.Individual.GovOfficialPositions = await _db.GovernmentRelations
+                .Where(x => x.CustomerID == customerId && x.RelationType == RelationType.Self)
+                .Select(x => new IndividualInfoDTO.PageModel.GovOfficialPositionModel
                 {
-                    new()
-                    {
-                        CustomerID = customerId,
-                        Position   = infoModel.GovPosition,
-                        Period     = infoModel.GovPeriod
-                    }
-                };
-            }
+                    CustomerID = x.CustomerID,
+                    Position = x.HighestPositionOccupied,
+                    Period = x.PeriodCovered
+                }).ToListAsync();
 
             // 3. Table: BusinessInterests (Dynamic List)
             response.Individual.BusinessInterests = await _db.BusinessInterests
@@ -240,7 +252,7 @@ public class IndividualRepository
 
             // 4. Table: GovernmentRelations (Dynamic List)
             response.Individual.GovRelatives = await _db.GovernmentRelations
-                .Where(x => x.CustomerID == customerId)
+                .Where(x => x.CustomerID == customerId && x.RelationType != RelationType.Self)
                 .Select(x => new IndividualInfoDTO.PageModel.GovRelativeModel
                 {
                     Name = x.Name,

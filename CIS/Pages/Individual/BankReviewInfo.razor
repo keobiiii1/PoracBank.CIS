@@ -250,12 +250,8 @@
                 }
             </div>
             <div class="br-field br-text-field">
-                <label class="br-label">Remarks (If Any) <span class="br-req">*</span></label>
-                <InputTextArea @bind-Value="ReviewModel.Remarks" class="@(showErrors && string.IsNullOrWhiteSpace(ReviewModel.Remarks) ? "br-sig-textarea br-text-ta br-invalid" : "br-sig-textarea br-text-ta")" placeholder="Optional remarks" rows="3" />
-                @if (showErrors && string.IsNullOrWhiteSpace(ReviewModel.Remarks))
-                {
-                    <span class="br-field-error">Remarks is required.</span>
-                }
+                <label class="br-label">Remarks (If Any)</label>
+                <InputTextArea @bind-Value="ReviewModel.Remarks" class="br-sig-textarea br-text-ta" placeholder="Optional remarks" rows="3" />
             </div>
         </div>
     </div>
@@ -727,7 +723,6 @@
         if (ReviewModel.SelectedWork == "OTHERS" && string.IsNullOrWhiteSpace(ReviewModel.NatureOfWorkBusinessOther)) return false;
         if (string.IsNullOrWhiteSpace(ReviewModel.VerifiedBy)) return false;
         if (string.IsNullOrWhiteSpace(ReviewModel.ApprovedBy)) return false;
-        if (string.IsNullOrWhiteSpace(ReviewModel.Remarks)) return false;
         return true;
     }
 

@@ -31,7 +31,7 @@
             <p class="rs-eyebrow">Registration Complete</p>
             <h1 class="rs-title">Account Successfully Created</h1>
             <p class="rs-subtitle">
-                The <span class="rs-highlight">@RegistrationType.ToLower()</span> account for
+                The <span class="rs-highlight">@RegistrationType.ToUpper()</span> account for
                 <strong>@CustomerName</strong> has been saved to the system.
             </p>
         </div>
@@ -168,11 +168,6 @@
         max-width: 540px;
         width: 100%;
         position: relative;
-        box-shadow:
-            0 0 0 1px rgba(0,168,89,0.08),
-            0 4px 6px rgba(0,0,0,0.04),
-            0 24px 64px rgba(0,86,179,0.10),
-            0 48px 80px rgba(0,168,89,0.06);
         animation: rs-card-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
         overflow: hidden;
         text-align: center;

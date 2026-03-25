@@ -62,6 +62,10 @@ public class RegistrationStorageService
             foreach (var r in individual.GovRelatives)
                 r.CustomerID = customer.CustomerID;
 
+        if (individual.GovOfficialPositions != null)
+            foreach (var p in individual.GovOfficialPositions)
+                p.CustomerID = customer.CustomerID;
+
         // Strip image data URLs before saving to localStorage.
         // Data URLs are 1–5 MB each — storing them in localStorage (5–10 MB limit)
         // will cause silent failures. Images are kept in memory only and sent
@@ -129,6 +133,10 @@ public class RegistrationStorageService
         if (individual.GovRelatives != null)
             foreach (var r in individual.GovRelatives)
                 r.CustomerID = customer.CustomerID;
+
+        if (individual.GovOfficialPositions != null)
+            foreach (var p in individual.GovOfficialPositions)
+                p.CustomerID = customer.CustomerID;
 
         return new IndividualRegistrationRequest
         {

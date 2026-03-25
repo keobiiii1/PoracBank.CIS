@@ -72,7 +72,8 @@
             <div class="cis-meta-left">
                 <span class="lbl">CUSTOMER CATEGORY</span>
                 <span class="cis-chk">@(Customer.CustomerCategories != null && Customer.CustomerCategories.Contains(CustomerCategory.LoanBorrower) ? "✓" : "")</span><span class="chk-lbl">Borrower</span>
-                <span class="cis-chk">@(Customer.CustomerCategories != null && Customer.CustomerCategories.Contains(CustomerCategory.LoanCoMaker) ? "✓" : "")</span><span class="chk-lbl">Non-borrower</span>
+                <span class="cis-chk">@(Customer.CustomerCategories != null && Customer.CustomerCategories.Contains(CustomerCategory.LoanCoMaker) ? "✓" : "")</span><span class="chk-lbl">Loan Co-Maker</span>
+                <span class="cis-chk">@(Customer.CustomerCategories != null && Customer.CustomerCategories.Contains(CustomerCategory.Depositor) ? "✓" : "")</span><span class="chk-lbl">Depositor</span>
             </div>
             <div class="cis-meta-right">
                 <span class="lbl">CID NO.</span>
@@ -905,12 +906,13 @@
         width: 100%;
         border: 1px solid #000;
         border-top: none;
+        border-bottom: 1px solid #000
     }
     .cis-row:first-of-type { border-top: 1px solid #000; }
 
     .cis-cell {
-        padding: 3px 5px;
-        min-height: 22px;
+        padding: 2px 4px; 
+        min-height: 18px;
     }
     .cis-cell.center { text-align: center; }
     .border-l { border-left: 1px solid #000; }
@@ -942,7 +944,7 @@
         background: #f8f8f8;
     }
     .val {
-        font-size: 8.5pt;
+        font-size: 8pt;
         font-weight: bold;
         font-family: 'Courier New', monospace;
         text-transform: uppercase;
@@ -994,10 +996,11 @@
 
     /* ── Tables ── */
     .inline-table, .full-table {
-        width: 100%;
+        width: 100% !important;
         border-collapse: collapse;
         font-size: 7pt;
         margin-top: 3px;
+        table-layout: fixed;
     }
     .inline-table th, .full-table th {
         background: #eee;
@@ -1006,6 +1009,7 @@
         padding: 2px 4px;
         text-align: left;
         font-size: 6pt;
+        word-wrap: break-word;
     }
     .inline-table td, .full-table td {
         border: 1px solid #000;
@@ -1112,8 +1116,8 @@
 
     @@media print {
         @@page {
-            size: A4 portrait;
-            margin: 8mm 9mm;
+            size: 8.5in 13in;
+            margin: 5mm;      
         }
         * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         body { background: #fff; margin: 0; }
@@ -1145,18 +1149,12 @@
         article          { padding: 0 !important; margin: 0 !important; }
 
         .cis-sheet {
-            width: 100% !important;
+            width: 100% !important; 
+            min-height: auto !important; 
             margin: 0 !important;
-            padding: 6mm 8mm !important;
-            box-shadow: none !important;
-
-            page-break-after: always !important;
-            break-after: page !important;
-            display: block !important;
-
-            height: auto !important;
-            min-height: 280mm;
-            overflow: visible !important;
+            padding: 5mm !important; 
+            box-shadow: none;
+            page-break-after: always; 
         }
         .cis-sheet:last-of-type {
             page-break-after: auto;
