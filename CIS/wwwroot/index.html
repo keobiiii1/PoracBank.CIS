@@ -316,6 +316,19 @@
             }
         });
         observer.observe(document.getElementById('app'), { childList: true, subtree: true });
+
+
+        window.scrollToFirstError = function (id) {
+            var el = document.getElementById(id);
+            if (!el) return false;
+            var err = el.querySelector(
+            '.pcs-field-error, .eas-field-error, .ii-field-error, ' +
+            '.bcb-field-error, .ca-field-error, .br-field-error'
+            );
+            if (!err || !err.textContent.trim()) return false;
+            el.scrollIntoView({behavior: 'smooth', block: 'center' });
+            return true;
+        };
     </script>
 
 </body>

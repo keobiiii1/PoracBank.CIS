@@ -1,0 +1,1464 @@
+﻿@using CIS.Client.Services
+@using CIS.Assets.DTO
+@using Microsoft.AspNetCore.Components.Forms
+@inject IndividualService IndividualService
+@inject IJSRuntime JS
+
+<EditForm Model="IdModel" OnValidSubmit="Next" @ref="editForm">
+    <DataAnnotationsValidator />
+
+    <div class="ii-wrap">
+
+        @* ══════════════════════════════════════
+           SECTION 1 — Selfie
+        ══════════════════════════════════════ *@
+        <div class="ii-section" id="field-Selfie">
+            <div class="ii-section-header">
+                <div class="ii-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="13" r="4" stroke="white" stroke-width="2"/>
+                    </svg>
+                </div>
+                <span class="ii-section-title">Selfie</span>
+                <span class="ii-section-sub">Required for identity verification</span>
+            </div>
+            <div class="ii-kyc-grid">
+                <div class="ii-kyc-card @(selfiePreview != null ? "ii-kyc-done" : "")">
+                    <div class="ii-kyc-preview">
+                        @if (selfiePreview != null)
+                        {
+                            <img src="@selfiePreview" class="ii-kyc-img" alt="Selfie preview" />
+                            <div class="ii-kyc-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                            <button type="button" class="ii-kyc-delete" @onclick="ClearSelfie" title="Remove photo">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                            </button>
+                        }
+                        else
+                        {
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="ii-kyc-placeholder-icon">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        }
+                    </div>
+                    <div class="ii-kyc-label">Face Photo <span class="ii-req">*</span></div>
+                    <div class="ii-kyc-hint">Clear, well-lit photo of your face</div>
+                    <div class="ii-kyc-actions">
+                        <label class="ii-kyc-btn">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                            @(selfiePreview != null ? "Retake" : "Camera")
+                            <InputFile accept="image/*" capture="user" class="ii-hidden-input" OnChange="CaptureSelfie" />
+                        </label>
+                        <label class="ii-kyc-btn ii-kyc-btn-upload">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                            Upload
+                            <InputFile accept="image/*" class="ii-hidden-input" OnChange="CaptureSelfie" />
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* ══════════════════════════════════════
+           SECTION 2 — Government IDs
+        ══════════════════════════════════════ *@
+        <div class="ii-section" id="field-GovIDs">
+            <div class="ii-section-header">
+                <div class="ii-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <rect x="2" y="5" width="20" height="14" rx="2" stroke="white" stroke-width="2" />
+                        <path d="M2 10h20" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        <path d="M6 15h4M6 17h2" stroke="white" stroke-width="1.5" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <span class="ii-section-title">Government IDs</span>
+                <span class="ii-section-sub">At least one required — fill in number then upload photos</span>
+            </div>
+
+            @* ── TIN ── *@
+            <div class="ii-id-card">
+                <div class="ii-id-card-header">
+                    <div class="ii-id-card-icon">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 10h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <span class="ii-id-card-name">TIN No.</span>
+                    <span class="ii-id-card-sub">(Tax Identification Number)</span>
+                </div>
+                <div class="ii-id-card-body">
+                    <div class="ii-id-card-field">
+                        <input type="text" class="ii-input" placeholder="e.g. 123-456-789-000" value="@IdModel.TINNumber" @oninput="FormatTIN" maxlength="15" />
+                        <ValidationMessage For="@(() => IdModel.TINNumber)" class="ii-field-error" />
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(IdModel.TINNumber))
+                    {
+                        <div class="ii-id-card-photos">
+                            <div class="ii-id-card-photos-label">ID Photos <span class="ii-req">*</span></div>
+                            <div class="ii-kyc-grid">
+                                <div class="ii-kyc-card @(tinFrontPreview != null ? "ii-kyc-done" : "")">
+                                    <div class="ii-kyc-preview">
+                                        @if (tinFrontPreview != null) { <img src="@tinFrontPreview" class="ii-kyc-img" alt="TIN Front" /><div class="ii-kyc-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                                            <button type="button" class="ii-kyc-delete" @onclick="ClearTinFront" title="Remove photo">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                        </button> }
+                                        else { <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="ii-kyc-placeholder-icon"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> }
+                                    </div>
+                                    <div class="ii-kyc-label">Front <span class="ii-req">*</span></div>
+                                    <div class="ii-kyc-actions">
+                                        <label class="ii-kyc-btn">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                                            @(tinFrontPreview != null ? "Retake" : "Camera")
+                                            <InputFile accept="image/*" capture="environment" class="ii-hidden-input" OnChange="CaptureTinFront" />
+                                        </label>
+                                        <label class="ii-kyc-btn ii-kyc-btn-upload">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                            Upload
+                                            <InputFile accept="image/*" class="ii-hidden-input" OnChange="CaptureTinFront" />
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="ii-kyc-card @(tinBackPreview != null ? "ii-kyc-done" : "")">
+                                    <div class="ii-kyc-preview">
+                                        @if (tinBackPreview != null) { <img src="@tinBackPreview" class="ii-kyc-img" alt="TIN Back" /><div class="ii-kyc-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                                            <button type="button" class="ii-kyc-delete" @onclick="ClearTinBack" title="Remove photo">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                        </button> }
+                                        else { <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="ii-kyc-placeholder-icon"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> }
+                                    </div>
+                                    <div class="ii-kyc-label">Back <span class="ii-req">*</span></div>
+                                    <div class="ii-kyc-actions">
+                                        <label class="ii-kyc-btn">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                                            @(tinBackPreview != null ? "Retake" : "Camera")
+                                            <InputFile accept="image/*" capture="environment" class="ii-hidden-input" OnChange="CaptureTinBack" />
+                                        </label>
+                                        <label class="ii-kyc-btn ii-kyc-btn-upload">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                            Upload
+                                            <InputFile accept="image/*" class="ii-hidden-input" OnChange="CaptureTinBack" />
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="ii-divider"></div>
+
+            @* ── SSS ── *@
+            <div class="ii-id-card">
+                <div class="ii-id-card-header">
+                    <div class="ii-id-card-icon">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 10h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <span class="ii-id-card-name">SSS No.</span>
+                    <span class="ii-id-card-sub">(Social Security System)</span>
+                </div>
+                <div class="ii-id-card-body">
+                    <div class="ii-id-card-field">
+                        <input type="text" class="ii-input" placeholder="e.g. 34-1234567-8" value="@IdModel.SSSNumber" @oninput="FormatSSS" maxlength="12" />
+                        <ValidationMessage For="@(() => IdModel.SSSNumber)" class="ii-field-error" />
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(IdModel.SSSNumber))
+                    {
+                        <div class="ii-id-card-photos">
+                            <div class="ii-id-card-photos-label">ID Photos <span class="ii-req">*</span></div>
+                            <div class="ii-kyc-grid">
+                                <div class="ii-kyc-card @(sssFrontPreview != null ? "ii-kyc-done" : "")">
+                                    <div class="ii-kyc-preview">
+                                        @if (sssFrontPreview != null) { <img src="@sssFrontPreview" class="ii-kyc-img" alt="SSS Front" /><div class="ii-kyc-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                                            <button type="button" class="ii-kyc-delete" @onclick="ClearSssFront" title="Remove photo">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                        </button> }
+                                        else { <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="ii-kyc-placeholder-icon"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> }
+                                    </div>
+                                    <div class="ii-kyc-label">Front <span class="ii-req">*</span></div>
+                                    <div class="ii-kyc-actions">
+                                        <label class="ii-kyc-btn">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                                            @(sssFrontPreview != null ? "Retake" : "Camera")
+                                            <InputFile accept="image/*" capture="environment" class="ii-hidden-input" OnChange="CaptureSssFront" />
+                                        </label>
+                                        <label class="ii-kyc-btn ii-kyc-btn-upload">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                            Upload
+                                            <InputFile accept="image/*" class="ii-hidden-input" OnChange="CaptureSssFront" />
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="ii-kyc-card @(sssBackPreview != null ? "ii-kyc-done" : "")">
+                                    <div class="ii-kyc-preview">
+                                        @if (sssBackPreview != null) { <img src="@sssBackPreview" class="ii-kyc-img" alt="SSS Back" /><div class="ii-kyc-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                                            <button type="button" class="ii-kyc-delete" @onclick="ClearSssBack" title="Remove photo">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                        </button> }
+                                        else { <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="ii-kyc-placeholder-icon"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> }
+                                    </div>
+                                    <div class="ii-kyc-label">Back <span class="ii-req">*</span></div>
+                                    <div class="ii-kyc-actions">
+                                        <label class="ii-kyc-btn">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                                            @(sssBackPreview != null ? "Retake" : "Camera")
+                                            <InputFile accept="image/*" capture="environment" class="ii-hidden-input" OnChange="CaptureSssBack" />
+                                        </label>
+                                        <label class="ii-kyc-btn ii-kyc-btn-upload">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                            Upload
+                                            <InputFile accept="image/*" class="ii-hidden-input" OnChange="CaptureSssBack" />
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="ii-divider"></div>
+
+            @* ── GSIS ── *@
+            <div class="ii-id-card">
+                <div class="ii-id-card-header">
+                    <div class="ii-id-card-icon">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 10h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                    </div>
+                    <span class="ii-id-card-name">GSIS No.</span>
+                    <span class="ii-id-card-sub">(Government Service Insurance System)</span>
+                </div>
+                <div class="ii-id-card-body">
+                    <div class="ii-id-card-field">
+                        <input type="text" class="ii-input" placeholder="e.g. 00012345678" value="@IdModel.GSISNumber" @oninput="FormatGSIS" maxlength="11" />
+                        <ValidationMessage For="@(() => IdModel.GSISNumber)" class="ii-field-error" />
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(IdModel.GSISNumber))
+                    {
+                        <div class="ii-id-card-photos">
+                            <div class="ii-id-card-photos-label">ID Photos <span class="ii-req">*</span></div>
+                            <div class="ii-kyc-grid">
+                                <div class="ii-kyc-card @(gsisFrontPreview != null ? "ii-kyc-done" : "")">
+                                    <div class="ii-kyc-preview">
+                                        @if (gsisFrontPreview != null) { <img src="@gsisFrontPreview" class="ii-kyc-img" alt="GSIS Front" /><div class="ii-kyc-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                                            <button type="button" class="ii-kyc-delete" @onclick="ClearGsisFront" title="Remove photo">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                        </button> }
+                                        else { <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="ii-kyc-placeholder-icon"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> }
+                                    </div>
+                                    <div class="ii-kyc-label">Front <span class="ii-req">*</span></div>
+                                    <div class="ii-kyc-actions">
+                                        <label class="ii-kyc-btn">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                                            @(gsisFrontPreview != null ? "Retake" : "Camera")
+                                            <InputFile accept="image/*" capture="environment" class="ii-hidden-input" OnChange="CaptureGsisFront" />
+                                        </label>
+                                        <label class="ii-kyc-btn ii-kyc-btn-upload">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                            Upload
+                                            <InputFile accept="image/*" class="ii-hidden-input" OnChange="CaptureGsisFront" />
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="ii-kyc-card @(gsisBackPreview != null ? "ii-kyc-done" : "")">
+                                    <div class="ii-kyc-preview">
+                                        @if (gsisBackPreview != null) { <img src="@gsisBackPreview" class="ii-kyc-img" alt="GSIS Back" /><div class="ii-kyc-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                                            <button type="button" class="ii-kyc-delete" @onclick="ClearGsisBack" title="Remove photo">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                        </button> }
+                                        else { <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="ii-kyc-placeholder-icon"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> }
+                                    </div>
+                                    <div class="ii-kyc-label">Back <span class="ii-req">*</span></div>
+                                    <div class="ii-kyc-actions">
+                                        <label class="ii-kyc-btn">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                                            @(gsisBackPreview != null ? "Retake" : "Camera")
+                                            <InputFile accept="image/*" capture="environment" class="ii-hidden-input" OnChange="CaptureGsisBack" />
+                                        </label>
+                                        <label class="ii-kyc-btn ii-kyc-btn-upload">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                            Upload
+                                            <InputFile accept="image/*" class="ii-hidden-input" OnChange="CaptureGsisBack" />
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @if (govIdError != null)
+            {
+                <div class="ii-field-error mt-2">@govIdError</div>
+            }
+        </div>
+
+        @* ══════════════════════════════════════
+           SECTION 3 — IDs Presented
+        ══════════════════════════════════════ *@
+        <div class="ii-section" id="field-IDsPresented">
+            <div class="ii-section-header">
+                <div class="ii-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 11l3 3L22 4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <span class="ii-section-title">IDs Presented</span>
+                <span class="ii-section-sub">Select, fill in details, then upload photos</span>
+            </div>
+
+            @* ── Driver's License ── *@
+            <label class="ii-id-toggle @(ShowDL ? "active" : "")">
+                <div class="ii-id-check @(ShowDL ? "checked" : "")">
+                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <span class="ii-id-name">Driver's License</span>
+                <input type="checkbox" @bind="ShowDL" class="ii-hidden-check" />
+            </label>
+            @if (ShowDL)
+            {
+                <div class="ii-id-fields">
+                    <div class="ii-grid ii-grid-2">
+                        <div class="ii-field">
+                            <label class="ii-label">License No. <span class="ii-req">*</span></label>
+                            <InputText @bind-Value="IdModel.DriversLicenseIDNo" class="ii-input" placeholder="e.g. N01-23-456789" />
+                            <ValidationMessage For="@(() => IdModel.DriversLicenseIDNo)" class="ii-field-error" />
+                        </div>
+                        <div class="ii-field">
+                            <label class="ii-label">Expiry Date <span class="ii-req">*</span></label>
+                            <InputDate @bind-Value="IdModel.DriversLicenseExpiry" class="ii-input" min="@DateTime.Today.ToString("yyyy-MM-dd")" max="2999-12-31" />
+                            <ValidationMessage For="@(() => IdModel.DriversLicenseExpiry)" class="ii-field-error" />
+                        </div>
+                    </div>
+                    <div class="ii-id-card-photos">
+                        <div class="ii-id-card-photos-label">ID Photos <span class="ii-req">*</span></div>
+                        <div class="ii-kyc-grid">
+                            <div class="ii-kyc-card @(dlFrontPreview != null ? "ii-kyc-done" : "")">
+                                <div class="ii-kyc-preview">
+                                    @if (dlFrontPreview != null) { <img src="@dlFrontPreview" class="ii-kyc-img" alt="DL Front" /><div class="ii-kyc-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                                            <button type="button" class="ii-kyc-delete" @onclick="ClearDlFront" title="Remove photo">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                        </button> }
+                                    else { <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="ii-kyc-placeholder-icon"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> }
+                                </div>
+                                <div class="ii-kyc-label">Front <span class="ii-req">*</span></div>
+                                <div class="ii-kyc-actions">
+                                    <label class="ii-kyc-btn">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                                        @(dlFrontPreview != null ? "Retake" : "Camera")
+                                        <InputFile accept="image/*" capture="environment" class="ii-hidden-input" OnChange="CaptureDlFront" />
+                                    </label>
+                                    <label class="ii-kyc-btn ii-kyc-btn-upload">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                        Upload
+                                        <InputFile accept="image/*" class="ii-hidden-input" OnChange="CaptureDlFront" />
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="ii-kyc-card @(dlBackPreview != null ? "ii-kyc-done" : "")">
+                                <div class="ii-kyc-preview">
+                                    @if (dlBackPreview != null) { <img src="@dlBackPreview" class="ii-kyc-img" alt="DL Back" /><div class="ii-kyc-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                                            <button type="button" class="ii-kyc-delete" @onclick="ClearDlBack" title="Remove photo">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                        </button> }
+                                    else { <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="ii-kyc-placeholder-icon"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> }
+                                </div>
+                                <div class="ii-kyc-label">Back</div>
+                                <div class="ii-kyc-actions">
+                                    <label class="ii-kyc-btn">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                                        @(dlBackPreview != null ? "Retake" : "Camera")
+                                        <InputFile accept="image/*" capture="environment" class="ii-hidden-input" OnChange="CaptureDlBack" />
+                                    </label>
+                                    <label class="ii-kyc-btn ii-kyc-btn-upload">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                        Upload
+                                        <InputFile accept="image/*" class="ii-hidden-input" OnChange="CaptureDlBack" />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="ii-divider"></div>
+
+            @* ── Passport ── *@
+            <label class="ii-id-toggle @(ShowPassport ? "active" : "")">
+                <div class="ii-id-check @(ShowPassport ? "checked" : "")">
+                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <span class="ii-id-name">Passport</span>
+                <input type="checkbox" @bind="ShowPassport" class="ii-hidden-check" />
+            </label>
+            @if (ShowPassport)
+            {
+                <div class="ii-id-fields">
+                    <div class="ii-grid ii-grid-2">
+                        <div class="ii-field">
+                            <label class="ii-label">Passport No. <span class="ii-req">*</span></label>
+                            <InputText @bind-Value="IdModel.PassportIDNo" class="ii-input" placeholder="e.g. A12345678" />
+                            <ValidationMessage For="@(() => IdModel.PassportIDNo)" class="ii-field-error" />
+                        </div>
+                        <div class="ii-field">
+                            <label class="ii-label">Expiry Date <span class="ii-req">*</span></label>
+                            <InputDate @bind-Value="IdModel.PassportIDExpiry" class="ii-input" min="@DateTime.Today.ToString("yyyy-MM-dd")" max="2999-12-31" />
+                            <ValidationMessage For="@(() => IdModel.PassportIDExpiry)" class="ii-field-error" />
+                        </div>
+                    </div>
+                    <div class="ii-id-card-photos">
+                        <div class="ii-id-card-photos-label">ID Photos <span class="ii-req">*</span></div>
+                        <div class="ii-kyc-grid">
+                            <div class="ii-kyc-card @(passportFrontPreview != null ? "ii-kyc-done" : "")">
+                                <div class="ii-kyc-preview">
+                                    @if (passportFrontPreview != null) { <img src="@passportFrontPreview" class="ii-kyc-img" alt="Passport Front" /><div class="ii-kyc-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                                            <button type="button" class="ii-kyc-delete" @onclick="ClearPassportFront" title="Remove photo">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                        </button> }
+                                    else { <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="ii-kyc-placeholder-icon"><rect x="5" y="2" width="14" height="20" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg> }
+                                </div>
+                                <div class="ii-kyc-label">Photo Page <span class="ii-req">*</span></div>
+                                <div class="ii-kyc-actions">
+                                    <label class="ii-kyc-btn">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                                        @(passportFrontPreview != null ? "Retake" : "Camera")
+                                        <InputFile accept="image/*" capture="environment" class="ii-hidden-input" OnChange="CapturePassportFront" />
+                                    </label>
+                                    <label class="ii-kyc-btn ii-kyc-btn-upload">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                        Upload
+                                        <InputFile accept="image/*" class="ii-hidden-input" OnChange="CapturePassportFront" />
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="ii-kyc-card @(passportBackPreview != null ? "ii-kyc-done" : "")">
+                                <div class="ii-kyc-preview">
+                                    @if (passportBackPreview != null) { <img src="@passportBackPreview" class="ii-kyc-img" alt="Passport Back" /><div class="ii-kyc-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                                            <button type="button" class="ii-kyc-delete" @onclick="ClearPassportBack" title="Remove photo">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                        </button> }
+                                    else { <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="ii-kyc-placeholder-icon"><rect x="5" y="2" width="14" height="20" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg> }
+                                </div>
+                                <div class="ii-kyc-label">Last Page</div>
+                                <div class="ii-kyc-actions">
+                                    <label class="ii-kyc-btn">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                                        @(passportBackPreview != null ? "Retake" : "Camera")
+                                        <InputFile accept="image/*" capture="environment" class="ii-hidden-input" OnChange="CapturePassportBack" />
+                                    </label>
+                                    <label class="ii-kyc-btn ii-kyc-btn-upload">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                        Upload
+                                        <InputFile accept="image/*" class="ii-hidden-input" OnChange="CapturePassportBack" />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="ii-divider"></div>
+
+            @* ── Other ID ── *@
+            <label class="ii-id-toggle @(ShowOthers ? "active" : "")">
+                <div class="ii-id-check @(ShowOthers ? "checked" : "")">
+                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                        <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <span class="ii-id-name">Other ID</span>
+                <input type="checkbox" @bind="ShowOthers" class="ii-hidden-check" />
+            </label>
+            @if (ShowOthers)
+            {
+                <div class="ii-id-fields">
+                    <div class="ii-grid ii-grid-3">
+                        <div class="ii-field">
+                            <label class="ii-label">ID Type <span class="ii-req">*</span></label>
+                            <InputText @bind-Value="IdModel.OtherIDType" class="ii-input" placeholder="e.g. Postal ID" />
+                            <ValidationMessage For="@(() => IdModel.OtherIDType)" class="ii-field-error" />
+                        </div>
+                        <div class="ii-field">
+                            <label class="ii-label">ID Number <span class="ii-req">*</span></label>
+                            <InputText @bind-Value="IdModel.OtherIDNumber" class="ii-input" placeholder="ID number" />
+                            <ValidationMessage For="@(() => IdModel.OtherIDNumber)" class="ii-field-error" />
+                        </div>
+                        <div class="ii-field">
+                            <label class="ii-label">Expiry Date</label>
+                            <InputDate @bind-Value="IdModel.OtherIDExpiry" class="ii-input" min="@DateTime.Today.ToString("yyyy-MM-dd")" max="2999-12-31" />
+                        </div>
+                    </div>
+                    <div class="ii-id-card-photos">
+                        <div class="ii-id-card-photos-label">ID Photos <span class="ii-req">*</span></div>
+                        <div class="ii-kyc-grid">
+                            <div class="ii-kyc-card @(otherFrontPreview != null ? "ii-kyc-done" : "")">
+                                <div class="ii-kyc-preview">
+                                    @if (otherFrontPreview != null) { <img src="@otherFrontPreview" class="ii-kyc-img" alt="Other ID Front" /><div class="ii-kyc-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                                            <button type="button" class="ii-kyc-delete" @onclick="ClearOtherFront" title="Remove photo">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                        </button> }
+                                    else { <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="ii-kyc-placeholder-icon"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> }
+                                </div>
+                                <div class="ii-kyc-label">Front <span class="ii-req">*</span></div>
+                                <div class="ii-kyc-actions">
+                                    <label class="ii-kyc-btn">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                                        @(otherFrontPreview != null ? "Retake" : "Camera")
+                                        <InputFile accept="image/*" capture="environment" class="ii-hidden-input" OnChange="CaptureOtherFront" />
+                                    </label>
+                                    <label class="ii-kyc-btn ii-kyc-btn-upload">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                        Upload
+                                        <InputFile accept="image/*" class="ii-hidden-input" OnChange="CaptureOtherFront" />
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="ii-kyc-card @(otherBackPreview != null ? "ii-kyc-done" : "")">
+                                <div class="ii-kyc-preview">
+                                    @if (otherBackPreview != null) { <img src="@otherBackPreview" class="ii-kyc-img" alt="Other ID Back" /><div class="ii-kyc-badge"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                                            <button type="button" class="ii-kyc-delete" @onclick="ClearOtherBack" title="Remove photo">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                                        </button> }
+                                    else { <svg width="28" height="28" viewBox="0 0 24 24" fill="none" class="ii-kyc-placeholder-icon"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 10h20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> }
+                                </div>
+                                <div class="ii-kyc-label">Back</div>
+                                <div class="ii-kyc-actions">
+                                    <label class="ii-kyc-btn">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2"/></svg>
+                                        @(otherBackPreview != null ? "Retake" : "Camera")
+                                        <InputFile accept="image/*" capture="environment" class="ii-hidden-input" OnChange="CaptureOtherBack" />
+                                    </label>
+                                    <label class="ii-kyc-btn ii-kyc-btn-upload">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="17 8 12 3 7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                                        Upload
+                                        <InputFile accept="image/*" class="ii-hidden-input" OnChange="CaptureOtherBack" />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @* errors / upload status *@
+        @if (kycError != null)
+        {
+            <div class="ii-field-error mt-2">@kycError</div>
+        }
+
+
+        @* ══════════════════════════════════════
+           FOOTER
+        ══════════════════════════════════════ *@
+        <div class="ii-footer">
+            <button type="button" class="ii-btn-back" @onclick="OnBack">
+                <div class="ii-btn-arrow-left">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <span>Back</span>
+            </button>
+            <div class="ii-footer-hint">
+                <span class="ii-req">*</span>&nbsp;Required fields must be filled before continuing
+            </div>
+            <button type="submit" class="ii-btn-next" @onclick="async () => await TriggerValidation()">
+                <span>Continue</span>
+                <div class="ii-btn-arrow">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+            </button>
+        </div>
+
+    </div>
+</EditForm>
+
+<style>
+    .ii-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* ── Section card ── */
+    .ii-section {
+        background: #ffffff;
+        border: 1px solid #edf0f4;
+        border-radius: 18px;
+        padding: 22px 24px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ii-section::after {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #00a859, #0056b3);
+        opacity: 0;
+        transition: opacity 0.25s;
+    }
+
+    .ii-section:focus-within {
+        border-color: #c8e6d8;
+        box-shadow: 0 4px 20px rgba(0,168,89,0.07);
+    }
+
+    .ii-section:focus-within::after { opacity: 1; }
+
+    /* ── Section header ── */
+    .ii-section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .ii-section-icon {
+        width: 28px; height: 28px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #00a859, #0056b3);
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(0,168,89,0.25);
+    }
+
+    .ii-section-title {
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        flex: 1;
+    }
+
+    .ii-section-sub {
+        font-size: 0.68rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    /* ── Grid ── */
+    .ii-grid { display: grid; gap: 16px; }
+    .ii-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .ii-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .mt-2 { margin-top: 8px; }
+
+    /* ── Field ── */
+    .ii-field { display: flex; flex-direction: column; gap: 6px; }
+
+    .ii-label {
+        font-size: 0.71rem;
+        font-weight: 700;
+        color: #64748b;
+        letter-spacing: 0.2px;
+        display: flex; align-items: center; gap: 3px;
+    }
+
+    .ii-req { color: #ef4444; font-size: 0.8rem; line-height: 1; }
+
+    .ii-input {
+        height: 42px;
+        padding: 0 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 11px;
+        font-size: 0.86rem;
+        color: #0f172a;
+        background: #fff;
+        outline: none;
+        transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+        width: 100%;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .ii-input:hover { border-color: #94a3b8; }
+
+    .ii-input:focus {
+        border-color: #00a859;
+        box-shadow: 0 0 0 3px rgba(0,168,89,0.12);
+        background: #fafffe;
+    }
+
+    .ii-input[type="date"] { padding: 0 12px; }
+
+    .ii-input.invalid, .ii-input.modified.invalid {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important;
+    }
+
+    .ii-input.modified.valid { border-color: #00a859 !important; }
+
+    .ii-field-error {
+        font-size: 0.7rem;
+        color: #dc2626;
+        font-weight: 500;
+        margin: 0; padding: 0;
+        display: block;
+    }
+
+    /* ── ID toggle row ── */
+    .ii-id-toggle {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        cursor: pointer;
+        user-select: none;
+        transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+        background: #fff;
+        margin-bottom: 0;
+    }
+
+    .ii-id-toggle:hover {
+        border-color: #94a3b8;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .ii-id-toggle.active {
+        border-color: #00a859;
+        background: linear-gradient(135deg, #f0fdf8 0%, #eff6ff 100%);
+        box-shadow: 0 2px 12px rgba(0,168,89,0.1);
+    }
+
+    .ii-id-check {
+        width: 20px; height: 20px;
+        border-radius: 6px;
+        border: 1.5px solid #cbd5e1;
+        background: #f8fafc;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.18s;
+    }
+
+    .ii-id-check.checked {
+        background: linear-gradient(135deg, #00a859, #0056b3);
+        border-color: transparent;
+        box-shadow: 0 2px 6px rgba(0,168,89,0.3);
+    }
+
+    .ii-id-name {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #0f172a;
+        flex: 1;
+    }
+
+    .ii-hidden-check {
+        position: absolute;
+        opacity: 0; width: 0; height: 0;
+        pointer-events: none;
+    }
+
+    /* ── ID fields (revealed) ── */
+    .ii-id-fields {
+        margin-top: 14px;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid #e8ecf0;
+        animation: ii-slide-in 0.2s ease;
+    }
+
+    @@keyframes ii-slide-in {
+        from { opacity: 0; transform: translateY(-6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Divider ── */
+    .ii-divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin: 14px 0;
+    }
+
+    /* ── Footer ── */
+    .ii-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 6px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .ii-footer-hint {
+        font-size: 0.72rem;
+        color: #94a3b8;
+        display: flex; align-items: center; gap: 3px;
+    }
+
+    .ii-btn-next {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 28px;
+        background: linear-gradient(90deg, #00a859 0%, #0056b3 100%);
+        color: #fff;
+        border: none;
+        border-radius: 13px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: filter 0.18s, transform 0.15s, box-shadow 0.18s;
+        box-shadow: 0 4px 18px rgba(0,168,89,0.3);
+        letter-spacing: 0.2px;
+    }
+
+    .ii-btn-next:hover {
+        filter: brightness(1.07);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(0,168,89,0.38);
+    }
+
+    .ii-btn-next:active { transform: translateY(0); filter: brightness(0.97); }
+
+    .ii-btn-arrow {
+        width: 30px; height: 30px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 9px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .ii-btn-back {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 20px;
+        background: #fff;
+        color: #475569;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 13px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color 0.18s, color 0.18s, transform 0.15s;
+    }
+
+    .ii-btn-back:hover {
+        border-color: #94a3b8;
+        color: #0f172a;
+        transform: translateY(-1px);
+    }
+
+    .ii-btn-arrow-left {
+        width: 28px; height: 28px;
+        background: #f1f5f9;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    /* ── ID card (gov IDs row: input + photos together) ── */
+    .ii-id-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .ii-id-card-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .ii-id-card-icon {
+        width: 24px; height: 24px;
+        border-radius: 7px;
+        background: linear-gradient(135deg, #f0fdf8, #eff6ff);
+        border: 1px solid #c8e6d8;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        color: #00a859;
+    }
+
+    .ii-id-card-name {
+        font-size: 0.78rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .ii-id-card-sub {
+        font-size: 0.68rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .ii-id-card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .ii-id-card-field {
+        max-width: 340px;
+    }
+
+    .ii-id-card-photos {
+        background: #f8fafc;
+        border: 1px solid #e8ecf0;
+        border-radius: 12px;
+        padding: 14px;
+        animation: ii-slide-in 0.2s ease;
+    }
+
+    .ii-id-card-photos-label {
+        font-size: 0.69rem;
+        font-weight: 700;
+        color: #64748b;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .ii-kyc-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .ii-kyc-card {
+        border: 1.5px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: #fff;
+    }
+
+    .ii-kyc-card.ii-kyc-done {
+        border-color: #00a859;
+        background: linear-gradient(135deg, #f0fdf8 0%, #eff6ff 100%);
+    }
+
+    .ii-kyc-preview {
+        width: 100%;
+        height: 110px;
+        border-radius: 10px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .ii-kyc-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .ii-kyc-placeholder-icon {
+        color: #cbd5e1;
+    }
+
+    .ii-kyc-badge {
+        position: absolute;
+        bottom: 6px;
+        right: 6px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00a859, #0056b3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(0,168,89,0.3);
+    }
+
+    .ii-kyc-delete {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: rgba(220, 38, 38, 0.9);
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        box-shadow: 0 2px 6px rgba(220,38,38,0.4);
+        transition: background 0.15s, transform 0.15s;
+        z-index: 2;
+        padding: 0;
+    }
+
+    .ii-kyc-delete:hover {
+        background: #dc2626;
+        transform: scale(1.1);
+    }
+
+    .ii-kyc-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .ii-kyc-hint {
+        font-size: 0.68rem;
+        color: #94a3b8;
+        text-align: center;
+    }
+
+    .ii-kyc-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 12px;
+        background: #fff;
+        color: #475569;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9px;
+        font-size: 0.74rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color 0.18s, color 0.18s, background 0.18s;
+        user-select: none;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .ii-kyc-btn:hover {
+        border-color: #00a859;
+        color: #00a859;
+    }
+
+    .ii-kyc-btn-upload {
+        color: #0056b3;
+        border-color: #bfdbfe;
+        background: #f0f7ff;
+    }
+
+    .ii-kyc-btn-upload:hover {
+        border-color: #0056b3;
+        color: #0056b3;
+        background: #e0f0ff;
+    }
+
+    .ii-kyc-actions {
+        display: flex;
+        gap: 6px;
+        width: 100%;
+    }
+
+    .ii-hidden-input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+    }
+
+    .ii-upload-status {
+        font-size: 0.72rem;
+        color: #00a859;
+        font-weight: 500;
+        margin-top: 6px;
+        text-align: center;
+    }
+
+    /* ── Responsive ── */
+    @@media (max-width: 768px) {
+        .ii-grid-3 { grid-template-columns: repeat(2, 1fr); }
+        .ii-kyc-grid { grid-template-columns: repeat(2, 1fr); }
+        .ii-section { padding: 18px; }
+    }
+
+    @@media (max-width: 480px) {
+        .ii-grid-2,
+        .ii-grid-3 { grid-template-columns: 1fr; }
+        .ii-kyc-grid { grid-template-columns: 1fr; }
+        .ii-section { padding: 14px; border-radius: 14px; }
+        .ii-footer  { flex-direction: column; align-items: stretch; }
+        .ii-btn-next, .ii-btn-back { justify-content: center; }
+    }
+</style>
+
+@code {
+    // ── Parameters ────────────────────────────────────────────────
+    [Parameter] public IndividualIdentificationDTO.PageModel IdModel { get; set; } = new();
+    [Parameter] public long CustomerId { get; set; }
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+
+    // ── State ──────────────────────────────────────────────────────
+    private EditForm? editForm;
+    private ValidationMessageStore? messageStore;
+    private bool ShowDL, ShowPassport, ShowOthers;
+    private string? govIdError;
+
+    // KYC image state — per ID type
+    private string? selfiePreview;
+    private string? dlFrontPreview;
+    private string? dlBackPreview;
+    private string? passportFrontPreview;
+    private string? passportBackPreview;
+    private string? otherFrontPreview;
+    private string? otherBackPreview;
+    private string? kycError;
+
+    private IBrowserFile? selfieFile;
+    private IBrowserFile? dlFrontFile;
+    private IBrowserFile? dlBackFile;
+    private IBrowserFile? passportFrontFile;
+    private IBrowserFile? passportBackFile;
+    private IBrowserFile? otherFrontFile;
+    private IBrowserFile? otherBackFile;
+
+    // Gov ID KYC files
+    private string? tinFrontPreview,  tinBackPreview;
+    private string? sssFrontPreview,  sssBackPreview;
+    private string? gsisFrontPreview, gsisBackPreview;
+    private IBrowserFile? tinFrontFile,  tinBackFile;
+    private IBrowserFile? sssFrontFile,  sssBackFile;
+    private IBrowserFile? gsisFrontFile, gsisBackFile;
+
+    // ── Lifecycle ──────────────────────────────────────────────────
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender) return;
+        var ctx = editForm?.EditContext;
+        if (ctx == null) return;
+
+        messageStore = new ValidationMessageStore(ctx);
+        ctx.OnFieldChanged += (_, _) =>
+        {
+            ValidateConditionalFields();
+            ctx.NotifyValidationStateChanged();
+        };
+    }
+
+    // ── Validation ─────────────────────────────────────────────────
+    private static readonly string[] ScrollTargets =
+    [
+        "field-Selfie", "field-GovIDs", "field-IDsPresented"
+    ];
+
+    private async Task TriggerValidation()
+    {
+        var ctx = editForm?.EditContext;
+        if (ctx == null) return;
+
+        ctx.Validate();
+        ValidateConditionalFields();
+        ctx.NotifyValidationStateChanged();
+
+        if (!ctx.GetValidationMessages().Any()) return;
+
+        // Force UI re-render so error messages are in the DOM before JS scans for them
+        StateHasChanged();
+        await Task.Delay(50);
+
+        foreach (var id in ScrollTargets)
+        {
+            try { if (await JS.InvokeAsync<bool>("scrollToFirstError", id)) break; }
+            catch { /* element not in DOM */ }
+        }
+    }
+
+    private void ValidateConditionalFields()
+    {
+        var store = messageStore;
+        var ctx   = editForm?.EditContext;
+        if (store == null || ctx == null) return;
+
+        store.Clear();
+        govIdError = null;
+
+        // At least one government ID required
+        bool hasGovId = !string.IsNullOrWhiteSpace(IdModel.TINNumber)
+                     || !string.IsNullOrWhiteSpace(IdModel.SSSNumber)
+                     || !string.IsNullOrWhiteSpace(IdModel.GSISNumber);
+
+        if (!hasGovId)
+        {
+            govIdError = "At least one government ID (TIN, SSS, or GSIS) is required.";
+        }
+        else
+        {
+            // TIN: 999-999-999 or 999-999-999-999
+            if (!string.IsNullOrWhiteSpace(IdModel.TINNumber) &&
+                !System.Text.RegularExpressions.Regex.IsMatch(
+                    IdModel.TINNumber.Trim(), @"^\d{3}-\d{3}-\d{3}(-\d{3})?$"))
+                store.Add(() => IdModel.TINNumber, "Invalid TIN format. Use 123-456-789 or 123-456-789-000.");
+
+            // SSS: 99-9999999-9
+            if (!string.IsNullOrWhiteSpace(IdModel.SSSNumber) &&
+                !System.Text.RegularExpressions.Regex.IsMatch(
+                    IdModel.SSSNumber.Trim(), @"^\d{2}-\d{7}-\d{1}$"))
+                store.Add(() => IdModel.SSSNumber, "Invalid SSS format. Use 34-1234567-8.");
+
+            // GSIS: 11 digits
+            if (!string.IsNullOrWhiteSpace(IdModel.GSISNumber) &&
+                !System.Text.RegularExpressions.Regex.IsMatch(
+                    IdModel.GSISNumber.Trim(), @"^\d{11}$"))
+                store.Add(() => IdModel.GSISNumber, "Invalid GSIS format. Must be 11 digits.");
+        }
+
+        // Driver's License fields required when checked
+        if (ShowDL)
+        {
+            if (string.IsNullOrWhiteSpace(IdModel.DriversLicenseIDNo))
+                store.Add(() => IdModel.DriversLicenseIDNo, "License number is required.");
+            if (IdModel.DriversLicenseExpiry == null)
+                store.Add(() => IdModel.DriversLicenseExpiry, "License expiry date is required.");
+            else if (IdModel.DriversLicenseExpiry <= DateOnly.FromDateTime(DateTime.Today))
+                store.Add(() => IdModel.DriversLicenseExpiry, "License must not be expired.");
+        }
+
+        // Passport fields required when checked
+        if (ShowPassport)
+        {
+            if (string.IsNullOrWhiteSpace(IdModel.PassportIDNo))
+                store.Add(() => IdModel.PassportIDNo, "Passport number is required.");
+            if (IdModel.PassportIDExpiry == null)
+                store.Add(() => IdModel.PassportIDExpiry, "Passport expiry date is required.");
+            else if (IdModel.PassportIDExpiry <= DateOnly.FromDateTime(DateTime.Today))
+                store.Add(() => IdModel.PassportIDExpiry, "Passport must not be expired.");
+        }
+
+        // Other ID fields required when checked
+        if (ShowOthers)
+        {
+            if (string.IsNullOrWhiteSpace(IdModel.OtherIDType))
+                store.Add(() => IdModel.OtherIDType, "ID type is required.");
+            if (string.IsNullOrWhiteSpace(IdModel.OtherIDNumber))
+                store.Add(() => IdModel.OtherIDNumber, "ID number is required.");
+        }
+    }
+
+    // ── Auto-formatters ───────────────────────────────────────────
+    private static string StripNonDigits(string? val)
+        => System.Text.RegularExpressions.Regex.Replace(val ?? "", @"[^\d]", "");
+
+    private void FormatTIN(ChangeEventArgs e)
+    {
+        // Max 12 digits → 123-456-789-000
+        var d = StripNonDigits(e.Value?.ToString());
+        if (d.Length > 12) d = d[..12];
+        IdModel.TINNumber = d.Length switch
+        {
+            <= 3 => d,
+            <= 6 => $"{d[..3]}-{d[3..]}",
+            <= 9 => $"{d[..3]}-{d[3..6]}-{d[6..]}",
+            _    => $"{d[..3]}-{d[3..6]}-{d[6..9]}-{d[9..]}"
+        };
+    }
+
+    private void FormatSSS(ChangeEventArgs e)
+    {
+        // Max 10 digits → 34-1234567-8
+        var d = StripNonDigits(e.Value?.ToString());
+        if (d.Length > 10) d = d[..10];
+        IdModel.SSSNumber = d.Length switch
+        {
+            <= 2 => d,
+            <= 9 => $"{d[..2]}-{d[2..]}",
+            _    => $"{d[..2]}-{d[2..9]}-{d[9..]}"
+        };
+    }
+
+    private void FormatGSIS(ChangeEventArgs e)
+    {
+        // Max 11 digits only
+        var d = StripNonDigits(e.Value?.ToString());
+        if (d.Length > 11) d = d[..11];
+        IdModel.GSISNumber = d;
+    }
+
+    // ── KYC Handlers ──────────────────────────────────────────────
+    private async Task<string?> ReadImageDataUrl(IBrowserFile file)
+    {
+        if (file.Size > 5 * 1024 * 1024) { kycError = "Image must be under 5MB."; return null; }
+        kycError = null;
+        var buffer = new byte[file.Size];
+        await file.OpenReadStream(5 * 1024 * 1024).ReadAsync(buffer);
+        return $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+    }
+
+    private async Task CaptureTinFront(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        tinFrontPreview = await ReadImageDataUrl(file); tinFrontFile = file;
+    }
+    private async Task CaptureTinBack(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        tinBackPreview = await ReadImageDataUrl(file); tinBackFile = file;
+    }
+    private async Task CaptureSssFront(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        sssFrontPreview = await ReadImageDataUrl(file); sssFrontFile = file;
+    }
+    private async Task CaptureSssBack(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        sssBackPreview = await ReadImageDataUrl(file); sssBackFile = file;
+    }
+    private async Task CaptureGsisFront(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        gsisFrontPreview = await ReadImageDataUrl(file); gsisFrontFile = file;
+    }
+    private async Task CaptureGsisBack(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        gsisBackPreview = await ReadImageDataUrl(file); gsisBackFile = file;
+    }
+    private async Task CaptureSelfie(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        selfiePreview = await ReadImageDataUrl(file); selfieFile = file;
+    }
+    private async Task CaptureDlFront(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        dlFrontPreview = await ReadImageDataUrl(file); dlFrontFile = file;
+    }
+    private async Task CaptureDlBack(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        dlBackPreview = await ReadImageDataUrl(file); dlBackFile = file;
+    }
+    private async Task CapturePassportFront(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        passportFrontPreview = await ReadImageDataUrl(file); passportFrontFile = file;
+    }
+    private async Task CapturePassportBack(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        passportBackPreview = await ReadImageDataUrl(file); passportBackFile = file;
+    }
+    private async Task CaptureOtherFront(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        otherFrontPreview = await ReadImageDataUrl(file); otherFrontFile = file;
+    }
+    private async Task CaptureOtherBack(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        otherBackPreview = await ReadImageDataUrl(file); otherBackFile = file;
+    }
+
+    // ── Clear (delete) handlers ────────────────────────────────────
+    private void ClearSelfie()        { selfiePreview        = null; selfieFile        = null; }
+    private void ClearTinFront()      { tinFrontPreview      = null; tinFrontFile      = null; }
+    private void ClearTinBack()       { tinBackPreview       = null; tinBackFile       = null; }
+    private void ClearSssFront()      { sssFrontPreview      = null; sssFrontFile      = null; }
+    private void ClearSssBack()       { sssBackPreview       = null; sssBackFile       = null; }
+    private void ClearGsisFront()     { gsisFrontPreview     = null; gsisFrontFile     = null; }
+    private void ClearGsisBack()      { gsisBackPreview      = null; gsisBackFile      = null; }
+    private void ClearDlFront()       { dlFrontPreview       = null; dlFrontFile       = null; }
+    private void ClearDlBack()        { dlBackPreview        = null; dlBackFile        = null; }
+    private void ClearPassportFront() { passportFrontPreview = null; passportFrontFile = null; }
+    private void ClearPassportBack()  { passportBackPreview  = null; passportBackFile  = null; }
+    private void ClearOtherFront()    { otherFrontPreview    = null; otherFrontFile    = null; }
+    private void ClearOtherBack()     { otherBackPreview     = null; otherBackFile     = null; }
+
+    // Images are stored as data URLs directly in the DTO.
+    // The API repository reads them via IndividualIdentificationDTO.ParseDataUrl()
+    // and saves the bytes + content type into the DB binary columns.
+    private void SaveKYCImagesToModel()
+    {
+        // Data URLs are already set during capture via ReadImageDataUrl()
+        // Just map preview strings → DTO fields here
+        IdModel.SelfieDataUrl               = selfiePreview;
+        IdModel.TINFrontDataUrl             = tinFrontPreview;
+        IdModel.TINBackDataUrl              = tinBackPreview;
+        IdModel.SSSFrontDataUrl             = sssFrontPreview;
+        IdModel.SSSBackDataUrl              = sssBackPreview;
+        IdModel.GSISFrontDataUrl            = gsisFrontPreview;
+        IdModel.GSISBackDataUrl             = gsisBackPreview;
+        IdModel.DriversLicenseFrontDataUrl  = dlFrontPreview;
+        IdModel.DriversLicenseBackDataUrl   = dlBackPreview;
+        IdModel.PassportFrontDataUrl        = passportFrontPreview;
+        IdModel.PassportBackDataUrl         = passportBackPreview;
+        IdModel.OtherIDFrontDataUrl         = otherFrontPreview;
+        IdModel.OtherIDBackDataUrl          = otherBackPreview;
+    }
+
+    // ── Submit ─────────────────────────────────────────────────────
+    private async Task Next()
+    {
+        // Validate KYC images
+        kycError = null;
+        var missingPhotos = new List<string>();
+        if (selfieFile == null) missingPhotos.Add("Selfie");
+        if (!string.IsNullOrWhiteSpace(IdModel.TINNumber)  && tinFrontFile  == null) missingPhotos.Add("TIN Front");
+        if (!string.IsNullOrWhiteSpace(IdModel.TINNumber)  && tinBackFile   == null) missingPhotos.Add("TIN Back");
+        if (!string.IsNullOrWhiteSpace(IdModel.SSSNumber)  && sssFrontFile  == null) missingPhotos.Add("SSS Front");
+        if (!string.IsNullOrWhiteSpace(IdModel.SSSNumber)  && sssBackFile   == null) missingPhotos.Add("SSS Back");
+        if (!string.IsNullOrWhiteSpace(IdModel.GSISNumber) && gsisFrontFile == null) missingPhotos.Add("GSIS Front");
+        if (!string.IsNullOrWhiteSpace(IdModel.GSISNumber) && gsisBackFile  == null) missingPhotos.Add("GSIS Back");
+        if (ShowDL      && dlFrontFile       == null) missingPhotos.Add("Driver's License Front");
+        if (ShowPassport && passportFrontFile == null) missingPhotos.Add("Passport Front");
+        if (ShowOthers   && otherFrontFile    == null) missingPhotos.Add("Other ID Front");
+
+        if (missingPhotos.Count > 0)
+        {
+            kycError = $"Required Photos Missing: {string.Join(", ", missingPhotos)}.";
+
+            // Force UI re-render so error messages are in the DOM before JS scans for them
+            StateHasChanged();
+            await Task.Delay(50);
+
+            var photoScrollIds = new[] { "field-Selfie", "field-GovIDs", "field-IDsPresented" };
+            foreach (var id in photoScrollIds)
+            {
+                try { if (await JS.InvokeAsync<bool>("scrollToFirstError", id)) break; }
+                catch { }
+            }
+            return;
+        }
+
+        SaveKYCImagesToModel();
+
+        IdModel.CustomerID = CustomerId;
+
+        // Clear fields for unchecked ID types
+        if (!ShowDL)
+            (IdModel.DriversLicenseIDNo, IdModel.DriversLicenseExpiry) = (null, null);
+        if (!ShowPassport)
+            (IdModel.PassportIDNo, IdModel.PassportIDExpiry) = (null, null);
+        if (!ShowOthers)
+            (IdModel.OtherIDType, IdModel.OtherIDNumber, IdModel.OtherIDExpiry) = (null, null, null);
+
+        await OnNext.InvokeAsync();
+    }
+}

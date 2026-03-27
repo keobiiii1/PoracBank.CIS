@@ -1,0 +1,899 @@
+@namespace CIS.Client.Pages.Individual
+@using CIS.Client.Services
+@using CIS.Assets.DTO
+@using CIS.Assets.Enum
+@inject IndividualService IndividualService
+@inject ProfileService ProfileService
+@inject IJSRuntime JS
+
+@* ══════════════════════════════════════════════════════════
+   STEP 1 — Personal Information (EditForm A)
+══════════════════════════════════════════════════════════ *@
+<EditForm Model="Model" OnValidSubmit="OnPersonalValidSubmit" @ref="personalForm">
+    <DataAnnotationsValidator />
+
+    <div class="pcs-wrap">
+
+        @* ── Customer Category ── *@
+        <div class="pcs-section" id="field-CustomerCategories">
+            <div class="pcs-section-header">
+                <div class="pcs-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 11l3 3L22 4" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <span class="pcs-section-title">Customer Category</span>
+                <span class="pcs-cat-note">Select at least one</span>
+            </div>
+            <div class="pcs-checkbox-group">
+                @foreach (var cat in Enum.GetValues<CustomerCategory>().Where(c => c != CustomerCategory.None))
+                {
+                    <label class="pcs-checkbox-card @(Model.CustomerCategories.Contains(cat) ? "checked" : "")">
+                        <input type="checkbox" id="cat_@cat"
+                               checked="@Model.CustomerCategories.Contains(cat)"
+                               @onchange="e => ToggleCategory(cat, (bool)e.Value!)" />
+                        <div class="pcs-checkbox-tick">
+                            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <span>@GetCategoryLabel(cat)</span>
+                    </label>
+                }
+            </div>
+            <ValidationMessage For="@(() => Model.CustomerCategories)" class="pcs-field-error mt-2" />
+        </div>
+
+        @* ── Full Name ── *@
+        <div class="pcs-section" id="field-FirstName">
+            <div class="pcs-section-header">
+                <div class="pcs-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        <circle cx="12" cy="7" r="4" stroke="white" stroke-width="2" />
+                    </svg>
+                </div>
+                <span class="pcs-section-title">Full Name</span>
+            </div>
+            <div class="pcs-grid pcs-grid-3">
+                <div class="pcs-field">
+                    <label class="pcs-label">First Name <span class="pcs-req">*</span></label>
+                    <InputText @bind-Value="Model.FirstName" class="pcs-input" placeholder="e.g. Juan" />
+                    <ValidationMessage For="@(() => Model.FirstName)" class="pcs-field-error" />
+                </div>
+                <div class="pcs-field">
+                    <label class="pcs-label">Middle Name</label>
+                    <InputText @bind-Value="Model.MiddleName" class="pcs-input" placeholder="e.g. Santos" />
+                </div>
+                <div class="pcs-field">
+                    <label class="pcs-label">Last Name <span class="pcs-req">*</span></label>
+                    <InputText @bind-Value="Model.LastName" class="pcs-input" placeholder="e.g. Dela Cruz" />
+                    <ValidationMessage For="@(() => Model.LastName)" class="pcs-field-error" />
+                </div>
+            </div>
+        </div>
+
+        @* ── Personal Details ── *@
+        <div class="pcs-section" id="field-Gender">
+            <div class="pcs-section-header">
+                <div class="pcs-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <span class="pcs-section-title">Personal Details</span>
+            </div>
+            <div class="pcs-grid pcs-grid-4">
+                <div class="pcs-field">
+                    <label class="pcs-label">Gender <span class="pcs-req">*</span></label>
+                    <InputSelect @bind-Value="Model.Gender" class="pcs-select">
+                        @foreach (var g in Enum.GetValues<Gender>()) { <option value="@g">@g</option> }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Model.Gender)" class="pcs-field-error" />
+                </div>
+                <div class="pcs-field">
+                    <label class="pcs-label">Citizenship <span class="pcs-req">*</span></label>
+                    <InputSelect @bind-Value="Model.Citizenship" class="pcs-select">
+                        @foreach (var c in Enum.GetValues<Citizenship>()) { <option value="@c">@c</option> }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Model.Citizenship)" class="pcs-field-error" />
+                </div>
+                @if (Model.Citizenship == Citizenship.Others)
+                {
+                    <div class="pcs-field pcs-field-reveal">
+                        <label class="pcs-label">Specify Citizenship <span class="pcs-req">*</span></label>
+                        <InputText @bind-Value="Model.CitizenshipOther" class="pcs-input" placeholder="Specify nationality" />
+                        <ValidationMessage For="@(() => Model.CitizenshipOther)" class="pcs-field-error" />
+                    </div>
+                }
+                <div class="pcs-field">
+                    <label class="pcs-label">Marital Status <span class="pcs-req">*</span></label>
+                    <InputSelect @bind-Value="Model.MaritalStatus" class="pcs-select">
+                        @foreach (var m in Enum.GetValues<MaritalStatus>()) { <option value="@m">@m</option> }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => Model.MaritalStatus)" class="pcs-field-error" />
+                </div>
+                <div class="pcs-field">
+                    <label class="pcs-label">Philippines Resident?</label>
+                    <div class="pcs-radio-group">
+                        <label class="pcs-radio-card @(Model.IsResident ? "checked" : "")">
+                            <input type="radio" name="isResident" checked="@Model.IsResident" @onchange="() => Model.IsResident = true" class="pcs-radio-input" />
+                            <div class="pcs-radio-dot"></div><span>Yes</span>
+                        </label>
+                        <label class="pcs-radio-card @(!Model.IsResident ? "checked" : "")">
+                            <input type="radio" name="isResident" checked="@(!Model.IsResident)" @onchange="() => Model.IsResident = false" class="pcs-radio-input" />
+                            <div class="pcs-radio-dot"></div><span>No</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* ── Maiden Name (Female + Married) ── *@
+        @if (Model.Gender == Gender.Female && Model.MaritalStatus == MaritalStatus.Married)
+        {
+            <div class="pcs-section pcs-section-conditional" id="field-MaidenName">
+                <div class="pcs-section-header">
+                    <div class="pcs-section-icon pcs-icon-blue">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="8" r="4" stroke="white" stroke-width="2" />
+                            <path d="M12 12v8M9 18h6" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <span class="pcs-section-title">Maiden Name Details</span>
+                </div>
+                <div class="pcs-grid pcs-grid-3">
+                    <div class="pcs-field">
+                        <label class="pcs-label">Maiden First Name <span class="pcs-req">*</span></label>
+                        <InputText @bind-Value="Model.MaidenName" class="pcs-input" placeholder="First name before marriage" />
+                        <ValidationMessage For="@(() => Model.MaidenName)" class="pcs-field-error" />
+                    </div>
+                    <div class="pcs-field">
+                        <label class="pcs-label">Maiden Middle Name</label>
+                        <InputText @bind-Value="Model.MaidenMiddleName" class="pcs-input" placeholder="Middle name" />
+                        <ValidationMessage For="@(() => Model.MaidenMiddleName)" class="pcs-field-error" />
+                    </div>
+                    <div class="pcs-field">
+                        <label class="pcs-label">Maiden Last Name <span class="pcs-req">*</span></label>
+                        <InputText @bind-Value="Model.MaidenLastName" class="pcs-input" placeholder="Last name before marriage" />
+                        <ValidationMessage For="@(() => Model.MaidenLastName)" class="pcs-field-error" />
+                    </div>
+                </div>
+            </div>
+        }
+
+        @* ── Spouse Name (Married or Widowed) ── *@
+        @if (Model.MaritalStatus == MaritalStatus.Married || Model.MaritalStatus == MaritalStatus.Widowed)
+        {
+            <div class="pcs-section pcs-section-conditional" id="field-SpouseName">
+                <div class="pcs-section-header">
+                    <div class="pcs-section-icon pcs-icon-blue">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="white" stroke-width="2" stroke-linecap="round" />
+                            <circle cx="9" cy="7" r="4" stroke="white" stroke-width="2" />
+                            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <span class="pcs-section-title">Spouse Full Name</span>
+                </div>
+                <div class="pcs-grid pcs-grid-3">
+                    <div class="pcs-field">
+                        <label class="pcs-label">Given Name <span class="pcs-req">*</span></label>
+                        <InputText @bind-Value="Model.SpouseGivenName" class="pcs-input" placeholder="Given name" />
+                        <ValidationMessage For="@(() => Model.SpouseGivenName)" class="pcs-field-error" />
+                    </div>
+                    <div class="pcs-field">
+                        <label class="pcs-label">Middle Name</label>
+                        <InputText @bind-Value="Model.SpouseMiddleName" class="pcs-input" placeholder="Middle name" />
+                    </div>
+                    <div class="pcs-field">
+                        <label class="pcs-label">Last Name <span class="pcs-req">*</span></label>
+                        <InputText @bind-Value="Model.SpouseLastName" class="pcs-input" placeholder="Last name" />
+                        <ValidationMessage For="@(() => Model.SpouseLastName)" class="pcs-field-error" />
+                    </div>
+                </div>
+            </div>
+        }
+
+        @* ── Birth Details ── *@
+        <div class="pcs-section" id="field-DateOfBirth">
+            <div class="pcs-section-header">
+                <div class="pcs-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="white" stroke-width="2" />
+                        <path d="M16 2v4M8 2v4M3 10h18" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <span class="pcs-section-title">Birth Details</span>
+            </div>
+            <div class="pcs-grid pcs-grid-3">
+                <div class="pcs-field">
+                    <label class="pcs-label">Date of Birth <span class="pcs-req">*</span></label>
+                    <InputDate @bind-Value="Model.DateOfBirth" class="pcs-input" min="1900-01-01" max="2999-12-31" />
+                    <ValidationMessage For="@(() => Model.DateOfBirth)" class="pcs-field-error" />
+                </div>
+                <div class="pcs-field">
+                    <label class="pcs-label">Place of Birth</label>
+                    <InputText @bind-Value="Model.PlaceOfBirth" class="pcs-input" placeholder="e.g. Manila" />
+                </div>
+                <div class="pcs-field">
+                    <label class="pcs-label">Country of Origin <span class="pcs-req">*</span></label>
+                    <InputText @bind-Value="Model.CountryOfOrigin" class="pcs-input" placeholder="e.g. Philippines" />
+                    <ValidationMessage For="@(() => Model.CountryOfOrigin)" class="pcs-field-error" />
+                </div>
+            </div>
+        </div>
+
+        @* ── Mother's Maiden Name ── *@
+        <div class="pcs-section" id="field-MotherMaidenGivenName">
+            <div class="pcs-section-header">
+                <div class="pcs-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        <circle cx="12" cy="7" r="4" stroke="white" stroke-width="2" />
+                    </svg>
+                </div>
+                <span class="pcs-section-title">Mother's Maiden Name</span>
+            </div>
+            <div class="pcs-grid pcs-grid-3">
+                <div class="pcs-field">
+                    <label class="pcs-label">Given Name <span class="pcs-req">*</span></label>
+                    <InputText @bind-Value="Model.MotherMaidenGivenName" class="pcs-input" placeholder="Mother's Given Name" />
+                    <ValidationMessage For="@(() => Model.MotherMaidenGivenName)" class="pcs-field-error" />
+                </div>
+                <div class="pcs-field">
+                    <label class="pcs-label">Middle Name <span class="pcs-req">*</span></label>
+                    <InputText @bind-Value="Model.MotherMaidenMiddleName" class="pcs-input" placeholder="Mother's Middle Name" />
+                    <ValidationMessage For="@(() => Model.MotherMaidenMiddleName)" class="pcs-field-error" />
+                </div>
+                <div class="pcs-field">
+                    <label class="pcs-label">Last Name <span class="pcs-req">*</span></label>
+                    <InputText @bind-Value="Model.MotherMaidenLastName" class="pcs-input" placeholder="Mother's Maiden Last Name" />
+                    <ValidationMessage For="@(() => Model.MotherMaidenLastName)" class="pcs-field-error" />
+                </div>
+            </div>
+        </div>
+
+        @* ── Foreign National Toggle ── *@
+        <div class="pcs-section">
+            <label class="pcs-toggle-row">
+                <div class="pcs-toggle-info">
+                    <span class="pcs-toggle-label">Foreign National</span>
+                    <span class="pcs-toggle-sub">Applicant Holds a Foreign Passport</span>
+                </div>
+                <div class="pcs-toggle-switch @(Model.IsForeigner ? "on" : "")">
+                    <InputCheckbox @bind-Value="Model.IsForeigner" class="pcs-toggle-input" id="chkForeigner" />
+                    <div class="pcs-toggle-thumb"></div>
+                </div>
+            </label>
+        </div>
+
+        @if (Model.IsForeigner)
+        {
+            <div class="pcs-section pcs-section-conditional" id="field-ForeignerDetails">
+                <div class="pcs-section-header">
+                    <div class="pcs-section-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <span class="pcs-section-title">Foreigner Details</span>
+                </div>
+                <div class="pcs-grid pcs-grid-2">
+                    <div class="pcs-field">
+                        <label class="pcs-label">Passport ID Number <span class="pcs-req">*</span></label>
+                        <InputText @bind-Value="Model.PassportIDNumber" class="pcs-input" placeholder="e.g. A12345678" />
+                        <ValidationMessage For="@(() => Model.PassportIDNumber)" class="pcs-field-error" />
+                    </div>
+                    <div class="pcs-field">
+                        <label class="pcs-label">Passport Expiry <span class="pcs-req">*</span></label>
+                        <InputDate @bind-Value="Model.PassportExpiry" class="pcs-input" min="@DateTime.Today.ToString("yyyy-MM-dd")" max="2999-12-31" />
+                        <ValidationMessage For="@(() => Model.PassportExpiry)" class="pcs-field-error" />
+                    </div>
+                </div>
+                <div class="pcs-divider"></div>
+                <div class="pcs-label mb-2">Visa / Permit Classification</div>
+                <div class="pcs-checkbox-group">
+                    <label class="pcs-checkbox-card @(Model.IsACR ? "checked" : "")">
+                        <InputCheckbox @bind-Value="Model.IsACR" class="pcs-toggle-input" />
+                        <div class="pcs-checkbox-tick"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></div>
+                        <div><div class="pcs-checkbox-main">ACR</div><div class="pcs-checkbox-sub">Alien Certificate of Registration</div></div>
+                    </label>
+                    <label class="pcs-checkbox-card @(Model.IsSIRV ? "checked" : "")">
+                        <InputCheckbox @bind-Value="Model.IsSIRV" class="pcs-toggle-input" />
+                        <div class="pcs-checkbox-tick"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></div>
+                        <div><div class="pcs-checkbox-main">SIRV</div><div class="pcs-checkbox-sub">Special Investor's Resident Visa</div></div>
+                    </label>
+                    <label class="pcs-checkbox-card @(Model.IsSRRV ? "checked" : "")">
+                        <InputCheckbox @bind-Value="Model.IsSRRV" class="pcs-toggle-input" />
+                        <div class="pcs-checkbox-tick"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></div>
+                        <div><div class="pcs-checkbox-main">SRRV</div><div class="pcs-checkbox-sub">Special Resident Retiree's Visa</div></div>
+                    </label>
+                </div>
+            </div>
+        }
+
+    </div>
+</EditForm>
+
+@* ══════════════════════════════════════════════════════════
+   STEP 1 — Contact Information (EditForm B)
+══════════════════════════════════════════════════════════ *@
+<EditForm Model="AddressModel" OnValidSubmit="OnContactValidSubmit" @ref="contactForm">
+    <DataAnnotationsValidator />
+
+    <div class="pcs-wrap">
+
+        @* ── Permanent Address ── *@
+        <div class="pcs-section" id="field-PermanentAddress">
+            <div class="pcs-section-header">
+                <div class="pcs-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M9 21V12h6v9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <span class="pcs-section-title">Permanent Address</span>
+            </div>
+            <div class="pcs-grid pcs-grid-2 mb-3">
+                <div class="pcs-field">
+                    <label class="pcs-label">House No. / Unit</label>
+                    <InputText @bind-Value="permHouseNo" class="pcs-input" placeholder="e.g. 123" @oninput="BuildPermanentAddress" />
+                </div>
+                <div class="pcs-field">
+                    <label class="pcs-label">Street <span class="pcs-req">*</span></label>
+                    <InputText @bind-Value="permStreet" class="pcs-input" placeholder="e.g. Rizal St." @oninput="BuildPermanentAddress" />
+                </div>
+            </div>
+            <div class="pcs-grid pcs-grid-3 mb-3">
+                <div class="pcs-field">
+                    <label class="pcs-label">Barangay <span class="pcs-req">*</span></label>
+                    <InputText @bind-Value="permBarangay" class="pcs-input" placeholder="e.g. Brgy. San Jose" @oninput="BuildPermanentAddress" />
+                </div>
+                <div class="pcs-field">
+                    <label class="pcs-label">City / Municipality <span class="pcs-req">*</span></label>
+                    <InputText @bind-Value="permCity" class="pcs-input" placeholder="e.g. Porac" @oninput="BuildPermanentAddress" />
+                </div>
+                <div class="pcs-field">
+                    <label class="pcs-label">Province <span class="pcs-req">*</span></label>
+                    <InputText @bind-Value="permProvince" class="pcs-input" placeholder="e.g. Pampanga" @oninput="BuildPermanentAddress" />
+                </div>
+            </div>
+            <div class="pcs-grid pcs-grid-2">
+                <div class="pcs-field">
+                    <label class="pcs-label">Zip Code <span class="pcs-req">*</span></label>
+                    <InputText @bind-Value="AddressModel.PermanentZipCode" class="pcs-input" placeholder="e.g. 2400" />
+                    <ValidationMessage For="@(() => AddressModel.PermanentZipCode)" class="pcs-field-error" />
+                </div>
+                <div class="pcs-field">
+                    <label class="pcs-label">Country <span class="pcs-req">*</span></label>
+                    <InputText @bind-Value="AddressModel.PermanentCountry" class="pcs-input" placeholder="e.g. Philippines" />
+                    <ValidationMessage For="@(() => AddressModel.PermanentCountry)" class="pcs-field-error" />
+                </div>
+            </div>
+            @if (permAddressError != null) { <div class="pcs-field-error mt-2">@permAddressError</div> }
+        </div>
+
+        @* ── Same as Permanent Toggle ── *@
+        <div class="pcs-section">
+            <label class="pcs-toggle-row">
+                <div class="pcs-toggle-info">
+                    <span class="pcs-toggle-label">Present address is same as permanent</span>
+                    <span class="pcs-toggle-sub">Toggle Off to Enter a Different Present Address</span>
+                </div>
+                <div class="pcs-toggle-switch @(AddressModel.IsPresentSameAsPermanent ? "on" : "")">
+                    <input type="checkbox" class="pcs-toggle-input" checked="@AddressModel.IsPresentSameAsPermanent" @onchange="HandleAddressSync" />
+                    <div class="pcs-toggle-thumb"></div>
+                </div>
+            </label>
+        </div>
+
+        @* ── Present Address (conditional) ── *@
+        @if (!AddressModel.IsPresentSameAsPermanent)
+        {
+            <div class="pcs-section pcs-section-conditional" id="field-PresentAddress">
+                <div class="pcs-section-header">
+                    <div class="pcs-section-icon pcs-icon-blue">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="12" cy="9" r="2.5" stroke="white" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <span class="pcs-section-title">Present Address</span>
+                </div>
+                <div class="pcs-grid pcs-grid-2 mb-3">
+                    <div class="pcs-field">
+                        <label class="pcs-label">House No. / Unit</label>
+                        <InputText @bind-Value="presHouseNo" class="pcs-input" placeholder="e.g. 123" @oninput="BuildPresentAddress" />
+                    </div>
+                    <div class="pcs-field">
+                        <label class="pcs-label">Street <span class="pcs-req">*</span></label>
+                        <InputText @bind-Value="presStreet" class="pcs-input" placeholder="e.g. Rizal St." @oninput="BuildPresentAddress" />
+                    </div>
+                </div>
+                <div class="pcs-grid pcs-grid-3 mb-3">
+                    <div class="pcs-field">
+                        <label class="pcs-label">Barangay <span class="pcs-req">*</span></label>
+                        <InputText @bind-Value="presBarangay" class="pcs-input" placeholder="e.g. Brgy. San Jose" @oninput="BuildPresentAddress" />
+                    </div>
+                    <div class="pcs-field">
+                        <label class="pcs-label">City / Municipality <span class="pcs-req">*</span></label>
+                        <InputText @bind-Value="presCity" class="pcs-input" placeholder="e.g. Porac" @oninput="BuildPresentAddress" />
+                    </div>
+                    <div class="pcs-field">
+                        <label class="pcs-label">Province <span class="pcs-req">*</span></label>
+                        <InputText @bind-Value="presProvince" class="pcs-input" placeholder="e.g. Pampanga" @oninput="BuildPresentAddress" />
+                    </div>
+                </div>
+                <div class="pcs-grid pcs-grid-2">
+                    <div class="pcs-field">
+                        <label class="pcs-label">Zip Code <span class="pcs-req">*</span></label>
+                        <InputText @bind-Value="AddressModel.PresentZipCode" class="pcs-input" placeholder="e.g. 2400" />
+                        <ValidationMessage For="@(() => AddressModel.PresentZipCode)" class="pcs-field-error" />
+                    </div>
+                    <div class="pcs-field">
+                        <label class="pcs-label">Country <span class="pcs-req">*</span></label>
+                        <InputText @bind-Value="AddressModel.PresentCountry" class="pcs-input" placeholder="e.g. Philippines" />
+                        <ValidationMessage For="@(() => AddressModel.PresentCountry)" class="pcs-field-error" />
+                    </div>
+                </div>
+                @if (presAddressError != null) { <div class="pcs-field-error mt-2">@presAddressError</div> }
+            </div>
+        }
+
+        @* ── Contact Details ── *@
+        <div class="pcs-section" id="field-MobilePhone">
+            <div class="pcs-section-header">
+                <div class="pcs-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.36 11.36 0 003.56.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.45.57 3.57a1 1 0 01-.25 1.01l-2.2 2.21z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <span class="pcs-section-title">Contact Details</span>
+            </div>
+            <div class="pcs-grid pcs-grid-3">
+                <div class="pcs-field">
+                    <label class="pcs-label">Home Phone No.</label>
+                    <InputText @bind-Value="InfoModel.HomePhoneNumber" class="pcs-input" placeholder="e.g. 045-123-4567" />
+                </div>
+                <div class="pcs-field">
+                    <label class="pcs-label">Mobile Phone No. <span class="pcs-req">*</span></label>
+                    <div class="pcs-phone-wrap">
+                        <span class="pcs-phone-prefix">+63</span>
+                        <input class="pcs-input pcs-phone-input" type="tel" maxlength="10" placeholder="9XXXXXXXXX"
+                               value="@mobileRaw" @oninput="HandleMobileInput" />
+                    </div>
+                    <ValidationMessage For="@(() => InfoModel.MobilePhoneNumber)" class="pcs-field-error" />
+                </div>
+                <div class="pcs-field">
+                    <label class="pcs-label">Email Address <span class="pcs-req">*</span></label>
+                    <InputText @bind-Value="InfoModel.EmailAddress" class="pcs-input" placeholder="e.g. juan@email.com" />
+                    <ValidationMessage For="@(() => InfoModel.EmailAddress)" class="pcs-field-error" />
+                </div>
+            </div>
+        </div>
+
+        @* ── Mailing Preference ── *@
+        <div class="pcs-section" id="field-MailingPreference">
+            <div class="pcs-section-header">
+                <div class="pcs-section-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <polyline points="22,6 12,13 2,6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <span class="pcs-section-title">Mailing Preference</span>
+            </div>
+            <div class="pcs-grid pcs-grid-1" style="max-width:320px;">
+                <div class="pcs-field">
+                    <label class="pcs-label">Send Correspondence To <span class="pcs-req">*</span></label>
+                    @if (AddressModel.IsPresentSameAsPermanent)
+                    {
+                        <input class="pcs-input" value="Permanent Address" disabled />
+                    }
+                    else
+                    {
+                        <div class="pcs-select-wrap">
+                            <InputSelect @bind-Value="AddressModel.MailingPreference" class="pcs-select">
+                                <option value="@MailingPreference.None" disabled>Select</option>
+                                @foreach (var pref in Enum.GetValues<MailingPreference>())
+                                {
+                                    if (pref == MailingPreference.None) continue;
+                                    <option value="@pref">@GetMailingLabel(pref)</option>
+                                }
+                            </InputSelect>
+                            <svg class="pcs-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <ValidationMessage For="@(() => AddressModel.MailingPreference)" class="pcs-field-error" />
+                    }
+                </div>
+            </div>
+        </div>
+
+        @* ── Footer ── *@
+        <div class="pcs-footer">
+            <div class="pcs-footer-hint"><span class="pcs-req">*</span>&nbsp;Required fields must be filled before continuing</div>
+            <button type="button" class="pcs-btn-next" @onclick="TriggerAll">
+                <span>Continue</span>
+                <div class="pcs-btn-arrow">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+            </button>
+        </div>
+
+    </div>
+</EditForm>
+
+<style>
+    .pcs-wrap { display: flex; flex-direction: column; gap: 8px; font-family: 'Segoe UI', system-ui, sans-serif; }
+    .pcs-section { background: #fff; border: 1px solid #edf0f4; border-radius: 18px; padding: 22px 24px; transition: border-color 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; }
+    .pcs-section::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, #00a859, #0056b3); opacity: 0; transition: opacity 0.25s; }
+    .pcs-section:focus-within { border-color: #c8e6d8; box-shadow: 0 4px 20px rgba(0,168,89,0.07); }
+    .pcs-section:focus-within::after { opacity: 1; }
+    .pcs-section-conditional { border-color: #dbeafe; background: linear-gradient(135deg, #f8fbff 0%, #f0fdf8 100%); animation: pcs-slide-in 0.22s ease; }
+    @@keyframes pcs-slide-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .pcs-section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .pcs-section-icon { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #00a859, #0056b3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,168,89,0.25); }
+    .pcs-icon-blue { background: linear-gradient(135deg, #2563eb, #7c3aed); box-shadow: 0 2px 8px rgba(37,99,235,0.22); }
+    .pcs-section-title { font-size: 0.72rem; font-weight: 800; color: #0f172a; letter-spacing: 0.8px; text-transform: uppercase; flex: 1; }
+    .pcs-cat-note { font-size: 0.68rem; color: #94a3b8; font-style: italic; }
+    .pcs-grid { display: grid; gap: 16px; }
+    .pcs-grid-1 { grid-template-columns: 1fr; }
+    .pcs-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .pcs-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .pcs-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .mb-2 { margin-bottom: 8px; } .mb-3 { margin-bottom: 12px; } .mt-2 { margin-top: 8px; }
+    .pcs-field { display: flex; flex-direction: column; gap: 6px; }
+    .pcs-label { font-size: 0.71rem; font-weight: 700; color: #64748b; letter-spacing: 0.2px; display: flex; align-items: center; gap: 3px; }
+    .pcs-req { color: #ef4444; font-size: 0.8rem; line-height: 1; }
+    .pcs-input, .pcs-select { height: 42px; padding: 0 14px; border: 1.5px solid #e2e8f0; border-radius: 11px; font-size: 0.86rem; color: #0f172a; background: #fff; outline: none; transition: border-color 0.18s, box-shadow 0.18s, background 0.18s; width: 100%; -webkit-appearance: none; appearance: none; }
+    .pcs-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; cursor: pointer; }
+    .pcs-input:hover, .pcs-select:hover { border-color: #94a3b8; }
+    .pcs-input:focus, .pcs-select:focus { border-color: #00a859; box-shadow: 0 0 0 3px rgba(0,168,89,0.12); background: #fafffe; }
+    .pcs-input.invalid, .pcs-input.modified.invalid, .pcs-select.invalid, .pcs-select.modified.invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important; }
+    .pcs-input.modified.valid, .pcs-select.modified.valid { border-color: #00a859 !important; }
+    .pcs-field-error { font-size: 0.7rem; color: #dc2626; font-weight: 500; margin: 0; padding: 0; display: block; }
+    .pcs-divider { height: 1px; background: #f1f5f9; margin: 16px 0 12px; }
+    .pcs-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
+    .pcs-checkbox-card { display: flex; align-items: center; gap: 8px; padding: 9px 16px; border: 1.5px solid #e2e8f0; border-radius: 11px; cursor: pointer; font-size: 0.86rem; color: #0f172a; background: #fff; transition: border-color 0.18s, box-shadow 0.18s, background 0.18s; user-select: none; }
+    .pcs-checkbox-card:hover { border-color: #94a3b8; }
+    .pcs-checkbox-card.checked { border-color: #00a859; background: #f0fdf8; box-shadow: 0 0 0 3px rgba(0,168,89,0.1); }
+    .pcs-checkbox-card input[type=checkbox] { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+    .pcs-checkbox-tick { width: 17px; height: 17px; border-radius: 5px; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color 0.18s, background 0.18s; }
+    .pcs-checkbox-card.checked .pcs-checkbox-tick { border-color: #00a859; background: #00a859; }
+    .pcs-checkbox-main { font-size: 0.86rem; font-weight: 700; color: #0f172a; }
+    .pcs-checkbox-sub { font-size: 0.7rem; color: #94a3b8; }
+    .pcs-radio-group { display: flex; gap: 10px; }
+    .pcs-radio-card { display: flex; align-items: center; gap: 8px; padding: 9px 16px; border: 1.5px solid #e2e8f0; border-radius: 11px; cursor: pointer; font-size: 0.86rem; color: #0f172a; background: #fff; transition: border-color 0.18s, box-shadow 0.18s, background 0.18s; user-select: none; }
+    .pcs-radio-card.checked { border-color: #00a859; background: #f0fdf8; box-shadow: 0 0 0 3px rgba(0,168,89,0.1); }
+    .pcs-radio-input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+    .pcs-radio-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color 0.18s, background 0.18s; }
+    .pcs-radio-card.checked .pcs-radio-dot { border-color: #00a859; background: #00a859; box-shadow: inset 0 0 0 3px #fff; }
+    .pcs-toggle-row { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; gap: 12px; }
+    .pcs-toggle-info { display: flex; flex-direction: column; gap: 2px; }
+    .pcs-toggle-label { font-size: 0.86rem; font-weight: 700; color: #0f172a; }
+    .pcs-toggle-sub { font-size: 0.72rem; color: #94a3b8; }
+    .pcs-toggle-switch { position: relative; width: 46px; height: 26px; background: #e2e8f0; border-radius: 99px; transition: background 0.25s; flex-shrink: 0; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+    .pcs-toggle-switch.on { background: linear-gradient(90deg, #00a859, #0056b3); box-shadow: 0 2px 8px rgba(0,168,89,0.3); }
+    .pcs-toggle-input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+    .pcs-toggle-thumb { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.18); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); pointer-events: none; }
+    .pcs-toggle-switch.on .pcs-toggle-thumb { transform: translateX(20px); }
+    .pcs-phone-wrap { display: flex; align-items: center; border: 1.5px solid #e2e8f0; border-radius: 11px; overflow: hidden; transition: border-color 0.18s, box-shadow 0.18s; background: #fff; }
+    .pcs-phone-wrap:focus-within { border-color: #00a859; box-shadow: 0 0 0 3px rgba(0,168,89,0.12); }
+    .pcs-phone-prefix { padding: 0 12px; height: 42px; display: flex; align-items: center; font-size: 0.86rem; font-weight: 600; color: #475569; background: #f8fafc; border-right: 1.5px solid #e2e8f0; white-space: nowrap; flex-shrink: 0; }
+    .pcs-phone-input { border: none !important; border-radius: 0 !important; box-shadow: none !important; flex: 1; height: 42px; padding: 0 14px; background: transparent; outline: none; }
+    .pcs-select-wrap { position: relative; }
+    .pcs-select-arrow { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
+    .pcs-footer { display: flex; align-items: center; justify-content: flex-end; padding-top: 6px; flex-wrap: wrap; gap: 12px; }
+    .pcs-footer-hint { font-size: 0.72rem; color: #94a3b8; display: flex; align-items: center; gap: 3px; flex: 1; }
+    .pcs-btn-next { display: flex; align-items: center; gap: 12px; padding: 13px 28px; background: linear-gradient(90deg, #00a859 0%, #0056b3 100%); color: #fff; border: none; border-radius: 13px; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: filter 0.18s, transform 0.15s, box-shadow 0.18s; box-shadow: 0 4px 18px rgba(0,168,89,0.3); letter-spacing: 0.2px; }
+    .pcs-btn-next:hover { filter: brightness(1.07); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,168,89,0.38); }
+    .pcs-btn-next:active { transform: translateY(0); filter: brightness(0.97); }
+    .pcs-btn-arrow { width: 30px; height: 30px; background: rgba(255,255,255,0.2); border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    @@media (max-width: 768px) { .pcs-grid-3, .pcs-grid-4 { grid-template-columns: repeat(2, 1fr); } .pcs-section { padding: 18px; } }
+    @@media (max-width: 480px) { .pcs-grid-2, .pcs-grid-3, .pcs-grid-4 { grid-template-columns: 1fr; } .pcs-section { padding: 14px; border-radius: 14px; } .pcs-footer { flex-direction: column; align-items: stretch; } .pcs-btn-next { justify-content: center; } }
+</style>
+
+@code {
+    // ── Parameters ────────────────────────────────────────────────
+    [Parameter] public CustomerDTO.PageModel Customer { get; set; } = new();
+    [Parameter] public EventCallback<CustomerDTO.PageModel> CustomerChanged { get; set; }
+    [Parameter] public IndividualInfoDTO.PageModel Model { get; set; } = new();
+    [Parameter] public EventCallback<IndividualInfoDTO.PageModel> ModelChanged { get; set; }
+    [Parameter] public IndividualForeignerDTO.PageModel ForeignerModel { get; set; } = new();
+    [Parameter] public EventCallback<IndividualForeignerDTO.PageModel> ForeignerModelChanged { get; set; }
+    [Parameter] public AddressDTO.PageModel AddressModel { get; set; } = new();
+    [Parameter] public IndividualInfoDTO.PageModel InfoModel { get; set; } = new();
+    [Parameter] public ContactDTO.PageModel ContactModel { get; set; } = new();
+    [Parameter] public EventCallback<ContactDTO.PageModel> ContactModelChanged { get; set; }
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+
+    // ── State ──────────────────────────────────────────────────────
+    private EditForm? personalForm;
+    private EditForm? contactForm;
+    private ValidationMessageStore? personalMessageStore;
+    private ValidationMessageStore? contactMessageStore;
+
+    // Personal state
+    // Contact state
+    private string? permHouseNo, permStreet, permBarangay, permCity, permProvince;
+    private string? presHouseNo, presStreet, presBarangay, presCity, presProvince;
+    private string? permAddressError, presAddressError;
+    private string? mobileRaw;
+
+    // Track which forms have passed
+    private bool personalPassed = false;
+    private bool contactPassed = false;
+    private bool contactAttempted = false;
+
+    // ── Lifecycle ──────────────────────────────────────────────────
+    protected override void OnInitialized()
+    {
+        Model.IsResident = true;
+        Model.CustomerCategories = Customer.CustomerCategories;
+        AddressModel.IsPresentSameAsPermanent = true;
+
+        // Restore address parts from saved draft
+        if (!string.IsNullOrWhiteSpace(AddressModel.PermanentAddress))
+            RestoreAddressParts(AddressModel.PermanentAddress, ref permHouseNo, ref permStreet, ref permBarangay, ref permCity, ref permProvince);
+        if (!string.IsNullOrWhiteSpace(AddressModel.PresentAddress))
+            RestoreAddressParts(AddressModel.PresentAddress, ref presHouseNo, ref presStreet, ref presBarangay, ref presCity, ref presProvince);
+        if (!string.IsNullOrWhiteSpace(InfoModel.MobilePhoneNumber) && InfoModel.MobilePhoneNumber.StartsWith("+63"))
+            mobileRaw = InfoModel.MobilePhoneNumber[3..];
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        var pCtx = personalForm?.EditContext;
+        if (pCtx != null)
+        {
+            personalMessageStore = new ValidationMessageStore(pCtx);
+            pCtx.OnFieldChanged += (_, _) => { ValidatePersonalConditional(); pCtx.NotifyValidationStateChanged(); };
+        }
+
+        var cCtx = contactForm?.EditContext;
+        if (cCtx != null)
+        {
+            contactMessageStore = new ValidationMessageStore(cCtx);
+            cCtx.OnFieldChanged += (_, _) => { if (contactAttempted) { ValidateContactConditional(cCtx); cCtx.NotifyValidationStateChanged(); } };
+        }
+    }
+
+    // ── Combined trigger ──────────────────────────────────────────
+    private async Task TriggerAll()
+    {
+        personalPassed = false;
+        contactPassed = false;
+
+        // Validate personal form — only fire OnValidSubmit if no errors
+        var pCtx = personalForm?.EditContext;
+        if (pCtx != null)
+        {
+            pCtx.Validate();
+            ValidatePersonalConditional();
+            pCtx.NotifyValidationStateChanged();
+
+            if (!pCtx.GetValidationMessages().Any())
+                await personalForm!.OnValidSubmit.InvokeAsync();
+        }
+
+        // Validate contact form — only fire OnValidSubmit if no errors
+        var cCtx = contactForm?.EditContext;
+        if (cCtx != null)
+        {
+            contactAttempted = true;
+            cCtx.Validate();
+            ValidateContactConditional(cCtx);
+            cCtx.NotifyValidationStateChanged();
+
+            if (!cCtx.GetValidationMessages().Any())
+                await contactForm!.OnValidSubmit.InvokeAsync();
+        }
+
+        if (personalPassed && contactPassed)
+        {
+            await CommitAndAdvance();
+            return;
+        }
+
+        // Force UI re-render so error messages are in the DOM before JS scans for them
+        StateHasChanged();
+        await Task.Delay(50);
+
+        var scrollIds = new[]
+        {
+            "field-CustomerCategories",
+            "field-FirstName",
+            "field-Gender",
+            "field-MaidenName",
+            "field-SpouseName",
+            "field-DateOfBirth",
+            "field-MotherMaidenGivenName",
+            "field-ForeignerDetails",
+            "field-PermanentAddress",
+            "field-MobilePhone",
+            "field-MailingPreference"
+        };
+        foreach (var id in scrollIds)
+        {
+            try { if (await JS.InvokeAsync<bool>("scrollToFirstError", id)) break; }
+            catch { }
+        }
+    }
+
+    private void OnPersonalValidSubmit() => personalPassed = true;
+    private void OnContactValidSubmit() => contactPassed = true;
+
+    // ── Commit both forms and advance ────────────────────────────
+    private async Task CommitAndAdvance()
+    {
+        // Personal cleanup
+        Customer.EntityType = EntityType.Individual;
+        Customer.CustomerCategories = Model.CustomerCategories;
+        if (Model.Citizenship != Citizenship.Others) Model.CitizenshipOther = null;
+        if (Model.MaritalStatus is not (MaritalStatus.Married or MaritalStatus.Widowed))
+            (Model.SpouseGivenName, Model.SpouseMiddleName, Model.SpouseLastName) = (null, null, null);
+        if (!(Model.Gender == Gender.Female && Model.MaritalStatus == MaritalStatus.Married))
+            (Model.MaidenName, Model.MaidenMiddleName, Model.MaidenLastName) = (null, null, null);
+        if (Model.IsForeigner)
+        {
+            ForeignerModel.PassportIDNumber = Model.PassportIDNumber;
+            ForeignerModel.PassportExpiry = Model.PassportExpiry;
+            ForeignerModel.IsACR = Model.IsACR;
+            ForeignerModel.IsSIRV = Model.IsSIRV;
+            ForeignerModel.IsSRRV = Model.IsSRRV;
+        }
+        else
+        {
+            ForeignerModel.PassportIDNumber = Model.PassportIDNumber = null;
+            ForeignerModel.PassportExpiry = Model.PassportExpiry = null;
+            ForeignerModel.IsACR = Model.IsACR = false;
+            ForeignerModel.IsSIRV = Model.IsSIRV = false;
+            ForeignerModel.IsSRRV = Model.IsSRRV = false;
+        }
+
+        // Contact cleanup
+        if (AddressModel.IsPresentSameAsPermanent)
+        {
+            AddressModel.PresentAddress = AddressModel.PermanentAddress;
+            AddressModel.PresentZipCode = AddressModel.PermanentZipCode;
+            AddressModel.PresentCountry = AddressModel.PermanentCountry;
+            AddressModel.MailingPreference = MailingPreference.PermanentAddress;
+        }
+        ContactModel.EntityType = EntityType.Individual;
+        ContactModel.HomePhoneNumber = InfoModel.HomePhoneNumber;
+        ContactModel.MobilePhoneNumber = InfoModel.MobilePhoneNumber;
+        ContactModel.EmailAddress = InfoModel.EmailAddress;
+
+        await CustomerChanged.InvokeAsync(Customer);
+        await ForeignerModelChanged.InvokeAsync(ForeignerModel);
+        await ContactModelChanged.InvokeAsync(ContactModel);
+        await OnNext.InvokeAsync();
+    }
+
+    // ── Personal validation ───────────────────────────────────────
+    private void ValidatePersonalConditional()
+    {
+        var store = personalMessageStore;
+        var ctx = personalForm?.EditContext;
+        if (store == null || ctx == null) return;
+        store.Clear();
+        if (Model.CustomerCategories.Count == 0)
+            store.Add(() => Model.CustomerCategories, "At least one customer category must be selected.");
+        if (Model.Citizenship == Citizenship.Others && string.IsNullOrWhiteSpace(Model.CitizenshipOther))
+            store.Add(() => Model.CitizenshipOther, "Please specify citizenship.");
+        if (Model.MaritalStatus is MaritalStatus.Married or MaritalStatus.Widowed)
+        {
+            if (string.IsNullOrWhiteSpace(Model.SpouseGivenName)) store.Add(() => Model.SpouseGivenName, "Spouse given name is required.");
+            if (string.IsNullOrWhiteSpace(Model.SpouseLastName)) store.Add(() => Model.SpouseLastName, "Spouse last name is required.");
+        }
+        if (Model.Gender == Gender.Female && Model.MaritalStatus == MaritalStatus.Married)
+        {
+            if (string.IsNullOrWhiteSpace(Model.MaidenName)) store.Add(() => Model.MaidenName, "Maiden first name is required.");
+            if (string.IsNullOrWhiteSpace(Model.MaidenMiddleName)) store.Add(() => Model.MaidenMiddleName, "Maiden middle name is required.");
+            if (string.IsNullOrWhiteSpace(Model.MaidenLastName)) store.Add(() => Model.MaidenLastName, "Maiden last name is required.");
+        }
+        if (Model.IsForeigner)
+        {
+            if (string.IsNullOrWhiteSpace(Model.PassportIDNumber)) store.Add(() => Model.PassportIDNumber, "Passport ID number is required.");
+            if (Model.PassportExpiry == null) store.Add(() => Model.PassportExpiry, "Passport expiry date is required.");
+            else if (Model.PassportExpiry <= DateOnly.FromDateTime(DateTime.Today)) store.Add(() => Model.PassportExpiry, "Passport expiry must be a future date.");
+        }
+    }
+
+    // ── Contact validation ────────────────────────────────────────
+    private void ValidateContactConditional(EditContext ctx)
+    {
+        var store = contactMessageStore;
+        if (store == null) return;
+        store.Clear();
+        if (string.IsNullOrWhiteSpace(AddressModel.PermanentAddress))
+        { permAddressError = "Please fill in all permanent address fields."; store.Add(() => AddressModel.PermanentAddress, "Permanent address is required."); }
+        else permAddressError = null;
+        if (string.IsNullOrWhiteSpace(InfoModel.EmailAddress))
+            store.Add(() => InfoModel.EmailAddress, "Email address is required.");
+        else if (!InfoModel.EmailAddress.Contains('@') || !InfoModel.EmailAddress.Contains('.'))
+            store.Add(() => InfoModel.EmailAddress, "Please enter a valid email address.");
+        if (!AddressModel.IsPresentSameAsPermanent && AddressModel.MailingPreference == MailingPreference.None)
+            store.Add(() => AddressModel.MailingPreference, "Please select a mailing preference.");
+        if (!AddressModel.IsPresentSameAsPermanent)
+        {
+            if (string.IsNullOrWhiteSpace(AddressModel.PresentAddress))
+            { presAddressError = "Please fill in all present address fields."; store.Add(() => AddressModel.PresentAddress, "Present address is required."); }
+            else presAddressError = null;
+            if (string.IsNullOrWhiteSpace(AddressModel.PresentZipCode)) store.Add(() => AddressModel.PresentZipCode, "Present zip code is required.");
+            if (string.IsNullOrWhiteSpace(AddressModel.PresentCountry)) store.Add(() => AddressModel.PresentCountry, "Present country is required.");
+        }
+    }
+
+    // ── Handlers ──────────────────────────────────────────────────
+    private void HandleAddressSync(ChangeEventArgs e)
+    {
+        AddressModel.IsPresentSameAsPermanent = (bool)(e.Value ?? false);
+        if (AddressModel.IsPresentSameAsPermanent)
+        {
+            AddressModel.PresentAddress = AddressModel.PermanentAddress;
+            AddressModel.PresentZipCode = AddressModel.PermanentZipCode;
+            AddressModel.PresentCountry = AddressModel.PermanentCountry;
+            AddressModel.MailingPreference = MailingPreference.PermanentAddress;
+            (presHouseNo, presStreet, presBarangay, presCity, presProvince) = (null, null, null, null, null);
+        }
+        else { AddressModel.PresentAddress = null; AddressModel.PresentZipCode = null; AddressModel.PresentCountry = null; }
+    }
+
+    private void BuildPermanentAddress(ChangeEventArgs _)
+    {
+        AddressModel.PermanentAddress = string.Join(", ", new[] { permHouseNo, permStreet, permBarangay, permCity, permProvince }.Where(p => !string.IsNullOrWhiteSpace(p)));
+        permAddressError = string.IsNullOrWhiteSpace(AddressModel.PermanentAddress) ? "Permanent address is required." : null;
+    }
+
+    private void BuildPresentAddress(ChangeEventArgs _)
+    {
+        AddressModel.PresentAddress = string.Join(", ", new[] { presHouseNo, presStreet, presBarangay, presCity, presProvince }.Where(p => !string.IsNullOrWhiteSpace(p)));
+        presAddressError = string.IsNullOrWhiteSpace(AddressModel.PresentAddress) ? "Present address is required." : null;
+    }
+
+    private void HandleMobileInput(ChangeEventArgs e)
+    {
+        var raw = System.Text.RegularExpressions.Regex.Replace(e.Value?.ToString() ?? "", @"[^\d]", "");
+        if (raw.Length > 10) raw = raw[..10];
+        mobileRaw = raw;
+        InfoModel.MobilePhoneNumber = raw.Length > 0 ? "+63" + raw : null;
+    }
+
+    private static void RestoreAddressParts(string combined, ref string? houseNo, ref string? street, ref string? barangay, ref string? city, ref string? province)
+    {
+        var parts = combined.Split(", ", 5, StringSplitOptions.None);
+        if (parts.Length == 5) { houseNo = parts[0]; street = parts[1]; barangay = parts[2]; city = parts[3]; province = parts[4]; }
+        else if (parts.Length == 4) { houseNo = null; street = parts[0]; barangay = parts[1]; city = parts[2]; province = parts[3]; }
+        else if (parts.Length >= 1) { street = combined; }
+    }
+
+    private static string GetMailingLabel(MailingPreference pref) => pref switch
+    {
+        MailingPreference.None => "None",
+        MailingPreference.PermanentAddress => "Permanent Address",
+        MailingPreference.PresentAddress => "Present Address",
+        _ => pref.ToString()
+    };
+
+    private static string GetCategoryLabel(CustomerCategory cat) => cat switch
+    {
+        CustomerCategory.LoanBorrower => "Loan Borrower",
+        CustomerCategory.LoanCoMaker => "Loan Co-Maker",
+        CustomerCategory.Depositor => "Depositor",
+        _ => cat.ToString()
+    };
+
+    private void ToggleCategory(CustomerCategory cat, bool isChecked)
+    {
+        if (isChecked && !Model.CustomerCategories.Contains(cat)) Model.CustomerCategories.Add(cat);
+        else Model.CustomerCategories.Remove(cat);
+    }
+}

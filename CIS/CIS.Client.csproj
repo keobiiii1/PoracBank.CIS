@@ -11,17 +11,20 @@
   <ItemGroup>
     <Compile Remove="CIS.API\**" />
     <Compile Remove="CIS.Assets\**" />
+    <Compile Remove="Pages\Business\**" />
+    <Compile Remove="Pages\Individual\**" />
     <Content Remove="CIS.API\**" />
     <Content Remove="CIS.Assets\**" />
+    <Content Remove="Pages\Business\**" />
+    <Content Remove="Pages\Individual\**" />
     <EmbeddedResource Remove="CIS.API\**" />
     <EmbeddedResource Remove="CIS.Assets\**" />
+    <EmbeddedResource Remove="Pages\Business\**" />
+    <EmbeddedResource Remove="Pages\Individual\**" />
     <None Remove="CIS.API\**" />
     <None Remove="CIS.Assets\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Remove="Pages\Business\BusinessStepper.razor" />
-    <Content Remove="Pages\Business\ClientAcknowledgement.razor" />
+    <None Remove="Pages\Business\**" />
+    <None Remove="Pages\Individual\**" />
   </ItemGroup>
 
   <ItemGroup>

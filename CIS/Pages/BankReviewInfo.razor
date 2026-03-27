@@ -1,0 +1,797 @@
+﻿@inject IJSRuntime JS
+@using CIS.Assets.DTO
+
+<div class="br-wrap">
+
+    @* ══════════════════════════════════════
+       HEADER BANNER
+    ══════════════════════════════════════ *@
+    <div class="br-bank-banner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M12 10v11M16 10v11" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        FOR BANK USE ONLY
+    </div>
+
+    @* ══════════════════════════════════════
+       SECTION 1 — Screening & Nature of Work
+    ══════════════════════════════════════ *@
+    <div class="br-section" id="field-Screening">
+        <div class="br-two-col">
+
+            @* LEFT: Screening + Nature of Work *@
+            <div class="br-col br-col-left">
+
+                @* Screening *@
+                <div class="br-subsection-label">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Customer Was Checked Against <span class="br-req">*</span>
+                </div>
+                <div class="br-check-group br-check-col1">
+                    @if (showErrors && ReviewModel.ScreeningList.Count == 0)
+                    {
+                        <span class="br-field-error">Please select at least one screening option.</span>
+                    }
+                    <label class="br-check-card @(ReviewModel.ScreeningList.Contains("NEGATIVE LIST") ? "checked" : "")">
+                        <input type="checkbox" class="br-check-input" checked="@ReviewModel.ScreeningList.Contains("NEGATIVE LIST")" @onchange='(e) => Toggle(ReviewModel.ScreeningList, "NEGATIVE LIST", e)' />
+                        <div class="br-check-tick"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        <span>Negative List (OFAC / UN Sanction List)</span>
+                    </label>
+                    <label class="br-check-card @(ReviewModel.ScreeningList.Contains("PEPLIST") ? "checked" : "")">
+                        <input type="checkbox" class="br-check-input" checked="@ReviewModel.ScreeningList.Contains("PEPLIST")" @onchange='(e) => Toggle(ReviewModel.ScreeningList, "PEPLIST", e)' />
+                        <div class="br-check-tick"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        <span>Peplist</span>
+                    </label>
+                </div>
+
+                <div class="br-divider"></div>
+
+                @* Nature of Work *@
+                <div class="br-subsection-label">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Nature of Work / Business <span class="br-req">*</span>
+                </div>
+                @if (showErrors && ReviewModel.WorkList.Count == 0 && ReviewModel.SelectedWork != "OTHERS")
+                {
+                    <span class="br-field-error">Please select at least one nature of work.</span>
+                }
+                <div class="br-check-group br-check-grid">
+                    @foreach (var item in WorkItems)
+                    {
+                        <label class="br-check-card @(ReviewModel.WorkList.Contains(item.Key) ? "checked" : "")">
+                            <input type="checkbox" class="br-check-input" checked="@ReviewModel.WorkList.Contains(item.Key)" @onchange='(e) => Toggle(ReviewModel.WorkList, item.Key, e)' />
+                            <div class="br-check-tick"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                            <span>@item.Value</span>
+                        </label>
+                    }
+                </div>
+                <div class="br-others-row mt-2">
+                    <label class="br-check-card @(ReviewModel.SelectedWork == "OTHERS" ? "checked" : "")">
+                        <input type="checkbox" class="br-check-input" checked="@(ReviewModel.SelectedWork == "OTHERS")" @onchange='(e) => { ReviewModel.SelectedWork = (bool)e.Value! ? "OTHERS" : ""; }' />
+                        <div class="br-check-tick"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        <span>Others</span>
+                    </label>
+                    @if (ReviewModel.SelectedWork == "OTHERS")
+                    {
+                        <InputText @bind-Value="ReviewModel.NatureOfWorkBusinessOther" class="br-input br-others-input" placeholder="Please specify..." />
+                    }
+                </div>
+            </div>
+
+            @* RIGHT: Employee Status + Documents *@
+            <div class="br-col br-col-right">
+
+                @* Employee Status *@
+                <div class="br-subsection-label">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Employee Status
+                </div>
+
+                @* Employee checkbox + Position inline *@
+                <div class="br-employee-row">
+                    <label class="br-check-card @(ReviewModel.IsEmployee ? "checked" : "")">
+                        <input type="checkbox" class="br-check-input" checked="@ReviewModel.IsEmployee" @onchange='(e) => ReviewModel.IsEmployee = (bool)e.Value!' />
+                        <div class="br-check-tick"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        <span>Customer is a Porac Bank Employee</span>
+                    </label>
+                    @if (ReviewModel.IsEmployee)
+                    {
+                        <InputText @bind-Value="ReviewModel.Position" class="br-input br-position-input" placeholder="Position e.g. Teller" />
+                    }
+                </div>
+                @* DOSRI + RPT always below *@
+                <div class="br-inline-row mt-2">
+                    <label class="br-check-card @(ReviewModel.IsDosri ? "checked" : "")">
+                        <input type="checkbox" class="br-check-input" checked="@ReviewModel.IsDosri" @onchange='(e) => ReviewModel.IsDosri = (bool)e.Value!' />
+                        <div class="br-check-tick"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        <span>DOSRI</span>
+                    </label>
+                    <label class="br-check-card @(ReviewModel.IsRpt ? "checked" : "")">
+                        <input type="checkbox" class="br-check-input" checked="@ReviewModel.IsRpt" @onchange='(e) => ReviewModel.IsRpt = (bool)e.Value!' />
+                        <div class="br-check-tick"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        <span>RPT</span>
+                    </label>
+                </div>
+
+                <label class="br-check-card br-check-full mt-2 @(ReviewModel.IsRelative ? "checked" : "")">
+                    <input type="checkbox" class="br-check-input" checked="@ReviewModel.IsRelative" @onchange='(e) => ReviewModel.IsRelative = (bool)e.Value!' />
+                    <div class="br-check-tick"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <span>Customer is a Relative (up to 2nd Degree of Affinity and Consanguinity) of a Porac Bank Employee</span>
+                </label>
+
+                @if (ReviewModel.IsRelative)
+                {
+                    <div class="br-subgrid mt-2">
+                        <div class="br-field br-span-full">
+                            <label class="br-label">Name of Employee</label>
+                            <InputText @bind-Value="ReviewModel.RelativeEmployeeName" class="br-input" placeholder="Full name" />
+                        </div>
+                        <div class="br-field">
+                            <label class="br-label">Position</label>
+                            <InputText @bind-Value="ReviewModel.RelativePosition" class="br-input" placeholder="Position" />
+                        </div>
+                        <div class="br-field">
+                            <label class="br-label">Relationship</label>
+                            <InputText @bind-Value="ReviewModel.RelativeRelationship" class="br-input" placeholder="e.g. Spouse" />
+                        </div>
+                    </div>
+                }
+
+                <label class="br-check-card br-check-full mt-2 @(ReviewModel.IsEntityOwnedByEmployee ? "checked" : "")">
+                    <input type="checkbox" class="br-check-input" checked="@ReviewModel.IsEntityOwnedByEmployee" @onchange='(e) => ReviewModel.IsEntityOwnedByEmployee = (bool)e.Value!' />
+                    <div class="br-check-tick"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <span>Customer is an Entity Owned and Controlled by a Porac Bank Employee</span>
+                </label>
+
+                <div class="br-divider"></div>
+
+                @* For Business Accounts Only *@
+                <div class="br-business-banner">For Business Accounts Only</div>
+
+                <label class="br-check-card br-check-full mt-2 @(ReviewModel.IsOwnedByPEP ? "checked" : "")">
+                    <input type="checkbox" class="br-check-input" checked="@ReviewModel.IsOwnedByPEP" @onchange='(e) => ReviewModel.IsOwnedByPEP = (bool)e.Value!' />
+                    <div class="br-check-tick"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <span>Customer is an Entity Owned and Controlled by a Politically Exposed Person</span>
+                </label>
+
+                <div class="br-divider"></div>
+
+                @* Documents Presented — moved here to fill space *@
+                <div class="br-subsection-label">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 2v6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Documents Presented
+                </div>
+                <div class="br-check-group br-check-col1">
+                    @foreach (var doc in DocOptions)
+                    {
+                        <label class="br-check-card @(ReviewModel.DocsList.Contains(doc.Key) ? "checked" : "")">
+                            <input type="checkbox" class="br-check-input" checked="@ReviewModel.DocsList.Contains(doc.Key)" @onchange='(e) => Toggle(ReviewModel.DocsList, doc.Key, e)' />
+                            <div class="br-check-tick"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                            <span>@doc.Value</span>
+                        </label>
+                    }
+                </div>
+
+                <div class="br-subsection-label mt-2">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    </svg>
+                    Additional Documents for B, C and D
+                </div>
+                <div class="br-check-group br-check-col1">
+                    @foreach (var doc in AdditionalDocOptions)
+                    {
+                        <label class="br-check-card @(ReviewModel.AdditionalDocsList.Contains(doc.Key) ? "checked" : "")">
+                            <input type="checkbox" class="br-check-input" checked="@ReviewModel.AdditionalDocsList.Contains(doc.Key)" @onchange='(e) => Toggle(ReviewModel.AdditionalDocsList, doc.Key, e)' />
+                            <div class="br-check-tick"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                            <span>@doc.Value</span>
+                        </label>
+                    }
+                </div>
+                <div class="br-field mt-2">
+                    <label class="br-label">Others (Please specify)</label>
+                    <InputText @bind-Value="ReviewModel.DocumentsOther" class="br-input" placeholder="Specify other documents..." />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ══════════════════════════════════════
+       SECTION 2 — Signature & Approval
+    ══════════════════════════════════════ *@
+    <div class="br-section" id="field-VerifiedBy">
+        <div class="br-section-header">
+            <div class="br-section-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 20h9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span class="br-section-title">Signature Authenticated &amp; Approval</span>
+        </div>
+
+        <div class="br-sig-grid">
+            <div class="br-field br-sig-field">
+                <label class="br-label">Signature Authenticated <span class="br-req">*</span></label>
+                <div class="br-canvas-wrap">
+                    <canvas id="auth-sig-pad" style="cursor:crosshair; display:block; width:100%; height:140px;"></canvas>
+                </div>
+                <button type="button" class="br-clear-btn mt-1" @onclick='() => JS.InvokeVoidAsync("signaturePad.clear", "auth-sig-pad")'>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                    Clear
+                </button>
+            </div>
+            <div class="br-field br-text-field">
+                <label class="br-label">Verified By <span class="br-req">*</span></label>
+                <InputTextArea @bind-Value="ReviewModel.VerifiedBy" class="@(showErrors && string.IsNullOrWhiteSpace(ReviewModel.VerifiedBy) ? "br-sig-textarea br-text-ta br-invalid" : "br-sig-textarea br-text-ta")" placeholder="Name of verifier" rows="3" />
+                @if (showErrors && string.IsNullOrWhiteSpace(ReviewModel.VerifiedBy))
+                {
+                    <span class="br-field-error">Verified by is required.</span>
+                }
+            </div>
+            <div class="br-field br-text-field">
+                <label class="br-label">Approved By <span class="br-req">*</span></label>
+                <InputTextArea @bind-Value="ReviewModel.ApprovedBy" class="@(showErrors && string.IsNullOrWhiteSpace(ReviewModel.ApprovedBy) ? "br-sig-textarea br-text-ta br-invalid" : "br-sig-textarea br-text-ta")" placeholder="Name of approver" rows="3" />
+                @if (showErrors && string.IsNullOrWhiteSpace(ReviewModel.ApprovedBy))
+                {
+                    <span class="br-field-error">Approved by is required.</span>
+                }
+            </div>
+            <div class="br-field br-text-field">
+                <label class="br-label">Remarks (If Any)</label>
+                <InputTextArea @bind-Value="ReviewModel.Remarks" class="br-sig-textarea br-text-ta" placeholder="Optional remarks" rows="3" />
+            </div>
+        </div>
+    </div>
+
+    @* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ *@
+    <div class="br-footer">
+        <button type="button" class="br-btn-back" @onclick="OnBack">
+            <div class="br-btn-arrow-left">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span>Back</span>
+        </button>
+
+        <div class="br-footer-hint">
+            <span class="br-req">*</span>&nbsp;Required fields must be filled before continuing
+        </div>
+        <button type="button" class="br-btn-next" @onclick="Next">
+            <span>Continue</span>
+            <div class="br-btn-arrow">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </button>
+    </div>
+
+</div>
+
+<style>
+    .br-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* ── Bank banner ── */
+    .br-bank-banner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: linear-gradient(90deg, #00a859 0%, #0056b3 100%);
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 12px 24px;
+        border-radius: 14px;
+        box-shadow: 0 4px 18px rgba(0,168,89,0.25);
+    }
+
+    /* ── Business banner ── */
+    .br-business-banner {
+        background: #f0fdf8;
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #065f46;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        text-align: center;
+        margin-top: 4px;
+    }
+
+    /* ── Section card ── */
+    .br-section {
+        background: #ffffff;
+        border: 1px solid #edf0f4;
+        border-radius: 18px;
+        padding: 22px 24px;
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .br-section::after {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #00a859, #0056b3);
+        opacity: 0;
+        transition: opacity 0.25s;
+    }
+
+    .br-section:focus-within { border-color: #c8e6d8; box-shadow: 0 4px 20px rgba(0,168,89,0.07); }
+    .br-section:focus-within::after { opacity: 1; }
+
+    .br-section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .br-section-icon {
+        width: 28px; height: 28px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #00a859, #0056b3);
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(0,168,89,0.25);
+    }
+
+    .br-section-title {
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        flex: 1;
+    }
+
+    .br-subsection-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #475569;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .br-subsection-label svg { color: #00a859; flex-shrink: 0; }
+    .br-req { color: #ef4444; font-size: 0.8rem; }
+    .br-divider { height: 1px; background: #f1f5f9; margin: 14px 0; }
+    .mt-1 { margin-top: 4px; }
+    .mt-2 { margin-top: 8px; }
+
+    /* ── Two-column layout ── */
+    .br-two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    .br-col-left { border-right: 1px solid #f1f5f9; padding-right: 24px; }
+
+    /* ── Checkbox cards ── */
+    .br-check-group { display: flex; flex-direction: column; gap: 6px; }
+    .br-check-col1 { flex-direction: column; }
+
+    .br-check-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+
+    .br-check-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 7px 12px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9px;
+        cursor: pointer;
+        font-size: 0.78rem;
+        color: #0f172a;
+        background: #fff;
+        transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+        user-select: none;
+        line-height: 1.4;
+    }
+
+    .br-check-card:hover { border-color: #94a3b8; }
+
+    .br-check-card.checked {
+        border-color: #00a859;
+        background: #f0fdf8;
+        box-shadow: 0 0 0 2px rgba(0,168,89,0.1);
+    }
+
+    .br-check-full { width: 100%; }
+
+    .br-check-input {
+        position: absolute;
+        opacity: 0; width: 0; height: 0;
+        pointer-events: none;
+    }
+
+    .br-check-tick {
+        width: 16px; height: 16px;
+        border-radius: 4px;
+        border: 2px solid #e2e8f0;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        margin-top: 1px;
+        transition: border-color 0.15s, background 0.15s;
+    }
+
+    .br-check-card.checked .br-check-tick {
+        border-color: #00a859;
+        background: #00a859;
+    }
+
+    .br-check-card:not(.checked) .br-check-tick svg { display: none; }
+
+    /* ── Inline row ── */
+    .br-inline-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .br-field-inline { flex: 1; min-width: 120px; }
+
+    /* ── Sub grid for relative fields ── */
+    .br-subgrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding-left: 8px;
+    }
+
+    .br-span-full { grid-column: span 2; }
+
+    /* ── Fields ── */
+    .br-field { display: flex; flex-direction: column; gap: 5px; }
+
+    .br-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #64748b;
+        letter-spacing: 0.2px;
+    }
+
+    .br-input {
+        height: 38px;
+        padding: 0 12px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.84rem;
+        color: #0f172a;
+        background: #fff;
+        outline: none;
+        transition: border-color 0.18s, box-shadow 0.18s;
+        width: 100%;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .br-input:hover { border-color: #94a3b8; }
+    .br-input:focus { border-color: #00a859; box-shadow: 0 0 0 3px rgba(0,168,89,0.12); background: #fafffe; }
+
+    /* ── Signature grid ── */
+    .br-sig-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 16px;
+        align-items: stretch;
+    }
+
+    .br-sig-grid .br-field {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .br-sig-textarea {
+        flex: 1;
+        padding: 10px 12px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.84rem;
+        color: #0f172a;
+        background: #fff;
+        outline: none;
+        resize: none;
+        transition: border-color 0.18s, box-shadow 0.18s;
+        width: 100%;
+        font-family: inherit;
+        min-height: 140px;
+        text-align: center;
+        padding-top: 50px;
+    }
+
+    /* Text-only textareas — no centered/padded-top styling */
+    .br-text-ta { text-align: left; padding-top: 10px; min-height: 80px; }
+
+    .br-sig-textarea:hover { border-color: #94a3b8; }
+    .br-sig-textarea.br-invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important; }
+
+    .br-field-error {
+        font-size: 0.7rem;
+        color: #dc2626;
+        font-weight: 500;
+        display: block;
+        margin-top: 2px;
+    }
+    .br-sig-textarea:focus { border-color: #00a859; box-shadow: 0 0 0 3px rgba(0,168,89,0.12); background: #fafffe; }
+
+    .br-canvas-wrap {
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff;
+        min-height: 140px;
+    }
+
+    /* ── Employee row ── */
+    .br-employee-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    /* ── Others row ── */
+    .br-others-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .br-others-input { flex: 1; }
+
+    /* ── Position input inline ── */
+    .br-position-input {
+        flex: 1;
+        max-width: 200px;
+    }
+
+    /* ── Inline row (DOSRI/RPT) ── */
+    .br-inline-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .br-clear-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 12px;
+        background: #fff;
+        color: #dc2626;
+        border: 1.5px solid #fca5a5;
+        border-radius: 7px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .br-clear-btn:hover { background: #fff1f1; }
+
+    /* ── Footer ── */
+    .br-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 6px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .br-footer-hint { font-size: 0.72rem; color: #94a3b8; display: flex; align-items: center; gap: 3px; }
+
+    .br-btn-next {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 28px;
+        background: linear-gradient(90deg, #00a859 0%, #0056b3 100%);
+        color: #fff;
+        border: none;
+        border-radius: 13px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: filter 0.18s, transform 0.15s, box-shadow 0.18s;
+        box-shadow: 0 4px 18px rgba(0,168,89,0.3);
+    }
+
+    .br-btn-next:hover { filter: brightness(1.07); transform: translateY(-1px); }
+    .br-btn-next:active { transform: translateY(0); }
+
+    .br-btn-arrow {
+        width: 30px; height: 30px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 9px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .br-btn-back {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 20px;
+        background: #fff;
+        color: #475569;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 13px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color 0.18s, color 0.18s, transform 0.15s;
+    }
+
+    .br-btn-back:hover { border-color: #94a3b8; color: #0f172a; transform: translateY(-1px); }
+
+    .br-btn-arrow-left {
+        width: 28px; height: 28px;
+        background: #f1f5f9;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+    }
+
+    @@media (max-width: 900px) {
+        .br-two-col { grid-template-columns: 1fr; }
+        .br-col-left { border-right: none; padding-right: 0; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; }
+        /* Signature full width, text fields in 3-column row below */
+        .br-sig-grid { grid-template-columns: 1fr 1fr 1fr; }
+        .br-sig-field { grid-column: 1 / -1; }
+        .br-text-ta { text-align: left; padding-top: 10px; min-height: 80px; }
+    }
+
+    @@media (max-width: 480px) {
+        .br-check-grid { grid-template-columns: 1fr; }
+        /* On mobile: all fields stack vertically */
+        .br-sig-grid { grid-template-columns: 1fr; }
+        .br-sig-field { grid-column: 1; }
+        .br-text-ta { text-align: left; padding-top: 10px; min-height: 80px; }
+        .br-section { padding: 16px; border-radius: 14px; }
+        .br-footer { flex-direction: column; align-items: stretch; }
+        .br-btn-next, .br-btn-back { justify-content: center; }
+    }
+</style>
+
+@code {
+    [Parameter] public BankReviewDTO.PageModel ReviewModel { get; set; } = new();
+    [Parameter] public EventCallback<BankReviewDTO.PageModel> ReviewModelChanged { get; set; }
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+
+    private bool showErrors = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Task.Delay(300);
+            await JS.InvokeVoidAsync("signaturePad.init", "auth-sig-pad");
+        }
+    }
+
+    private void Toggle(List<string> list, string val, ChangeEventArgs e)
+    {
+        if ((bool)e.Value!) { if (!list.Contains(val)) list.Add(val); }
+        else { list.Remove(val); }
+    }
+
+    private bool IsValid()
+    {
+        if (ReviewModel.ScreeningList.Count == 0) return false;
+        if (ReviewModel.WorkList.Count == 0 && ReviewModel.SelectedWork != "OTHERS") return false;
+        if (ReviewModel.SelectedWork == "OTHERS" && string.IsNullOrWhiteSpace(ReviewModel.NatureOfWorkBusinessOther)) return false;
+        if (string.IsNullOrWhiteSpace(ReviewModel.VerifiedBy)) return false;
+        if (string.IsNullOrWhiteSpace(ReviewModel.ApprovedBy)) return false;
+        return true;
+    }
+
+    private async Task Next()
+    {
+        showErrors = true;
+        if (!IsValid())
+        {
+            // Force UI re-render so error messages are in the DOM before JS scans for them
+            StateHasChanged();
+            await Task.Delay(50);
+
+            var scrollIds = new[] { "field-Screening", "field-VerifiedBy" };
+            foreach (var id in scrollIds)
+            {
+                try { if (await JS.InvokeAsync<bool>("scrollToFirstError", id)) break; }
+                catch { }
+            }
+            return;
+        }
+
+        ReviewModel.SignatureAuthenticated = await JS.InvokeAsync<string>("signaturePad.getData", "auth-sig-pad");
+        await ReviewModelChanged.InvokeAsync(ReviewModel);
+        await OnNext.InvokeAsync();
+    }
+
+    private readonly Dictionary<string, string> WorkItems = new()
+    {
+        ["AGRICULTURE"] = "Agriculture / Animal Farming",
+        ["MONEY_CHANGER"] = "Money Changer / FX Dealer",
+        ["BANKING"] = "Banking / Financial Services",
+        ["ONLINE_BIZ"] = "Online Business",
+        ["BPO"] = "BPO / KPO",
+        ["PROFESSIONAL"] = "Professional Practice",
+        ["BROKERAGE"] = "Brokerage",
+        ["QUARRYING"] = "Quarrying / Trucking / Mining",
+        ["CANTEEN"] = "Canteen / Eatery / Resto / Bar",
+        ["REAL_ESTATE"] = "Real Estate Activities",
+        ["CASINO"] = "Casino / Dealer",
+        ["RENTAL"] = "Rental",
+        ["DRUGS"] = "Drugs / Pharmaceuticals",
+        ["REMITTANCE"] = "Remittance Agent",
+        ["EDUCATION"] = "Education",
+        ["RESORTS"] = "Resorts / Hotel / Accommodation",
+        ["GOVERNMENT"] = "Government Service",
+        ["STUDENT"] = "Student",
+        ["INFORMAL"] = "Informal Lending",
+        ["TRANSPORT"] = "Transportation",
+        ["IMPORT"] = "Import / Export",
+        ["WHOLESALE"] = "Wholesale / Retail Trade",
+        ["MANUFACTURING"] = "Manufacturing",
+        ["UNEMPLOYED"] = "Unemployed",
+        ["MARKET_VENDOR"] = "Market Vendor",
+        ["MEDICAL"] = "Medical Services",
+    };
+
+    private readonly Dictionary<string, string> DocOptions = new()
+    {
+        ["A"] = "A. For Sole Proprietors: Certified True Copy of Certificate of Business Name Registration issued by the Department of Trade and Industry",
+        ["B"] = "B. For Partners and Corporations: Certified True Copy of Certificate of Business Name Registration issued by the Securities and Exchange Commission or Insurance Commission",
+        ["C"] = "C. For Money Changers, Foreign Exchange Dealers and Remittance Agents: Certified True Copy of Certificate of Business Name Registration issued by the Bangko Sentral ng Pilipinas",
+        ["D"] = "D. For Entities Registered Outside the Philippines: Similar documents and/or information stated above authenticated by the Philippine Consulate where said entities are registered",
+    };
+
+    private readonly Dictionary<string, string> AdditionalDocOptions = new()
+    {
+        ["ARTICLES"] = "Certified True Copy of Articles of Incorporation / Association",
+        ["BYLAWS"] = "Certified True Copy of By Laws",
+        ["BOARD_RES"] = "Board of Partner's Resolution duly certified by Corporate / Partner's Secretary authorizing a representative to sign on behalf of the entity",
+        ["GIS"] = "Latest General Information Sheet",
+    };
+}
