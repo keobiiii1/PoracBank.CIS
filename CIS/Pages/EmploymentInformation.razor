@@ -148,7 +148,24 @@
                 Contact Details of Employer <span class="eas-req">*</span>
             </div>
             <div class="eas-grid eas-grid-2">
-                <div class="eas-field"><label class="eas-label">Phone No. <span class="eas-req">*</span></label><InputText @bind-Value="EmploymentModel.EmployerPhoneNumber" class="eas-input" placeholder="e.g. 02-8123-4567" /><ValidationMessage For="@(() => EmploymentModel.EmployerPhoneNumber)" class="eas-field-error" /></div>
+                <div class="eas-field">
+                    <label class="eas-label">Phone No. <span class="eas-req">*</span></label>
+                    <div class="eas-phone-wrap">
+                        <span class="eas-phone-prefix">+63</span>
+                        <input class="eas-input eas-phone-input" type="tel" inputmode="numeric" maxlength="10"
+                               placeholder="9XXXXXXXXX"
+                               value="@employerPhoneRaw"
+                               @oninput="HandleEmployerPhoneInput" />
+                    </div>
+                    @if (employerPhoneError != null)
+                    {
+                        <span class="eas-field-error">@employerPhoneError</span>
+                    }
+                    else
+                    {
+                        <ValidationMessage For="@(() => EmploymentModel.EmployerPhoneNumber)" class="eas-field-error" />
+                    }
+                </div>
                 <div class="eas-field"><label class="eas-label">Email Address <span class="eas-req">*</span></label><InputText @bind-Value="EmploymentModel.EmployerEmailAddress" class="eas-input" placeholder="e.g. hr@company.com" /><ValidationMessage For="@(() => EmploymentModel.EmployerEmailAddress)" class="eas-field-error" /></div>
             </div>
         </div>
@@ -426,522 +443,6 @@
 
 </div>
 
-<style>
-    .eas-wrap {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        font-family: 'Segoe UI', system-ui, sans-serif;
-    }
-
-    .eas-section {
-        background: #fff;
-        border: 1px solid #edf0f4;
-        border-radius: 18px;
-        padding: 22px 24px;
-        transition: border-color 0.2s, box-shadow 0.2s;
-        position: relative;
-        overflow: hidden;
-    }
-
-        .eas-section::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: linear-gradient(180deg, #00a859, #0056b3);
-            opacity: 0;
-            transition: opacity 0.25s;
-        }
-
-        .eas-section:focus-within {
-            border-color: #c8e6d8;
-            box-shadow: 0 4px 20px rgba(0,168,89,0.07);
-        }
-
-            .eas-section:focus-within::after {
-                opacity: 1;
-            }
-
-    .eas-section-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 18px;
-    }
-
-    .eas-section-icon {
-        width: 28px;
-        height: 28px;
-        border-radius: 8px;
-        background: linear-gradient(135deg, #00a859, #0056b3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        box-shadow: 0 2px 8px rgba(0,168,89,0.25);
-    }
-
-    .eas-section-title {
-        font-size: 0.72rem;
-        font-weight: 800;
-        color: #0f172a;
-        letter-spacing: 0.8px;
-        text-transform: uppercase;
-        flex: 1;
-    }
-
-    .eas-subsection-label {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.72rem;
-        font-weight: 700;
-        color: #475569;
-        letter-spacing: 0.4px;
-        text-transform: uppercase;
-        margin-bottom: 12px;
-        margin-top: 4px;
-    }
-
-        .eas-subsection-label svg {
-            color: #00a859;
-            flex-shrink: 0;
-        }
-
-    .eas-grid {
-        display: grid;
-        gap: 16px;
-    }
-
-    .eas-grid-2 {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .eas-grid-4 {
-        grid-template-columns: repeat(4, 1fr);
-    }
-
-    .eas-grid-biz {
-        display: grid;
-        grid-template-columns: 2fr 1fr 36px;
-        gap: 10px;
-        align-items: start;
-    }
-
-    .eas-grid-pep {
-        display: grid;
-        grid-template-columns: 2fr 2fr 36px;
-        gap: 10px;
-        align-items: start;
-    }
-
-    .mt-2 {
-        margin-top: 8px;
-    }
-
-    .eas-field {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .eas-label {
-        font-size: 0.71rem;
-        font-weight: 700;
-        color: #64748b;
-        letter-spacing: 0.2px;
-        display: flex;
-        align-items: center;
-        gap: 3px;
-    }
-
-    .eas-req {
-        color: #ef4444;
-        font-size: 0.8rem;
-        line-height: 1;
-    }
-
-    .eas-input,
-    .eas-select {
-        height: 42px;
-        padding: 0 14px;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 11px;
-        font-size: 0.86rem;
-        color: #0f172a;
-        background: #fff;
-        outline: none;
-        transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
-        width: 100%;
-        -webkit-appearance: none;
-        appearance: none;
-    }
-
-    .eas-select {
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 14px center;
-        padding-right: 36px;
-        cursor: pointer;
-    }
-
-        .eas-input:hover,
-        .eas-select:hover {
-            border-color: #94a3b8;
-        }
-
-        .eas-input:focus,
-        .eas-select:focus {
-            border-color: #00a859;
-            box-shadow: 0 0 0 3px rgba(0,168,89,0.12);
-            background: #fafffe;
-        }
-
-        .eas-input.invalid,
-        .eas-input.modified.invalid,
-        .eas-select.invalid,
-        .eas-select.modified.invalid {
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important;
-        }
-
-        .eas-input.modified.valid,
-        .eas-select.modified.valid {
-            border-color: #00a859 !important;
-        }
-
-        .eas-input.eas-invalid,
-        .eas-select.eas-invalid {
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important;
-        }
-
-    .eas-field-error {
-        font-size: 0.7rem;
-        color: #dc2626;
-        font-weight: 500;
-        margin: 0;
-        padding: 0;
-        display: block;
-    }
-
-    .eas-divider {
-        height: 1px;
-        background: #f1f5f9;
-        margin: 16px 0 12px;
-    }
-
-    .eas-select-wrap {
-        position: relative;
-    }
-
-    .eas-select-arrow {
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #94a3b8;
-        pointer-events: none;
-    }
-
-    .eas-toggle-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        cursor: pointer;
-        user-select: none;
-        gap: 12px;
-    }
-
-    .eas-toggle-info {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    .eas-toggle-label {
-        font-size: 0.86rem;
-        font-weight: 700;
-        color: #0f172a;
-    }
-
-    .eas-toggle-sub {
-        font-size: 0.72rem;
-        color: #94a3b8;
-    }
-
-    .eas-toggle-switch {
-        position: relative;
-        width: 46px;
-        height: 26px;
-        background: #e2e8f0;
-        border-radius: 99px;
-        transition: background 0.25s;
-        flex-shrink: 0;
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-        .eas-toggle-switch.on {
-            background: linear-gradient(90deg, #00a859, #0056b3);
-            box-shadow: 0 2px 8px rgba(0, 168, 89, 0.3);
-        }
-
-    .eas-toggle-input {
-        position: absolute;
-        opacity: 0;
-        width: 0;
-        height: 0;
-        pointer-events: none;
-    }
-
-    .eas-toggle-thumb {
-        position: absolute;
-        top: 3px;
-        left: 3px;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: #fff;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
-        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        pointer-events: none;
-    }
-
-    .eas-toggle-switch.on .eas-toggle-thumb {
-        transform: translateX(20px);
-    }
-
-    .eas-add-btn {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 7px 14px;
-        background: linear-gradient(90deg, #00a859, #0056b3);
-        color: #fff;
-        border: none;
-        border-radius: 9px;
-        font-size: 0.76rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: filter 0.18s, transform 0.15s;
-        white-space: nowrap;
-    }
-
-        .eas-add-btn:hover {
-            filter: brightness(1.08);
-            transform: translateY(-1px);
-        }
-
-    .eas-remove-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        background: #fff0f0;
-        border: 1.5px solid #fecaca;
-        color: #dc2626;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: background 0.15s, border-color 0.15s, transform 0.15s;
-        flex-shrink: 0;
-        margin-top: 6px;
-    }
-
-        .eas-remove-btn:hover {
-            background: #fee2e2;
-            border-color: #ef4444;
-            transform: scale(1.08);
-        }
-
-    .eas-list-header {
-        margin-bottom: 6px;
-    }
-
-    .eas-list-col-label {
-        font-size: 0.68rem;
-        font-weight: 700;
-        color: #94a3b8;
-        letter-spacing: 0.3px;
-        text-transform: uppercase;
-        display: flex;
-        align-items: center;
-        gap: 2px;
-    }
-
-    .eas-list-row {
-        margin-bottom: 8px;
-    }
-
-    .eas-empty-hint {
-        font-size: 0.78rem;
-        color: #94a3b8;
-        font-style: italic;
-        text-align: center;
-        padding: 16px 0 4px;
-    }
-
-    .eas-rel-card {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 14px;
-        margin-bottom: 10px;
-    }
-
-    .eas-rel-card-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 12px;
-    }
-
-    .eas-rel-card-num {
-        font-size: 0.72rem;
-        font-weight: 700;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-    }
-
-    .eas-rel-card-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
-
-    .eas-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-top: 6px;
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-
-    .eas-footer-hint {
-        font-size: 0.72rem;
-        color: #94a3b8;
-        display: flex;
-        align-items: center;
-        gap: 3px;
-    }
-
-    .eas-btn-next {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 13px 28px;
-        background: linear-gradient(90deg, #00a859, #0056b3);
-        color: #fff;
-        border: none;
-        border-radius: 13px;
-        font-size: 0.9rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: filter 0.18s, transform 0.15s, box-shadow 0.18s;
-        box-shadow: 0 4px 18px rgba(0, 168, 89, 0.3);
-        letter-spacing: 0.2px;
-    }
-
-        .eas-btn-next:hover {
-            filter: brightness(1.07);
-            transform: translateY(-1px);
-            box-shadow: 0 8px 24px rgba(0, 168, 89, 0.38);
-        }
-
-        .eas-btn-next:active {
-            transform: translateY(0);
-            filter: brightness(0.97);
-        }
-
-    .eas-btn-arrow {
-        width: 30px;
-        height: 30px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 9px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .eas-btn-back {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 13px 20px;
-        background: #fff;
-        color: #475569;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 13px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: border-color 0.18s, color 0.18s, transform 0.15s;
-    }
-
-        .eas-btn-back:hover {
-            border-color: #94a3b8;
-            color: #0f172a;
-            transform: translateY(-1px);
-        }
-
-    .eas-btn-arrow-left {
-        width: 28px;
-        height: 28px;
-        background: #f1f5f9;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    @@media (max-width: 900px) {
-        .eas-grid-4 {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .eas-grid-biz {
-            grid-template-columns: 1fr 100px 36px;
-        }
-
-        .eas-grid-pep {
-            grid-template-columns: 1fr 1fr 36px;
-        }
-    }
-
-    @@media (max-width: 640px) {
-        .eas-grid-2,
-        .eas-grid-4 {
-            grid-template-columns: 1fr;
-        }
-
-        .eas-section {
-            padding: 16px;
-            border-radius: 14px;
-        }
-
-        .eas-footer {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .eas-btn-next,
-        .eas-btn-back {
-            justify-content: center;
-        }
-
-        .eas-rel-card-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
 @code {
     // ── Parameters ────────────────────────────────────────────────
     [Parameter] public IndividualEmploymentDTO.PageModel EmploymentModel { get; set; } = new();
@@ -964,12 +465,21 @@
     private bool abShowErrors = false;
     private readonly HashSet<int> ownershipInvalidRows = new();
 
+    // ── Phone state ───────────────────────────────────────────────
+    private string? employerPhoneRaw;
+    private string? employerPhoneError;
+
     // ── Lifecycle ──────────────────────────────────────────────────
     protected override void OnInitialized()
     {
         abShowErrors = false;
         if (InfoModel.GovOfficialPositions.Count == 0 && !string.IsNullOrWhiteSpace(InfoModel.GovPosition))
             InfoModel.GovOfficialPositions.Add(new IndividualInfoDTO.PageModel.GovOfficialPositionModel { Position = InfoModel.GovPosition, Period = InfoModel.GovPeriod ?? "" });
+
+        if (!string.IsNullOrWhiteSpace(EmploymentModel.EmployerPhoneNumber))
+            employerPhoneRaw = EmploymentModel.EmployerPhoneNumber.StartsWith("+63")
+                ? EmploymentModel.EmployerPhoneNumber[3..]
+                : EmploymentModel.EmployerPhoneNumber;
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -1108,7 +618,10 @@
         if (string.IsNullOrWhiteSpace(EmploymentModel.EmployerStreet)) store.Add(() => EmploymentModel.EmployerStreet, "Street is required.");
         if (string.IsNullOrWhiteSpace(EmploymentModel.EmployerBrgyDistrict)) store.Add(() => EmploymentModel.EmployerBrgyDistrict, "Barangay / district is required.");
         if (string.IsNullOrWhiteSpace(EmploymentModel.EmployerCityTown)) store.Add(() => EmploymentModel.EmployerCityTown, "City / town is required.");
-        if (string.IsNullOrWhiteSpace(EmploymentModel.EmployerPhoneNumber)) store.Add(() => EmploymentModel.EmployerPhoneNumber, "Employer phone number is required.");
+        if (string.IsNullOrWhiteSpace(EmploymentModel.EmployerPhoneNumber))
+            store.Add(() => EmploymentModel.EmployerPhoneNumber, "Employer phone number is required.");
+        else if (EmploymentModel.EmployerPhoneNumber.Length < 7)
+            store.Add(() => EmploymentModel.EmployerPhoneNumber, "Phone number must be 10 digits (e.g. 9XXXXXXXXX).");
         if (string.IsNullOrWhiteSpace(EmploymentModel.EmployerEmailAddress))
             store.Add(() => EmploymentModel.EmployerEmailAddress, "Employer email address is required.");
         else if (!EmploymentModel.EmployerEmailAddress.Contains('@') || !EmploymentModel.EmployerEmailAddress.Contains('.'))
@@ -1170,6 +683,29 @@
             item.OwnershipPercentage = parsed;
         }
     }
+    private void HandleEmployerPhoneInput(ChangeEventArgs e)
+    {
+        var raw = System.Text.RegularExpressions.Regex.Replace(e.Value?.ToString() ?? "", @"[^\d]", "");
+        if (raw.Length > 10) raw = raw[..10];
+        employerPhoneRaw = raw;
+
+        if (raw.Length == 0)
+        {
+            EmploymentModel.EmployerPhoneNumber = null;
+            employerPhoneError = "Employer phone number is required.";
+        }
+        else if (raw.Length < 10)
+        {
+            EmploymentModel.EmployerPhoneNumber = "+63" + raw;
+            employerPhoneError = "Phone number must be 10 digits (e.g. 9XXXXXXXXX).";
+        }
+        else
+        {
+            EmploymentModel.EmployerPhoneNumber = "+63" + raw;
+            employerPhoneError = null;
+        }
+    }
+
     private static string FormatEnum(string value) => System.Text.RegularExpressions.Regex.Replace(value, @"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ");
     private string GetEnumDescription<TEnum>(TEnum value) where TEnum : Enum
     {

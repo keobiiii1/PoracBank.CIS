@@ -1,49 +1,50 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
-    <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+		<ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="CIS.API\**" />
-    <Compile Remove="CIS.Assets\**" />
-    <Compile Remove="Pages\Business\**" />
-    <Compile Remove="Pages\Individual\**" />
-    <Content Remove="CIS.API\**" />
-    <Content Remove="CIS.Assets\**" />
-    <Content Remove="Pages\Business\**" />
-    <Content Remove="Pages\Individual\**" />
-    <EmbeddedResource Remove="CIS.API\**" />
-    <EmbeddedResource Remove="CIS.Assets\**" />
-    <EmbeddedResource Remove="Pages\Business\**" />
-    <EmbeddedResource Remove="Pages\Individual\**" />
-    <None Remove="CIS.API\**" />
-    <None Remove="CIS.Assets\**" />
-    <None Remove="Pages\Business\**" />
-    <None Remove="Pages\Individual\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="CIS.API\**" />
+		<Compile Remove="CIS.Assets\**" />
+		<Compile Remove="Pages\Business\**" />
+		<Compile Remove="Pages\Individual\**" />
+		<Content Remove="CIS.API\**" />
+		<Content Remove="CIS.Assets\**" />
+		<Content Remove="Pages\Business\**" />
+		<Content Remove="Pages\Individual\**" />
+		<Content Remove="Pages\**\*.razor.css" />
+		<EmbeddedResource Remove="CIS.API\**" />
+		<EmbeddedResource Remove="CIS.Assets\**" />
+		<EmbeddedResource Remove="Pages\Business\**" />
+		<EmbeddedResource Remove="Pages\Individual\**" />
+		<None Remove="CIS.API\**" />
+		<None Remove="CIS.Assets\**" />
+		<None Remove="Pages\Business\**" />
+		<None Remove="Pages\Individual\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.3" PrivateAssets="all" />
-    <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.3" PrivateAssets="all" />
+		<PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
-  </ItemGroup>
+	<ItemGroup>
+		<ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Components\" />
-    <Folder Include="wwwroot\images\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="Components\" />
+		<Folder Include="wwwroot\images\" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CIS.Assets\CIS.Assets.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\CIS.Assets\CIS.Assets.csproj" />
+	</ItemGroup>
 
 </Project>

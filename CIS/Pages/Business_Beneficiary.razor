@@ -367,7 +367,17 @@
         <div class="bcb-grid bcb-grid-3">
             <div class="bcb-field">
                 <label class="bcb-label">Office Phone No.</label>
-                <InputText @bind-Value="AccountContactModel.OfficePhoneNo" class="bcb-input" placeholder="e.g. 02-1234567" />
+                <div class="bcb-phone-wrap">
+                    <span class="bcb-phone-prefix">+63</span>
+                    <input class="bcb-input bcb-phone-input" type="tel" inputmode="numeric" maxlength="10"
+                           placeholder="9XXXXXXXXX"
+                           value="@officePhoneRaw"
+                           @oninput="HandleOfficePhoneInput" />
+                </div>
+                @if (officePhoneError != null)
+                {
+                    <span class="bcb-field-error">@officePhoneError</span>
+                }
             </div>
             <div class="bcb-field">
                 <label class="bcb-label">Email Address <span class="bcb-req">*</span></label>
@@ -494,7 +504,7 @@
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
                 <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-            </svg> Source of Funds <span class="bcb-sof-note">— Select One</span>
+            </svg> Source of Funds  <span class="bcb-req">*</span>
         </div>
         <div class="bcb-radio-group">
             @foreach (var src in bnSourceOptions)
@@ -545,76 +555,6 @@
 
 </div>
 
-<style>
-    .bcb-wrap { display: flex; flex-direction: column; gap: 8px; font-family: 'Segoe UI', system-ui, sans-serif; }
-    .bcb-section { background: #fff; border: 1px solid #edf0f4; border-radius: 18px; padding: 22px 24px; transition: border-color 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; }
-    .bcb-section::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, #00a859, #0056b3); opacity: 0; transition: opacity 0.25s; }
-    .bcb-section:focus-within { border-color: #c8e6d8; box-shadow: 0 4px 20px rgba(0,168,89,0.07); }
-    .bcb-section:focus-within::after { opacity: 1; }
-    .bcb-section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
-    .bcb-section-icon { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #00a859, #0056b3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,168,89,0.25); }
-    .bcb-section-title { font-size: 0.72rem; font-weight: 800; color: #0f172a; letter-spacing: 0.8px; text-transform: uppercase; flex: 1; }
-    .bcb-subsection-label { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; color: #475569; letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 10px; margin-top: 4px; }
-    .bcb-subsection-label svg { color: #00a859; flex-shrink: 0; }
-    .bcb-grid { display: grid; gap: 16px; }
-    .bcb-grid-2 { grid-template-columns: repeat(2, 1fr); }
-    .bcb-grid-3 { grid-template-columns: repeat(3, 1fr); }
-    .mt-1 { margin-top: 4px; } .mt-2 { margin-top: 8px; } .mt-3 { margin-top: 16px; }
-    .bcb-field { display: flex; flex-direction: column; gap: 6px; }
-    .bcb-label { font-size: 0.71rem; font-weight: 700; color: #64748b; letter-spacing: 0.2px; display: flex; align-items: center; gap: 3px; }
-    .bcb-req { color: #ef4444; font-size: 0.8rem; line-height: 1; }
-    .bcb-input, .bcb-select { height: 42px; padding: 0 14px; border: 1.5px solid #e2e8f0; border-radius: 11px; font-size: 0.86rem; color: #0f172a; background: #fff; outline: none; transition: border-color 0.18s, box-shadow 0.18s, background 0.18s; width: 100%; -webkit-appearance: none; appearance: none; }
-    .bcb-select { padding: 0 36px 0 14px; cursor: pointer; }
-    .bcb-textarea { padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 11px; font-size: 0.86rem; color: #0f172a; background: #fff; outline: none; transition: border-color 0.18s, box-shadow 0.18s; width: 100%; resize: vertical; min-height: 70px; }
-    .bcb-input:hover, .bcb-select:hover, .bcb-textarea:hover { border-color: #94a3b8; }
-    .bcb-input:focus, .bcb-select:focus, .bcb-textarea:focus { border-color: #00a859; box-shadow: 0 0 0 3px rgba(0,168,89,0.12); background: #fafffe; }
-    .bcb-input.invalid, .bcb-input.modified.invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important; }
-    .bcb-input.modified.valid { border-color: #00a859 !important; }
-    .bcb-input.bcb-invalid, .bcb-select.bcb-invalid, .bcb-textarea.bcb-invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important; }
-    .bcb-field-error { font-size: 0.7rem; color: #dc2626; font-weight: 500; margin: 0; padding: 0; display: block; }
-    .bcb-divider { height: 1px; background: #f1f5f9; margin: 16px 0; }
-    .bcb-select-wrap { position: relative; }
-    .bcb-select-arrow { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
-    .bcb-radio-group { display: flex; flex-wrap: wrap; gap: 10px; }
-    .bcb-radio-group.sector { flex-wrap: nowrap; }
-    .bcb-radio-card { display: flex; align-items: center; gap: 8px; padding: 9px 16px; border: 1.5px solid #e2e8f0; border-radius: 11px; cursor: pointer; font-size: 0.86rem; color: #0f172a; background: #fff; transition: border-color 0.18s, box-shadow 0.18s, background 0.18s; user-select: none; }
-    .bcb-radio-card:hover { border-color: #94a3b8; }
-    .bcb-radio-card.checked { border-color: #00a859; background: #f0fdf8; box-shadow: 0 0 0 3px rgba(0,168,89,0.1); }
-    .bcb-radio-input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
-    .bcb-radio-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color 0.18s, background 0.18s; }
-    .bcb-radio-card.checked .bcb-radio-dot { border-color: #00a859; background: #00a859; box-shadow: inset 0 0 0 3px #fff; }
-    .bcb-toggle-row { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; gap: 12px; }
-    .bcb-toggle-info { display: flex; flex-direction: column; gap: 2px; }
-    .bcb-toggle-label { font-size: 0.86rem; font-weight: 700; color: #0f172a; }
-    .bcb-toggle-sub { font-size: 0.72rem; color: #94a3b8; }
-    .bcb-toggle-switch { position: relative; width: 46px; height: 26px; background: #e2e8f0; border-radius: 99px; transition: background 0.25s; flex-shrink: 0; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
-    .bcb-toggle-switch.on { background: linear-gradient(90deg, #00a859, #0056b3); box-shadow: 0 2px 8px rgba(0,168,89,0.3); }
-    .bcb-toggle-input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
-    .bcb-toggle-thumb { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.18); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); pointer-events: none; }
-    .bcb-toggle-switch.on .bcb-toggle-thumb { transform: translateX(20px); }
-    .bcb-checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
-    .bcb-checkbox-card { display: flex; align-items: center; gap: 8px; padding: 9px 16px; border: 1.5px solid #e2e8f0; border-radius: 11px; cursor: pointer; font-size: 0.86rem; color: #0f172a; background: #fff; transition: border-color 0.18s, box-shadow 0.18s, background 0.18s; user-select: none; }
-    .bcb-checkbox-card:hover { border-color: #94a3b8; }
-    .bcb-checkbox-card.checked { border-color: #00a859; background: #f0fdf8; box-shadow: 0 0 0 3px rgba(0,168,89,0.1); }
-    .bcb-checkbox-input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
-    .bcb-checkbox-tick { width: 17px; height: 17px; border-radius: 5px; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color 0.18s, background 0.18s; }
-    .bcb-checkbox-card.checked .bcb-checkbox-tick { border-color: #00a859; background: #00a859; }
-    .bcb-checkbox-card.checked .bcb-checkbox-tick svg { display: block; }
-    .bcb-checkbox-card:not(.checked) .bcb-checkbox-tick svg { display: none; }
-    .bcb-sof-note { font-size: 0.68rem; font-weight: 500; color: #94a3b8; margin-left: 2px; }
-    .bcb-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 6px; flex-wrap: wrap; gap: 12px; }
-    .bcb-footer-hint { font-size: 0.72rem; color: #94a3b8; display: flex; align-items: center; gap: 3px; }
-    .bcb-btn-next { display: flex; align-items: center; gap: 12px; padding: 13px 28px; background: linear-gradient(90deg, #00a859 0%, #0056b3 100%); color: #fff; border: none; border-radius: 13px; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: filter 0.18s, transform 0.15s, box-shadow 0.18s; box-shadow: 0 4px 18px rgba(0,168,89,0.3); letter-spacing: 0.2px; }
-    .bcb-btn-next:hover { filter: brightness(1.07); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,168,89,0.38); }
-    .bcb-btn-next:active { transform: translateY(0); filter: brightness(0.97); }
-    .bcb-btn-arrow { width: 30px; height: 30px; background: rgba(255,255,255,0.2); border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .bcb-btn-back { display: flex; align-items: center; gap: 8px; padding: 13px 20px; background: #fff; color: #475569; border: 1.5px solid #e2e8f0; border-radius: 13px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: border-color 0.18s, color 0.18s, transform 0.15s; }
-    .bcb-btn-back:hover { border-color: #94a3b8; color: #0f172a; transform: translateY(-1px); }
-    .bcb-btn-arrow-left { width: 28px; height: 28px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    @@media (max-width: 768px) { .bcb-grid-3 { grid-template-columns: repeat(2, 1fr); } .bcb-section { padding: 18px; } }
-    @@media (max-width: 480px) { .bcb-grid-2, .bcb-grid-3 { grid-template-columns: 1fr; } .bcb-section { padding: 14px; border-radius: 14px; } .bcb-footer { flex-direction: column; align-items: stretch; } .bcb-btn-next, .bcb-btn-back { justify-content: center; } }
-</style>
-
 @code {
     // ── Parameters ────────────────────────────────────────────────
     [Parameter] public BusinessInfoDTO.PageModel BusinessModel { get; set; } = new();
@@ -639,6 +579,10 @@
     private bool bnShowErrors = false;
     private List<string> bnSourceOptions = new() { "Salary", "Business", "Inheritance", "Others" };
 
+    // ── Phone state ───────────────────────────────────────────────
+    private string? officePhoneRaw;
+    private string? officePhoneError;
+
     // ── Lifecycle ──────────────────────────────────────────────────
     protected override void OnInitialized()
     {
@@ -646,6 +590,11 @@
         if (!string.IsNullOrWhiteSpace(AddressModel.PrincipalAddress) && AddressModel.PrincipalAddress != AddressModel.BusinessAddress) biShowPrincipalAddress = true;
         if (!string.IsNullOrEmpty(AccountContactModel.ProductsAvailed))
             acSelectedProducts = AccountContactModel.ProductsAvailed.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+        if (!string.IsNullOrWhiteSpace(AccountContactModel.OfficePhoneNo))
+            officePhoneRaw = AccountContactModel.OfficePhoneNo.StartsWith("+63")
+                ? AccountContactModel.OfficePhoneNo[3..]
+                : AccountContactModel.OfficePhoneNo;
     }
 
     // ── Combined trigger ──────────────────────────────────────────
@@ -683,8 +632,8 @@
 
         foreach (var id in scrollIds)
         {
-            try 
-            { 
+            try
+            {
                 if (await JS.InvokeAsync<bool>("scrollToFirstError", id)) break;
             }
             catch { }
@@ -738,6 +687,7 @@
         if (acSelectedProducts.Contains("Others") && string.IsNullOrWhiteSpace(AccountContactModel.ProductsAvailedOther)) return false;
         if (string.IsNullOrWhiteSpace(AccountContactModel.EmailAddress)) return false;
         if (!IsValidEmail(AccountContactModel.EmailAddress)) return false;
+        if (officePhoneError != null) return false;
         return true;
     }
 
@@ -828,6 +778,29 @@
             <= 9 => $"{raw[..3]}-{raw[3..6]}-{raw[6..]}",
             _ => $"{raw[..3]}-{raw[3..6]}-{raw[6..9]}-{raw[9..]}"
         };
+    }
+
+    private void HandleOfficePhoneInput(ChangeEventArgs e)
+    {
+        var raw = System.Text.RegularExpressions.Regex.Replace(e.Value?.ToString() ?? "", @"[^\d]", "");
+        if (raw.Length > 10) raw = raw[..10];
+        officePhoneRaw = raw;
+
+        if (raw.Length == 0)
+        {
+            AccountContactModel.OfficePhoneNo = null;
+            officePhoneError = null; // optional field — no error when empty
+        }
+        else if (raw.Length < 10)
+        {
+            AccountContactModel.OfficePhoneNo = "+63" + raw;
+            officePhoneError = "Phone number must be 10 digits (e.g. 9XXXXXXXXX).";
+        }
+        else
+        {
+            AccountContactModel.OfficePhoneNo = "+63" + raw;
+            officePhoneError = null;
+        }
     }
 
     private static string FormatEnum(string value) => System.Text.RegularExpressions.Regex.Replace(value, @"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ");

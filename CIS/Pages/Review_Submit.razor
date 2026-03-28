@@ -441,14 +441,21 @@
             <div class="rv-item"><span class="rv-key">Relative in Government</span><span class="rv-val">@(Personal.HasGovRelative ? "Yes" : "No")</span></div>
         </div>
 
-        @if (Personal.IsGovOfficial)
+        @if (Personal.IsGovOfficial && Personal.GovOfficialPositions != null && Personal.GovOfficialPositions.Any())
         {
             <div class="rv-divider"></div>
             <div class="rv-subsection">Government Official Details</div>
-            <div class="rv-grid rv-grid-2">
-                <div class="rv-item"><span class="rv-key">Highest Position</span><span class="rv-val">@OrDash(Personal.GovPosition)</span></div>
-                <div class="rv-item"><span class="rv-key">Period Covered</span><span class="rv-val">@OrDash(Personal.GovPeriod)</span></div>
+            <div class="rv-list-header rv-grid-2">
+                <span class="rv-list-col">Highest Position</span>
+                <span class="rv-list-col">Period Covered</span>
             </div>
+            @foreach (var pos in Personal.GovOfficialPositions)
+            {
+                <div class="rv-list-row rv-grid-2">
+                    <span>@OrDash(pos.Position)</span>
+                    <span>@OrDash(pos.Period)</span>
+                </div>
+            }
         }
 
         @if (Personal.BusinessInterests != null && Personal.BusinessInterests.Any())
