@@ -89,6 +89,99 @@
     </div>
 }
 
+@* ══════════════════════════════════════════════════════════
+   BUSINESS & BENEFICIARY SELECTION MODAL
+══════════════════════════════════════════════════════════ *@
+@if (showSelectionModal)
+{
+    <div class="bbm-overlay">
+        <div class="bbm-dialog">
+
+            <div class="bbm-header">
+                <div class="bbm-header-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M9 11l3 3L22 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="bbm-title">Additional Information</div>
+                    <div class="bbm-subtitle">Select which sections apply to you</div>
+                </div>
+            </div>
+
+            <div class="bbm-body">
+                <p class="bbm-desc">Before proceeding, let us know if any of the following apply to your account application.</p>
+
+                @* ── Business question ── *@
+                <div class="bbm-option @(modalApplyBusiness == true ? "bbm-option-yes" : modalApplyBusiness == false ? "bbm-option-no" : "")">
+                    <div class="bbm-option-info">
+                        <div class="bbm-option-icon @(modalApplyBusiness == true ? "bbm-option-icon-active" : "")">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M9 22V12h6v10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="bbm-option-label">Applying with Business?</div>
+                            <div class="bbm-option-sub">Include business information &amp; account contact details</div>
+                        </div>
+                    </div>
+                    <div class="bbm-toggle-wrap" @onclick="@(() => modalApplyBusiness = !(modalApplyBusiness ?? false))">
+                        <div class="bbm-toggle @(modalApplyBusiness == true ? "bbm-toggle-on" : "")">
+                            <div class="bbm-toggle-thumb"></div>
+                        </div>
+                        <span class="bbm-toggle-label-text @(modalApplyBusiness == true ? "bbm-toggle-label-on" : "")">
+                            @(modalApplyBusiness == true ? "Yes" : "No")
+                        </span>
+                    </div>
+                </div>
+
+                @* ── Beneficiary question ── *@
+                <div class="bbm-option @(modalApplyBeneficiary == true ? "bbm-option-yes" : modalApplyBeneficiary == false ? "bbm-option-no" : "")">
+                    <div class="bbm-option-info">
+                        <div class="bbm-option-icon @(modalApplyBeneficiary == true ? "bbm-option-icon-active" : "")">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="bbm-option-label">Applying with Beneficiary?</div>
+                            <div class="bbm-option-sub">Include beneficiary &amp; trust information</div>
+                        </div>
+                    </div>
+                    <div class="bbm-toggle-wrap" @onclick="@(() => modalApplyBeneficiary = !(modalApplyBeneficiary ?? false))">
+                        <div class="bbm-toggle @(modalApplyBeneficiary == true ? "bbm-toggle-on" : "")">
+                            <div class="bbm-toggle-thumb"></div>
+                        </div>
+                        <span class="bbm-toggle-label-text @(modalApplyBeneficiary == true ? "bbm-toggle-label-on" : "")">
+                            @(modalApplyBeneficiary == true ? "Yes" : "No")
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="bbm-footer">
+                <button type="button" class="bbm-btn-back" @onclick="CloseModal">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Back
+                </button>
+                <button type="button" class="bbm-btn-confirm" @onclick="ConfirmModal">
+                    Continue
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+
+        </div>
+    </div>
+}
+
 @* ══════════════════════════════════════════
    STEP CONTENT
 ══════════════════════════════════════════ *@
@@ -105,12 +198,12 @@
     {
         customerModel.EntityType = EntityType.Individual;
         <BasicInformation @bind-Customer="customerModel"
-                        @bind-Model="personalModel"
-                        @bind-ForeignerModel="foreignerModel"
-                        AddressModel="addressModel"
-                        InfoModel="personalModel"
-                        @bind-ContactModel="contactModel"
-                        OnNext="HandleNext" />
+                          @bind-Model="personalModel"
+                          @bind-ForeignerModel="foreignerModel"
+                          AddressModel="addressModel"
+                          InfoModel="personalModel"
+                          @bind-ContactModel="contactModel"
+                          OnNext="HandleNext" />
     }
     else if (CurrentStep == 2)
     {
@@ -133,11 +226,13 @@
     else if (CurrentStep == 4)
     {
         <Business_Beneficiary @bind-BusinessModel="businessInfoModel"
-                                        AddressModel="addressModel"
-                                        @bind-AccountContactModel="accountContactModel"
-                                        @bind-BeneficiaryModel="beneficiaryModel"
-                                        OnNext="HandleNext"
-                                        OnBack="PrevStep" />
+                              AddressModel="addressModel"
+                              @bind-AccountContactModel="accountContactModel"
+                              @bind-BeneficiaryModel="beneficiaryModel"
+                              ShowBusiness="showBusinessSection"
+                              ShowBeneficiary="showBeneficiarySection"
+                              OnNext="HandleNext"
+                              OnBack="PrevStep" />
     }
     else if (CurrentStep == 5)
     {
@@ -154,17 +249,17 @@
     else if (CurrentStep == 7)
     {
         <Review_Submit Customer="customerModel"
-                          Personal="personalModel"
-                          Address="addressModel"
-                          Identification="identificationModel"
-                          Employment="employmentModel"
-                          BusinessInfo="businessInfoModel"
-                          AccountContact="accountContactModel"
-                          Beneficiary="beneficiaryModel"
-                          Acknowledgement="acknowledgementModel"
-                          BankReview="bankReviewModel"
-                          OnBack="PrevStep"
-                          OnSubmit="HandleSubmit" />
+                       Personal="personalModel"
+                       Address="addressModel"
+                       Identification="identificationModel"
+                       Employment="employmentModel"
+                       BusinessInfo="businessInfoModel"
+                       AccountContact="accountContactModel"
+                       Beneficiary="beneficiaryModel"
+                       Acknowledgement="acknowledgementModel"
+                       BankReview="bankReviewModel"
+                       OnBack="PrevStep"
+                       OnSubmit="HandleSubmit" />
     }
     else if (CurrentStep == 8)
     {
@@ -176,49 +271,19 @@
     }
 </div>
 
-<style>
-    .ist-shell { background: #fff; border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.07); border: 1px solid #e8ecf0; margin-bottom: 20px; overflow: hidden; }
-    .ist-topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 20px; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; }
-    .ist-brand { display: flex; align-items: center; gap: 10px; }
-    .ist-brand-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #00a859, #0056b3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .ist-brand-name { font-size: 0.88rem; font-weight: 700; color: #0f172a; line-height: 1.2; }
-    .ist-brand-sub { font-size: 0.67rem; color: #94a3b8; font-weight: 500; }
-    .ist-progress-info { display: flex; align-items: center; gap: 10px; }
-    .ist-step-fraction { font-size: 0.78rem; font-weight: 700; color: #475569; white-space: nowrap; }
-    .ist-step-current { color: #00a859; font-size: 0.9rem; }
-    .ist-step-sep { color: #cbd5e1; margin: 0 1px; }
-    .ist-step-total { color: #94a3b8; }
-    .ist-progress-bar-wrap { width: 100px; height: 5px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
-    .ist-progress-bar-fill { height: 100%; background: linear-gradient(90deg, #00a859, #0056b3); border-radius: 99px; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    .ist-progress-pct { font-size: 0.72rem; font-weight: 700; color: #00a859; white-space: nowrap; min-width: 32px; text-align: right; }
-    .ist-track-wrap { padding: 16px 20px 0; }
-    .ist-track { display: flex; align-items: flex-start; width: 100%; }
-    .ist-step { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; flex-shrink: 0; gap: 5px; text-align: center; transition: transform 0.15s; }
-    .ist-step-circle { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; transition: all 0.25s; position: relative; z-index: 1; }
-    .ist-step-todo .ist-step-circle { background: #f1f5f9; color: #94a3b8; border: 1.5px solid #e2e8f0; }
-    .ist-step-active .ist-step-circle { background: linear-gradient(135deg, #00a859, #0056b3); color: #fff; border: none; box-shadow: 0 0 0 4px rgba(0,168,89,0.15); }
-    .ist-step-done .ist-step-circle { background: linear-gradient(135deg, #00a859, #00c472); color: #fff; border: none; }
-    .ist-step-label { font-size: 0.58rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 64px; text-align: center; line-height: 1.25; transition: color 0.2s; }
-    .ist-step-todo .ist-step-label { color: #b0bec5; }
-    .ist-step-active .ist-step-label { color: #00a859; font-weight: 700; }
-    .ist-step-done .ist-step-label { color: #64748b; }
-    .ist-step-clickable { cursor: pointer; }
-    .ist-step-clickable:hover .ist-step-circle { transform: scale(1.1); box-shadow: 0 0 0 4px rgba(0,168,89,0.18); }
-    .ist-step-clickable:hover .ist-step-label { color: #00a859; }
-    .ist-connector { flex: 1; height: 2px; background: #e2e8f0; border-radius: 99px; margin-top: 15px; min-width: 4px; transition: background 0.3s; }
-    .ist-connector.done { background: linear-gradient(90deg, #00a859, #00c472); }
-    .ist-current-banner { display: flex; align-items: center; gap: 8px; padding: 11px 20px; background: linear-gradient(90deg, #f0fdf8 0%, #eff6ff 100%); border-top: 1px solid #e8f5ee; font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-top: 10px; letter-spacing: 0.01em; }
-    .ist-banner-dot { width: 7px; height: 7px; border-radius: 50%; background: linear-gradient(135deg, #00a859, #0056b3); flex-shrink: 0; animation: ist-dot-pulse 1.8s ease-in-out infinite; }
-    @@keyframes ist-dot-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(0,168,89,0.45); } 50% { box-shadow: 0 0 0 5px rgba(0,168,89,0); } }
-    @@media (max-width: 768px) { .ist-track-wrap { padding: 14px 14px 8px; } .ist-topbar { padding: 12px 14px; } .ist-current-banner { padding: 10px 14px; font-size: 0.88rem; } .ist-step-circle { width: 26px; height: 26px; font-size: 0.68rem; } .ist-step-label { display: none; } .ist-connector { margin-top: 13px; } .ist-progress-bar-wrap { width: 72px; } }
-    @@media (max-width: 480px) { .ist-track-wrap { padding: 12px 10px 0; } .ist-topbar { padding: 10px 12px; } .ist-step-circle { width: 22px; height: 22px; font-size: 0.62rem; } .ist-step-label { display: none; } .ist-connector { margin-top: 11px; } .ist-progress-bar-wrap { width: 56px; } .ist-progress-pct { display: none; } .ist-current-banner { padding: 9px 12px; font-size: 0.82rem; } }
-</style>
-
 @code {
     private int CurrentStep = 1;
     private const int TotalSteps = 7;
 
     private readonly HashSet<int> validatedSteps = new();
+
+    // ── Business & Beneficiary modal state ────────────────────────
+    private bool showSelectionModal = false;
+    private bool? modalApplyBusiness = null;
+    private bool? modalApplyBeneficiary = null;
+    private bool modalValidationError = false;
+    private bool showBusinessSection = false;
+    private bool showBeneficiarySection = false;
 
     private static readonly string[] StepLabels =
     [
@@ -272,8 +337,56 @@
 
     private async Task HandleNext()
     {
+        // After Identification (step 3), show the Business & Beneficiary selection modal
+        if (CurrentStep == 3)
+        {
+            showSelectionModal = true;
+            modalValidationError = false;
+            StateHasChanged();
+            return;
+        }
+
         validatedSteps.Add(CurrentStep);
         CurrentStep++;
+        await Storage.SaveIndividualDraftAsync(
+            customerModel, personalModel, addressModel, identificationModel,
+            employmentModel, familyModel, contactModel, foreignerModel,
+            busintModel, govrelModel, accpurpModel,
+            businessInfoModel, accountContactModel, beneficiaryModel,
+            acknowledgementModel, bankReviewModel, CurrentStep
+        );
+        StateHasChanged();
+        await JS.InvokeVoidAsync("window.scrollTo", 0, 0);
+    }
+
+    private void CloseModal()
+    {
+        showSelectionModal = false;
+        modalApplyBusiness = null;
+        modalApplyBeneficiary = null;
+        modalValidationError = false;
+        StateHasChanged();
+    }
+
+    private async Task ConfirmModal()
+    {
+        // Treat null (untouched) as false — toggles are off by default
+        showSelectionModal = false;
+        showBusinessSection = modalApplyBusiness == true;
+        showBeneficiarySection = modalApplyBeneficiary == true;
+
+        validatedSteps.Add(CurrentStep);
+
+        // If neither section applies, skip step 4 and go straight to Acknowledgement (step 5)
+        if (!showBusinessSection && !showBeneficiarySection)
+        {
+            CurrentStep = 5;
+        }
+        else
+        {
+            CurrentStep = 4;
+        }
+
         await Storage.SaveIndividualDraftAsync(
             customerModel, personalModel, addressModel, identificationModel,
             employmentModel, familyModel, contactModel, foreignerModel,
@@ -301,7 +414,7 @@
         if (newCustomerId > 0)
         {
             customerModel.CustomerID = newCustomerId;
-            customerModel.CIDNumber  = cidNumber;
+            customerModel.CIDNumber = cidNumber;
             CurrentStep = 8;
             await Storage.ClearIndividualDraftAsync();
             StateHasChanged();
@@ -320,7 +433,15 @@
 
     private void PrevStep()
     {
-        if (CurrentStep > 1) { CurrentStep--; StateHasChanged(); }
+        if (CurrentStep > 1)
+        {
+            // If both sections were skipped and we're on step 5, go back to step 3
+            if (CurrentStep == 5 && !showBusinessSection && !showBeneficiarySection)
+                CurrentStep = 3;
+            else
+                CurrentStep--;
+            StateHasChanged();
+        }
     }
 
     private async Task ResetStepper()

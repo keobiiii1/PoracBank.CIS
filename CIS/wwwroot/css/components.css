@@ -3440,6 +3440,310 @@
     }
 }
 
+/* ════════════════════════════════════════════════════════════
+   Business & Beneficiary Selection Modal  (bbm-*)
+   Append to: wwwroot/css/components.css
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Overlay: fixed, full-viewport, centred ── */
+.bbm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: bbm-fade-in 0.18s ease;
+}
+
+@keyframes bbm-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ── Dialog card ── */
+.bbm-dialog {
+    background: #fff;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.22), 0 4px 16px rgba(0,168,89,0.08);
+    overflow: hidden;
+    animation: bbm-slide-up 0.22s cubic-bezier(0.34, 1.36, 0.64, 1);
+}
+
+@keyframes bbm-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ── Header ── */
+.bbm-header {
+    background: linear-gradient(135deg, #00a859 0%, #007a40 50%, #0056b3 100%);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.bbm-header-icon {
+    width: 42px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.bbm-title {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+
+.bbm-subtitle {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.78rem;
+    margin-top: 2px;
+}
+
+/* ── Body ── */
+.bbm-body {
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bbm-desc {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin: 0 0 4px;
+    line-height: 1.5;
+}
+
+/* ── Option row ── */
+.bbm-option {
+    border: 1.5px solid #e8ecf0;
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    background: #fff;
+}
+
+.bbm-option-yes {
+    border-color: #00a859;
+    background: linear-gradient(135deg, #f0fdf8 0%, #f0f9ff 100%);
+    box-shadow: 0 4px 16px rgba(0,168,89,0.1);
+}
+
+.bbm-option-no {
+    border-color: #e8ecf0;
+    background: #fafbfc;
+}
+
+.bbm-option-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.bbm-option-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #dcfdf0, #dbeafe);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0056b3;
+    flex-shrink: 0;
+    transition: background 0.25s, color 0.25s;
+}
+
+.bbm-option-icon-active {
+    background: linear-gradient(135deg, #00a859, #0056b3);
+    color: #fff;
+}
+
+.bbm-option-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.2;
+}
+
+.bbm-option-sub {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 2px;
+    line-height: 1.4;
+}
+
+/* ── Toggle switch ── */
+.bbm-toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.bbm-toggle {
+    position: relative;
+    width: 52px;
+    height: 28px;
+    border-radius: 14px;
+    background: #cbd5e1;
+    transition: background 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s;
+    flex-shrink: 0;
+}
+
+.bbm-toggle-on {
+    background: linear-gradient(135deg, #00a859, #0056b3);
+    box-shadow: 0 2px 10px rgba(0,168,89,0.35);
+}
+
+.bbm-toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    transition: transform 0.28s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+.bbm-toggle-on .bbm-toggle-thumb {
+    transform: translateX(24px);
+}
+
+.bbm-toggle-label-text {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #94a3b8;
+    min-width: 22px;
+    transition: color 0.2s;
+}
+
+.bbm-toggle-label-on {
+    color: #00a859;
+}
+
+/* ── Footer ── */
+.bbm-footer {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #f1f5f9;
+    gap: 12px;
+}
+
+.bbm-btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1.5px solid #e2e8f0;
+    background: #fff;
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+    .bbm-btn-back:hover {
+        border-color: #94a3b8;
+        color: #0f172a;
+        background: #f8fafc;
+    }
+
+.bbm-btn-confirm {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(90deg, #00a859 0%, #0056b3 100%);
+    color: #fff;
+    font-size: 0.83rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,168,89,0.28);
+    transition: filter 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+    .bbm-btn-confirm:hover {
+        filter: brightness(1.07);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(0,168,89,0.36);
+    }
+
+    .bbm-btn-confirm:active {
+        transform: translateY(0);
+        filter: brightness(0.97);
+    }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+    .bbm-dialog {
+        border-radius: 16px;
+    }
+
+    .bbm-header {
+        padding: 16px 18px;
+    }
+
+    .bbm-body {
+        padding: 18px;
+    }
+
+    .bbm-footer {
+        padding: 14px 18px;
+    }
+
+    .bbm-option-label {
+        font-size: 0.82rem;
+    }
+
+    .bbm-option-sub {
+        font-size: 0.7rem;
+    }
+}
 
 /* ── PageStepper ── */
 .ist-shell {
