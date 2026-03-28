@@ -24,7 +24,7 @@ public class IndividualRepository
         _transactionPolicy = transactionPolicy;
     }
 
-    public async Task<long> IndividualFullRegistrationAsync(IndividualRegistrationRequest request)
+    public async Task<(long CustomerId, string CIDNumber)> IndividualFullRegistrationAsync(IndividualRegistrationRequest request)
     {
         using var _db = _dbContextFactory.CreateDbContext();
         using var tx = await _transactionPolicy.BeginSqlTransaction(_db);
@@ -198,7 +198,7 @@ public class IndividualRepository
             await _db.SaveChangesAsync();
             if (tx != null) await tx.CommitAsync();
 
-            return customerId;
+            return (customerId, cidNumber);
         }
         catch (Exception)
         {

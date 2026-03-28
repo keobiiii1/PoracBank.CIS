@@ -3,9 +3,7 @@
 
 <div class="ca-wrap">
 
-    @* ══════════════════════════════════════
-       SECTION 1 — Acknowledgement Text
-    ══════════════════════════════════════ *@
+    @* ── SECTION 1 — Acknowledgement Text ── *@
     <div class="ca-section">
         <div class="ca-section-header">
             <div class="ca-section-icon">
@@ -27,9 +25,7 @@
         </div>
     </div>
 
-    @* ══════════════════════════════════════
-       SECTION 2 — Signature & Details
-    ══════════════════════════════════════ *@
+    @* ── SECTION 2 — Signature & Details ── *@
     <div class="ca-section" id="field-PrintedName">
         <div class="ca-section-header">
             <div class="ca-section-icon">
@@ -81,9 +77,7 @@
         </div>
     </div>
 
-    @* ══════════════════════════════════════
-       FOOTER
-    ══════════════════════════════════════ *@
+    @* ── FOOTER ── *@
     <div class="ca-footer">
         <button type="button" class="ca-btn-back" @onclick="OnBack">
             <div class="ca-btn-arrow-left">
@@ -129,15 +123,23 @@
     .ca-section::after {
         content: '';
         position: absolute;
-        left: 0; top: 0; bottom: 0;
+        left: 0;
+        top: 0;
+        bottom: 0;
         width: 3px;
         background: linear-gradient(180deg, #00a859, #0056b3);
         opacity: 0;
         transition: opacity 0.25s;
     }
 
-    .ca-section:focus-within { border-color: #c8e6d8; box-shadow: 0 4px 20px rgba(0,168,89,0.07); }
-    .ca-section:focus-within::after { opacity: 1; }
+    .ca-section:focus-within {
+        border-color: #c8e6d8;
+        box-shadow: 0 4px 20px rgba(0,168,89,0.07);
+    }
+
+    .ca-section:focus-within::after {
+        opacity: 1;
+    }
 
     .ca-section-header {
         display: flex;
@@ -147,10 +149,13 @@
     }
 
     .ca-section-icon {
-        width: 28px; height: 28px;
+        width: 28px;
+        height: 28px;
         border-radius: 8px;
         background: linear-gradient(135deg, #00a859, #0056b3);
-        display: flex; align-items: center; justify-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
         box-shadow: 0 2px 8px rgba(0,168,89,0.25);
     }
@@ -164,7 +169,6 @@
         flex: 1;
     }
 
-    /* ── Acknowledgement text ── */
     .ca-ack-text {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
@@ -189,11 +193,8 @@
         gap: 10px;
     }
 
-    .ca-ack-text ol li {
-        padding-left: 4px;
-    }
+    .ca-ack-text ol li { padding-left: 4px; }
 
-    /* ── Signature ── */
     .ca-signature-wrap {
         display: flex;
         flex-direction: column;
@@ -232,11 +233,9 @@
 
     .ca-divider { height: 1px; background: #f1f5f9; margin: 16px 0; }
 
-    /* ── Grid ── */
     .caf-grid { display: grid; gap: 16px; }
     .caf-grid-2 { grid-template-columns: repeat(2, 1fr); }
 
-    /* ── Fields ── */
     .ca-field { display: flex; flex-direction: column; gap: 6px; }
 
     .ca-label {
@@ -244,7 +243,9 @@
         font-weight: 700;
         color: #64748b;
         letter-spacing: 0.2px;
-        display: flex; align-items: center; gap: 3px;
+        display: flex;
+        align-items: center;
+        gap: 3px;
     }
 
     .ca-req { color: #ef4444; font-size: 0.8rem; line-height: 1; }
@@ -273,11 +274,11 @@
         font-size: 0.7rem;
         color: #dc2626;
         font-weight: 500;
-        margin: 0; padding: 0;
+        margin: 0;
+        padding: 0;
         display: block;
     }
 
-    /* ── Footer ── */
     .ca-footer {
         display: flex;
         align-items: center;
@@ -310,10 +311,13 @@
     .ca-btn-next:active { transform: translateY(0); filter: brightness(0.97); }
 
     .ca-btn-arrow {
-        width: 30px; height: 30px;
+        width: 30px;
+        height: 30px;
         background: rgba(255,255,255,0.2);
         border-radius: 9px;
-        display: flex; align-items: center; justify-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
     }
 
@@ -335,10 +339,13 @@
     .ca-btn-back:hover { border-color: #94a3b8; color: #0f172a; transform: translateY(-1px); }
 
     .ca-btn-arrow-left {
-        width: 28px; height: 28px;
+        width: 28px;
+        height: 28px;
         background: #f1f5f9;
         border-radius: 8px;
-        display: flex; align-items: center; justify-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
     }
 
@@ -405,14 +412,16 @@
         showErrors = true;
         if (!IsValid())
         {
-            // Force UI re-render so error messages are in the DOM before JS scans for them
             StateHasChanged();
             await Task.Delay(50);
 
             var scrollIds = new[] { "field-PrintedName" };
             foreach (var id in scrollIds)
             {
-                try { if (await JS.InvokeAsync<bool>("scrollToFirstError", id)) break; }
+                try 
+                { 
+                    if (await JS.InvokeAsync<bool>("scrollToFirstError", id)) break; 
+                }
                 catch { }
             }
             return;

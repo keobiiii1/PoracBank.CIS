@@ -42,9 +42,9 @@
                             <circle cx="7" cy="15" r="1.5" fill="white"/>
                         </svg>
                     </div>
-                    <div>
+                    <div class="rs-cid-text">
                         <span class="rs-cid-label">Customer ID Number</span>
-                        <span class="rs-cid-value">@CidNumber</span>
+                        <span class="rs-cid-value">@CIDNumber</span>
                     </div>
                 </div>
                 <div class="rs-cid-badge">Verified</div>
@@ -275,6 +275,13 @@
         gap: 14px;
     }
 
+    .rs-cid-text {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 2px;
+    }
+
     .rs-cid-icon {
         width: 44px; height: 44px;
         border-radius: 12px;
@@ -466,7 +473,7 @@
 @code {
     [Parameter] public string CustomerName { get; set; } = "";
     [Parameter] public long CustomerId { get; set; }
-    [Parameter] public string CidNumber { get; set; } = "";
+    [Parameter] public string CIDNumber { get; set; } = "";
     [Parameter] public string RegistrationType { get; set; } = "Individual";
     [Parameter] public EventCallback OnReset { get; set; }
 
@@ -479,6 +486,5 @@
     private async Task RegisterAnother()
     {
         await OnReset.InvokeAsync();
-        Nav.NavigateTo("/");
     }
 }

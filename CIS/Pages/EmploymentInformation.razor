@@ -21,8 +21,8 @@
             <div class="eas-section-header">
                 <div class="eas-section-icon">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <rect x="2" y="7" width="20" height="14" rx="2" stroke="white" stroke-width="2"/>
-                        <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        <rect x="2" y="7" width="20" height="14" rx="2" stroke="white" stroke-width="2" />
+                        <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" stroke="white" stroke-width="2" stroke-linecap="round" />
                     </svg>
                 </div>
                 <span class="eas-section-title">Employment Details</span>
@@ -32,7 +32,11 @@
                     <label class="eas-label">Employment Status <span class="eas-req">*</span></label>
                     <InputSelect @bind-Value="EmploymentModel.EmploymentStatus" class="eas-select">
                         <option value="@EmploymentStatus.None" disabled>Select Employment Status</option>
-                        @foreach (EmploymentStatus s in Enum.GetValues<EmploymentStatus>()) { if (s == EmploymentStatus.None) continue; <option value="@s">@GetEnumDescription(s)</option> }
+                        @foreach (EmploymentStatus s in Enum.GetValues<EmploymentStatus>())
+                        {
+                            if (s == EmploymentStatus.None) continue;
+                            <option value="@s">@GetEnumDescription(s)</option>
+                        }
                     </InputSelect>
                     <ValidationMessage For="@(() => EmploymentModel.EmploymentStatus)" class="eas-field-error" />
                     @if (EmploymentModel.EmploymentStatus == EmploymentStatus.Others)
@@ -45,13 +49,23 @@
                     <label class="eas-label">Type of Employment <span class="eas-req">*</span></label>
                     <InputSelect @bind-Value="EmploymentModel.TypeOfEmployment" class="eas-select">
                         <option value="@TypeOfEmployment.None" disabled>Select Type of Employment</option>
-                        @foreach (TypeOfEmployment t in Enum.GetValues<TypeOfEmployment>()) { if (t == TypeOfEmployment.None) continue; <option value="@t">@GetEnumDescription(t)</option> }
+                        @foreach (TypeOfEmployment t in Enum.GetValues<TypeOfEmployment>())
+                        {
+                            if (t == TypeOfEmployment.None) continue;
+                            <option value="@t">@GetEnumDescription(t)</option>
+                        }
                     </InputSelect>
                     <ValidationMessage For="@(() => EmploymentModel.TypeOfEmployment)" class="eas-field-error" />
                     @if (EmploymentModel.TypeOfEmployment == TypeOfEmployment.Others)
-                    { <InputText @bind-Value="EmploymentModel.TypeOfEmploymentOther" class="eas-input mt-2" placeholder="Specify employment type" /><ValidationMessage For="@(() => EmploymentModel.TypeOfEmploymentOther)" class="eas-field-error" /> }
+                    {
+                        <InputText @bind-Value="EmploymentModel.TypeOfEmploymentOther" class="eas-input mt-2" placeholder="Specify employment type" />
+                        <ValidationMessage For="@(() => EmploymentModel.TypeOfEmploymentOther)" class="eas-field-error" />
+                    }
                     @if (EmploymentModel.TypeOfEmployment == TypeOfEmployment.OFW)
-                    { <InputText @bind-Value="EmploymentModel.OFWCountry" class="eas-input mt-2" placeholder="Country of Employment" /><ValidationMessage For="@(() => EmploymentModel.OFWCountry)" class="eas-field-error" /> }
+                    {
+                        <InputText @bind-Value="EmploymentModel.OFWCountry" class="eas-input mt-2" placeholder="Country of Employment" />
+                        <ValidationMessage For="@(() => EmploymentModel.OFWCountry)" class="eas-field-error" />
+                    }
                 </div>
                 <div class="eas-field">
                     <label class="eas-label">Nature of Work <span class="eas-req">*</span></label>
@@ -66,7 +80,11 @@
                     <label class="eas-label">Average Monthly Income <span class="eas-req">*</span></label>
                     <InputSelect @bind-Value="EmploymentModel.AverageMonthlyIncome" class="eas-select">
                         <option value="@AverageMonthlyIncome.None" disabled>Select Average Monthly Income</option>
-                        @foreach (AverageMonthlyIncome a in Enum.GetValues<AverageMonthlyIncome>()) { if (a == AverageMonthlyIncome.None) continue; <option value="@a">@GetEnumDescription(a)</option> }
+                        @foreach (AverageMonthlyIncome a in Enum.GetValues<AverageMonthlyIncome>())
+                        {
+                            if (a == AverageMonthlyIncome.None) continue;
+                            <option value="@a">@GetEnumDescription(a)</option>
+                        }
                     </InputSelect>
                     <ValidationMessage For="@(() => EmploymentModel.AverageMonthlyIncome)" class="eas-field-error" />
                 </div>
@@ -74,11 +92,18 @@
                     <label class="eas-label">Source of Funds <span class="eas-req">*</span></label>
                     <InputSelect @bind-Value="EmploymentModel.SourceOfFunds" class="eas-select">
                         <option value="@SourceOfFunds.None" disabled>Select Source of Funds</option>
-                        @foreach (SourceOfFunds sf in Enum.GetValues<SourceOfFunds>()) { if (sf == SourceOfFunds.None) continue; <option value="@sf">@GetEnumDescription(sf)</option> }
+                        @foreach (SourceOfFunds sf in Enum.GetValues<SourceOfFunds>())
+                        {
+                            if (sf == SourceOfFunds.None) continue;
+                            <option value="@sf">@GetEnumDescription(sf)</option>
+                        }
                     </InputSelect>
                     <ValidationMessage For="@(() => EmploymentModel.SourceOfFunds)" class="eas-field-error" />
                     @if (EmploymentModel.SourceOfFunds == SourceOfFunds.Others)
-                    { <InputText @bind-Value="EmploymentModel.SourceOfFundsOther" class="eas-input mt-2" placeholder="Specify source of funds" /><ValidationMessage For="@(() => EmploymentModel.SourceOfFundsOther)" class="eas-field-error" /> }
+                    {
+                        <InputText @bind-Value="EmploymentModel.SourceOfFundsOther" class="eas-input mt-2" placeholder="Specify source of funds" />
+                        <ValidationMessage For="@(() => EmploymentModel.SourceOfFundsOther)" class="eas-field-error" />
+                    }
                 </div>
             </div>
         </div>
@@ -88,8 +113,8 @@
             <div class="eas-section-header">
                 <div class="eas-section-icon">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M9 22V12h6v10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M9 22V12h6v10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </div>
                 <span class="eas-section-title">Employer / Business Details</span>
@@ -108,7 +133,7 @@
             </div>
             <div class="eas-divider"></div>
             <div class="eas-subsection-label">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2" /></svg>
                 Employer's Address <span class="eas-req">*</span>
             </div>
             <div class="eas-grid eas-grid-4">
@@ -119,7 +144,7 @@
             </div>
             <div class="eas-divider"></div>
             <div class="eas-subsection-label">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
                 Contact Details of Employer <span class="eas-req">*</span>
             </div>
             <div class="eas-grid eas-grid-2">
@@ -137,12 +162,12 @@
 <div class="eas-wrap">
 
     @* ── Account Purpose & Products ── *@
-    <div class="eas-section" id="field-AccountPurpose">
+    <div class="eas-section" style="margin-top: 8px;" id="field-AccountPurpose">
         <div class="eas-section-header">
             <div class="eas-section-icon">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </div>
             <span class="eas-section-title">Account Purpose &amp; Products</span>
@@ -153,15 +178,25 @@
                 <div class="eas-select-wrap">
                     <InputSelect @bind-Value="InfoModel.AccountPurpose" class="@(abShowErrors && InfoModel.AccountPurpose == PurposeOfAccount.None ? "eas-select eas-invalid" : "eas-select")">
                         <option value="@PurposeOfAccount.None" disabled>Select Purpose of Account</option>
-                        @foreach (var val in Enum.GetValues<PurposeOfAccount>()) { if (val == PurposeOfAccount.None) continue; <option value="@val">@FormatEnum(val.ToString())</option> }
+                        @foreach (var val in Enum.GetValues<PurposeOfAccount>())
+                        {
+                            if (val == PurposeOfAccount.None) continue;
+                            <option value="@val">@FormatEnum(val.ToString())</option>
+                        }
                     </InputSelect>
-                    <svg class="eas-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg class="eas-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
                 </div>
-                @if (abShowErrors && InfoModel.AccountPurpose == PurposeOfAccount.None) { <span class="eas-field-error">Purpose of account is required.</span> }
+                @if (abShowErrors && InfoModel.AccountPurpose == PurposeOfAccount.None)
+                {
+                    <span class="eas-field-error">Purpose of account is required.</span>
+                }
                 @if (InfoModel.AccountPurpose == PurposeOfAccount.Others)
                 {
                     <InputText @bind-Value="InfoModel.AccountPurposeOther" class="eas-input mt-2" placeholder="Specify purpose" />
-                    @if (abShowErrors && string.IsNullOrWhiteSpace(InfoModel.AccountPurposeOther)) { <span class="eas-field-error">Please specify the purpose.</span> }
+                    @if (abShowErrors && string.IsNullOrWhiteSpace(InfoModel.AccountPurposeOther))
+                    {
+                        <span class="eas-field-error">Please specify the purpose.</span>
+                    }
                 }
             </div>
             <div class="eas-field">
@@ -174,13 +209,19 @@
                         <option value="Loan">Loan</option>
                         <option value="Others">Others</option>
                     </InputSelect>
-                    <svg class="eas-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg class="eas-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
                 </div>
-                @if (abShowErrors && string.IsNullOrWhiteSpace(InfoModel.ProductsAvailed)) { <span class="eas-field-error">Products to be availed is required.</span> }
+                @if (abShowErrors && string.IsNullOrWhiteSpace(InfoModel.ProductsAvailed))
+                {
+                    <span class="eas-field-error">Products to be availed is required.</span>
+                }
                 @if (InfoModel.ProductsAvailed == "Others")
                 {
                     <InputText @bind-Value="InfoModel.ProductsAvailedOther" class="eas-input mt-2" placeholder="Specify product" />
-                    @if (abShowErrors && string.IsNullOrWhiteSpace(InfoModel.ProductsAvailedOther)) { <span class="eas-field-error">Please specify the product.</span> }
+                    @if (abShowErrors && string.IsNullOrWhiteSpace(InfoModel.ProductsAvailedOther))
+                    {
+                        <span class="eas-field-error">Please specify the product.</span>
+                    }
                 }
             </div>
         </div>
@@ -191,33 +232,51 @@
         <div class="eas-section-header">
             <div class="eas-section-icon">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M9 22V12h6v10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M9 22V12h6v10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </div>
             <span class="eas-section-title">Business Interests</span>
             <button type="button" class="eas-add-btn" @onclick="AddBusiness">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg>
                 Add Business
             </button>
         </div>
-        @if (InfoModel.BusinessInterests.Count == 0) { <div class="eas-empty-hint">No business interests added. Click "Add Business" to add one.</div> }
+        @if (InfoModel.BusinessInterests.Count == 0)
+        {
+            <div class="eas-empty-hint">No business interests added. Click "Add Business" to add one.</div>
+        }
         else
         {
-            <div class="eas-list-header eas-grid-biz"><span class="eas-list-col-label">Business Name <span class="eas-req">*</span></span><span class="eas-list-col-label">% Ownership <span class="eas-req">*</span></span><span></span></div>
+            <div class="eas-list-header eas-grid-biz">
+                <span class="eas-list-col-label">Business Name <span class="eas-req">*</span></span>
+                <span class="eas-list-col-label">% Ownership <span class="eas-req">*</span></span>
+                <span></span>
+            </div>
             @for (int i = 0; i < InfoModel.BusinessInterests.Count; i++)
             {
-                var idx = i; var biz = InfoModel.BusinessInterests[idx];
+                var idx = i;
+                var biz = InfoModel.BusinessInterests[idx];
                 <div class="eas-list-row eas-grid-biz">
                     <div class="eas-field">
                         <InputText @bind-Value="biz.BusinessName" class="@(abShowErrors && string.IsNullOrWhiteSpace(biz.BusinessName) ? "eas-input eas-invalid" : "eas-input")" placeholder="e.g. Dela Cruz Trading" />
-                        @if (abShowErrors && string.IsNullOrWhiteSpace(biz.BusinessName)) { <span class="eas-field-error">Business name is required.</span> }
+                        @if (abShowErrors && string.IsNullOrWhiteSpace(biz.BusinessName))
+                        {
+                            <span class="eas-field-error">Business name is required.</span>
+                        }
                     </div>
                     <div class="eas-field">
-                        <input type="text" class="form-control" placeholder="1–100" inputmode="numeric" maxlength="3" value="@biz.OwnershipPercentage" @oninput="(e) => HandleOwnershipInput(e, biz)" />
-                        @if (abShowErrors && biz.OwnershipPercentage == null) { <span class="eas-field-error">Ownership % is required.</span> }
+                        <input type="text" class="form-control" placeholder="0.00–100" inputmode="decimal" maxlength="6" value="@biz.OwnershipPercentage" @oninput="(e) => HandleOwnershipInput(e, biz, idx)" />
+                        @if (ownershipInvalidRows.Contains(idx))
+                        {
+                            <span class="eas-field-error">Please enter a valid Ownership Percentage (0.00–100).</span>
+                        }
+                        else if (abShowErrors && biz.OwnershipPercentage == null)
+                        {
+                            <span class="eas-field-error">Ownership % is required.</span>
+                        }
                     </div>
-                    <button type="button" class="eas-remove-btn" @onclick="() => RemoveBusiness(idx)" title="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+                    <button type="button" class="eas-remove-btn" @onclick="() => RemoveBusiness(idx)" title="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg></button>
                 </div>
             }
         }
@@ -240,25 +299,38 @@
             <div class="eas-divider"></div>
             <div class="eas-section-header" style="margin-bottom:12px;">
                 <span class="eas-section-title" style="font-size:0.68rem;">Official Positions</span>
-                <button type="button" class="eas-add-btn" @onclick="AddGovPosition"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg> Add Position</button>
+                <button type="button" class="eas-add-btn" @onclick="AddGovPosition"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg> Add Position</button>
             </div>
-            @if (InfoModel.GovOfficialPositions.Count == 0) { <div class="eas-empty-hint">No positions added.</div> }
+            @if (InfoModel.GovOfficialPositions.Count == 0)
+            {
+                <div class="eas-empty-hint">No positions added.</div>
+            }
             else
             {
-                <div class="eas-list-header eas-grid-pep"><span class="eas-list-col-label">Highest Position <span class="eas-req">*</span></span><span class="eas-list-col-label">Period Covered <span class="eas-req">*</span></span><span></span></div>
+                <div class="eas-list-header eas-grid-pep">
+                    <span class="eas-list-col-label">Highest Position <span class="eas-req">*</span></span>
+                    <span class="eas-list-col-label">Period Covered <span class="eas-req">*</span></span>
+                    <span></span>
+                </div>
                 @for (int i = 0; i < InfoModel.GovOfficialPositions.Count; i++)
                 {
                     var idx = i;
                     <div class="eas-list-row eas-grid-pep">
                         <div class="eas-field">
                             <InputText @bind-Value="InfoModel.GovOfficialPositions[idx].Position" class="@(abShowErrors && string.IsNullOrWhiteSpace(InfoModel.GovOfficialPositions[idx].Position) ? "eas-input eas-invalid" : "eas-input")" placeholder="e.g. Barangay Captain" />
-                            @if (abShowErrors && string.IsNullOrWhiteSpace(InfoModel.GovOfficialPositions[idx].Position)) { <span class="eas-field-error">Position is required.</span> }
+                            @if (abShowErrors && string.IsNullOrWhiteSpace(InfoModel.GovOfficialPositions[idx].Position))
+                            {
+                                <span class="eas-field-error">Position is required.</span>
+                            }
                         </div>
                         <div class="eas-field">
                             <InputText @bind-Value="InfoModel.GovOfficialPositions[idx].Period" class="@(abShowErrors && string.IsNullOrWhiteSpace(InfoModel.GovOfficialPositions[idx].Period) ? "eas-input eas-invalid" : "eas-input")" placeholder="e.g. 2018–2022" />
-                            @if (abShowErrors && string.IsNullOrWhiteSpace(InfoModel.GovOfficialPositions[idx].Period)) { <span class="eas-field-error">Period is required.</span> }
+                            @if (abShowErrors && string.IsNullOrWhiteSpace(InfoModel.GovOfficialPositions[idx].Period))
+                            {
+                                <span class="eas-field-error">Period is required.</span>
+                            }
                         </div>
-                        <button type="button" class="eas-remove-btn" @onclick="() => RemoveGovPosition(idx)" title="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+                        <button type="button" class="eas-remove-btn" @onclick="() => RemoveGovPosition(idx)" title="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg></button>
                     </div>
                 }
             }
@@ -282,21 +354,56 @@
             <div class="eas-divider"></div>
             <div class="eas-section-header" style="margin-bottom:12px;">
                 <span class="eas-section-title" style="font-size:0.68rem;">Relative Details</span>
-                <button type="button" class="eas-add-btn" @onclick="AddGovRelative"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg> Add Relative</button>
+                <button type="button" class="eas-add-btn" @onclick="AddGovRelative"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg> Add Relative</button>
             </div>
-            @if (InfoModel.GovRelatives.Count == 0) { <div class="eas-empty-hint">No relatives added.</div> }
+            @if (InfoModel.GovRelatives.Count == 0)
+            {
+                <div class="eas-empty-hint">No relatives added.</div>
+            }
             else
             {
                 @for (int i = 0; i < InfoModel.GovRelatives.Count; i++)
                 {
-                    var idx = i; var rel = InfoModel.GovRelatives[idx];
+                    var idx = i;
+                    var rel = InfoModel.GovRelatives[idx];
                     <div class="eas-rel-card">
-                        <div class="eas-rel-card-header"><span class="eas-rel-card-num">Relative #@(idx + 1)</span><button type="button" class="eas-remove-btn" @onclick="() => RemoveGovRelative(idx)" title="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button></div>
+                        <div class="eas-rel-card-header">
+                            <span class="eas-rel-card-num">Relative #@(idx + 1)</span>
+                            <button type="button" class="eas-remove-btn" @onclick="() => RemoveGovRelative(idx)" title="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg></button>
+                        </div>
                         <div class="eas-rel-card-grid">
-                            <div class="eas-field"><label class="eas-label">Full Name <span class="eas-req">*</span></label><InputText @bind-Value="rel.Name" class="@(abShowErrors && string.IsNullOrWhiteSpace(rel.Name) ? "eas-input eas-invalid" : "eas-input")" placeholder="Full name" />@if (abShowErrors && string.IsNullOrWhiteSpace(rel.Name)) { <span class="eas-field-error">Full name is required.</span> }</div>
-                            <div class="eas-field"><label class="eas-label">Relationship <span class="eas-req">*</span></label><InputText @bind-Value="rel.Relationship" class="@(abShowErrors && string.IsNullOrWhiteSpace(rel.Relationship) ? "eas-input eas-invalid" : "eas-input")" placeholder="e.g. Father, Spouse" />@if (abShowErrors && string.IsNullOrWhiteSpace(rel.Relationship)) { <span class="eas-field-error">Relationship is required.</span> }</div>
-                            <div class="eas-field"><label class="eas-label">Position <span class="eas-req">*</span></label><InputText @bind-Value="rel.Position" class="@(abShowErrors && string.IsNullOrWhiteSpace(rel.Position) ? "eas-input eas-invalid" : "eas-input")" placeholder="e.g. Mayor" />@if (abShowErrors && string.IsNullOrWhiteSpace(rel.Position)) { <span class="eas-field-error">Position is required.</span> }</div>
-                            <div class="eas-field"><label class="eas-label">Period Covered <span class="eas-req">*</span></label><InputText @bind-Value="rel.PeriodCovered" class="@(abShowErrors && string.IsNullOrWhiteSpace(rel.PeriodCovered) ? "eas-input eas-invalid" : "eas-input")" placeholder="e.g. 2019–present" />@if (abShowErrors && string.IsNullOrWhiteSpace(rel.PeriodCovered)) { <span class="eas-field-error">Period covered is required.</span> }</div>
+                            <div class="eas-field">
+                                <label class="eas-label">Full Name <span class="eas-req">*</span></label>
+                                <InputText @bind-Value="rel.Name" class="@(abShowErrors && string.IsNullOrWhiteSpace(rel.Name) ? "eas-input eas-invalid" : "eas-input")" placeholder="Full name" />
+                                @if (abShowErrors && string.IsNullOrWhiteSpace(rel.Name))
+                                {
+                                    <span class="eas-field-error">Full name is required.</span>
+                                }
+                            </div>
+                            <div class="eas-field">
+                                <label class="eas-label">Relationship <span class="eas-req">*</span></label>
+                                <InputText @bind-Value="rel.Relationship" class="@(abShowErrors && string.IsNullOrWhiteSpace(rel.Relationship) ? "eas-input eas-invalid" : "eas-input")" placeholder="e.g. Father, Spouse" />
+                                @if (abShowErrors && string.IsNullOrWhiteSpace(rel.Relationship))
+                                {
+                                    <span class="eas-field-error">Relationship is required.</span>
+                                }
+                            </div>
+                            <div class="eas-field">
+                                <label class="eas-label">Position <span class="eas-req">*</span></label>
+                                <InputText @bind-Value="rel.Position" class="@(abShowErrors && string.IsNullOrWhiteSpace(rel.Position) ? "eas-input eas-invalid" : "eas-input")" placeholder="e.g. Mayor" />
+                                @if (abShowErrors && string.IsNullOrWhiteSpace(rel.Position))
+                                {
+                                    <span class="eas-field-error">Position is required.</span>
+                                }
+                            </div>
+                            <div class="eas-field">
+                                <label class="eas-label">Period Covered <span class="eas-req">*</span></label>
+                                <InputText @bind-Value="rel.PeriodCovered" class="@(abShowErrors && string.IsNullOrWhiteSpace(rel.PeriodCovered) ? "eas-input eas-invalid" : "eas-input")" placeholder="e.g. 2019–present" />
+                                @if (abShowErrors && string.IsNullOrWhiteSpace(rel.PeriodCovered))
+                                {
+                                    <span class="eas-field-error">Period covered is required.</span>
+                                }
+                            </div>
                         </div>
                     </div>
                 }
@@ -320,68 +427,519 @@
 </div>
 
 <style>
-    .eas-wrap { display: flex; flex-direction: column; gap: 8px; font-family: 'Segoe UI', system-ui, sans-serif; }
-    .eas-section { background: #fff; border: 1px solid #edf0f4; border-radius: 18px; padding: 22px 24px; transition: border-color 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; }
-    .eas-section::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, #00a859, #0056b3); opacity: 0; transition: opacity 0.25s; }
-    .eas-section:focus-within { border-color: #c8e6d8; box-shadow: 0 4px 20px rgba(0,168,89,0.07); }
-    .eas-section:focus-within::after { opacity: 1; }
-    .eas-section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
-    .eas-section-icon { width: 28px; height: 28px; border-radius: 8px; background: linear-gradient(135deg, #00a859, #0056b3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,168,89,0.25); }
-    .eas-section-title { font-size: 0.72rem; font-weight: 800; color: #0f172a; letter-spacing: 0.8px; text-transform: uppercase; flex: 1; }
-    .eas-subsection-label { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; color: #475569; letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 12px; margin-top: 4px; }
-    .eas-subsection-label svg { color: #00a859; flex-shrink: 0; }
-    .eas-grid { display: grid; gap: 16px; }
-    .eas-grid-2 { grid-template-columns: repeat(2, 1fr); }
-    .eas-grid-4 { grid-template-columns: repeat(4, 1fr); }
-    .eas-grid-biz { display: grid; grid-template-columns: 2fr 1fr 36px; gap: 10px; align-items: start; }
-    .eas-grid-pep { display: grid; grid-template-columns: 2fr 2fr 36px; gap: 10px; align-items: start; }
-    .mt-2 { margin-top: 8px; }
-    .eas-field { display: flex; flex-direction: column; gap: 6px; }
-    .eas-label { font-size: 0.71rem; font-weight: 700; color: #64748b; letter-spacing: 0.2px; display: flex; align-items: center; gap: 3px; }
-    .eas-req { color: #ef4444; font-size: 0.8rem; line-height: 1; }
-    .eas-input, .eas-select { height: 42px; padding: 0 14px; border: 1.5px solid #e2e8f0; border-radius: 11px; font-size: 0.86rem; color: #0f172a; background: #fff; outline: none; transition: border-color 0.18s, box-shadow 0.18s, background 0.18s; width: 100%; -webkit-appearance: none; appearance: none; }
-    .eas-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; cursor: pointer; }
-    .eas-input:hover, .eas-select:hover { border-color: #94a3b8; }
-    .eas-input:focus, .eas-select:focus { border-color: #00a859; box-shadow: 0 0 0 3px rgba(0,168,89,0.12); background: #fafffe; }
-    .eas-input.invalid, .eas-input.modified.invalid, .eas-select.invalid, .eas-select.modified.invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important; }
-    .eas-input.modified.valid, .eas-select.modified.valid { border-color: #00a859 !important; }
-    .eas-input.eas-invalid, .eas-select.eas-invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important; }
-    .eas-field-error { font-size: 0.7rem; color: #dc2626; font-weight: 500; margin: 0; padding: 0; display: block; }
-    .eas-divider { height: 1px; background: #f1f5f9; margin: 16px 0 12px; }
-    .eas-select-wrap { position: relative; }
-    .eas-select-arrow { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
-    .eas-toggle-row { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; gap: 12px; }
-    .eas-toggle-info { display: flex; flex-direction: column; gap: 2px; }
-    .eas-toggle-label { font-size: 0.86rem; font-weight: 700; color: #0f172a; }
-    .eas-toggle-sub { font-size: 0.72rem; color: #94a3b8; }
-    .eas-toggle-switch { position: relative; width: 46px; height: 26px; background: #e2e8f0; border-radius: 99px; transition: background 0.25s; flex-shrink: 0; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
-    .eas-toggle-switch.on { background: linear-gradient(90deg, #00a859, #0056b3); box-shadow: 0 2px 8px rgba(0,168,89,0.3); }
-    .eas-toggle-input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
-    .eas-toggle-thumb { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.18); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); pointer-events: none; }
-    .eas-toggle-switch.on .eas-toggle-thumb { transform: translateX(20px); }
-    .eas-add-btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; background: linear-gradient(90deg, #00a859, #0056b3); color: #fff; border: none; border-radius: 9px; font-size: 0.76rem; font-weight: 600; cursor: pointer; transition: filter 0.18s, transform 0.15s; white-space: nowrap; }
-    .eas-add-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
-    .eas-remove-btn { width: 32px; height: 32px; border-radius: 8px; background: #fff0f0; border: 1.5px solid #fecaca; color: #dc2626; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.15s; flex-shrink: 0; margin-top: 6px; }
-    .eas-remove-btn:hover { background: #fee2e2; border-color: #ef4444; transform: scale(1.08); }
-    .eas-list-header { margin-bottom: 6px; }
-    .eas-list-col-label { font-size: 0.68rem; font-weight: 700; color: #94a3b8; letter-spacing: 0.3px; text-transform: uppercase; display: flex; align-items: center; gap: 2px; }
-    .eas-list-row { margin-bottom: 8px; }
-    .eas-empty-hint { font-size: 0.78rem; color: #94a3b8; font-style: italic; text-align: center; padding: 16px 0 4px; }
-    .eas-rel-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
-    .eas-rel-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .eas-rel-card-num { font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; }
-    .eas-rel-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .eas-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 6px; flex-wrap: wrap; gap: 12px; }
-    .eas-footer-hint { font-size: 0.72rem; color: #94a3b8; display: flex; align-items: center; gap: 3px; }
-    .eas-btn-next { display: flex; align-items: center; gap: 12px; padding: 13px 28px; background: linear-gradient(90deg, #00a859 0%, #0056b3 100%); color: #fff; border: none; border-radius: 13px; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: filter 0.18s, transform 0.15s, box-shadow 0.18s; box-shadow: 0 4px 18px rgba(0,168,89,0.3); letter-spacing: 0.2px; }
-    .eas-btn-next:hover { filter: brightness(1.07); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,168,89,0.38); }
-    .eas-btn-next:active { transform: translateY(0); filter: brightness(0.97); }
-    .eas-btn-arrow { width: 30px; height: 30px; background: rgba(255,255,255,0.2); border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .eas-btn-back { display: flex; align-items: center; gap: 8px; padding: 13px 20px; background: #fff; color: #475569; border: 1.5px solid #e2e8f0; border-radius: 13px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: border-color 0.18s, color 0.18s, transform 0.15s; }
-    .eas-btn-back:hover { border-color: #94a3b8; color: #0f172a; transform: translateY(-1px); }
-    .eas-btn-arrow-left { width: 28px; height: 28px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    @@media (max-width: 900px) { .eas-grid-4 { grid-template-columns: repeat(2, 1fr); } .eas-grid-biz { grid-template-columns: 1fr 100px 36px; } .eas-grid-pep { grid-template-columns: 1fr 1fr 36px; } }
-    @@media (max-width: 640px) { .eas-grid-2, .eas-grid-4 { grid-template-columns: 1fr; } .eas-section { padding: 16px; border-radius: 14px; } .eas-footer { flex-direction: column; align-items: stretch; } .eas-btn-next, .eas-btn-back { justify-content: center; } .eas-rel-card-grid { grid-template-columns: 1fr; } }
+    .eas-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    .eas-section {
+        background: #fff;
+        border: 1px solid #edf0f4;
+        border-radius: 18px;
+        padding: 22px 24px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .eas-section::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #00a859, #0056b3);
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+
+        .eas-section:focus-within {
+            border-color: #c8e6d8;
+            box-shadow: 0 4px 20px rgba(0,168,89,0.07);
+        }
+
+            .eas-section:focus-within::after {
+                opacity: 1;
+            }
+
+    .eas-section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .eas-section-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #00a859, #0056b3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(0,168,89,0.25);
+    }
+
+    .eas-section-title {
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        flex: 1;
+    }
+
+    .eas-subsection-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #475569;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+        margin-top: 4px;
+    }
+
+        .eas-subsection-label svg {
+            color: #00a859;
+            flex-shrink: 0;
+        }
+
+    .eas-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .eas-grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .eas-grid-4 {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .eas-grid-biz {
+        display: grid;
+        grid-template-columns: 2fr 1fr 36px;
+        gap: 10px;
+        align-items: start;
+    }
+
+    .eas-grid-pep {
+        display: grid;
+        grid-template-columns: 2fr 2fr 36px;
+        gap: 10px;
+        align-items: start;
+    }
+
+    .mt-2 {
+        margin-top: 8px;
+    }
+
+    .eas-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .eas-label {
+        font-size: 0.71rem;
+        font-weight: 700;
+        color: #64748b;
+        letter-spacing: 0.2px;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .eas-req {
+        color: #ef4444;
+        font-size: 0.8rem;
+        line-height: 1;
+    }
+
+    .eas-input,
+    .eas-select {
+        height: 42px;
+        padding: 0 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 11px;
+        font-size: 0.86rem;
+        color: #0f172a;
+        background: #fff;
+        outline: none;
+        transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+        width: 100%;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .eas-select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 36px;
+        cursor: pointer;
+    }
+
+        .eas-input:hover,
+        .eas-select:hover {
+            border-color: #94a3b8;
+        }
+
+        .eas-input:focus,
+        .eas-select:focus {
+            border-color: #00a859;
+            box-shadow: 0 0 0 3px rgba(0,168,89,0.12);
+            background: #fafffe;
+        }
+
+        .eas-input.invalid,
+        .eas-input.modified.invalid,
+        .eas-select.invalid,
+        .eas-select.modified.invalid {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important;
+        }
+
+        .eas-input.modified.valid,
+        .eas-select.modified.valid {
+            border-color: #00a859 !important;
+        }
+
+        .eas-input.eas-invalid,
+        .eas-select.eas-invalid {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.08) !important;
+        }
+
+    .eas-field-error {
+        font-size: 0.7rem;
+        color: #dc2626;
+        font-weight: 500;
+        margin: 0;
+        padding: 0;
+        display: block;
+    }
+
+    .eas-divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin: 16px 0 12px;
+    }
+
+    .eas-select-wrap {
+        position: relative;
+    }
+
+    .eas-select-arrow {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        pointer-events: none;
+    }
+
+    .eas-toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        user-select: none;
+        gap: 12px;
+    }
+
+    .eas-toggle-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .eas-toggle-label {
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .eas-toggle-sub {
+        font-size: 0.72rem;
+        color: #94a3b8;
+    }
+
+    .eas-toggle-switch {
+        position: relative;
+        width: 46px;
+        height: 26px;
+        background: #e2e8f0;
+        border-radius: 99px;
+        transition: background 0.25s;
+        flex-shrink: 0;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+        .eas-toggle-switch.on {
+            background: linear-gradient(90deg, #00a859, #0056b3);
+            box-shadow: 0 2px 8px rgba(0, 168, 89, 0.3);
+        }
+
+    .eas-toggle-input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+    }
+
+    .eas-toggle-thumb {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+    }
+
+    .eas-toggle-switch.on .eas-toggle-thumb {
+        transform: translateX(20px);
+    }
+
+    .eas-add-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        background: linear-gradient(90deg, #00a859, #0056b3);
+        color: #fff;
+        border: none;
+        border-radius: 9px;
+        font-size: 0.76rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: filter 0.18s, transform 0.15s;
+        white-space: nowrap;
+    }
+
+        .eas-add-btn:hover {
+            filter: brightness(1.08);
+            transform: translateY(-1px);
+        }
+
+    .eas-remove-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: #fff0f0;
+        border: 1.5px solid #fecaca;
+        color: #dc2626;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s, transform 0.15s;
+        flex-shrink: 0;
+        margin-top: 6px;
+    }
+
+        .eas-remove-btn:hover {
+            background: #fee2e2;
+            border-color: #ef4444;
+            transform: scale(1.08);
+        }
+
+    .eas-list-header {
+        margin-bottom: 6px;
+    }
+
+    .eas-list-col-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: #94a3b8;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .eas-list-row {
+        margin-bottom: 8px;
+    }
+
+    .eas-empty-hint {
+        font-size: 0.78rem;
+        color: #94a3b8;
+        font-style: italic;
+        text-align: center;
+        padding: 16px 0 4px;
+    }
+
+    .eas-rel-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 10px;
+    }
+
+    .eas-rel-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    .eas-rel-card-num {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .eas-rel-card-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .eas-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 6px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .eas-footer-hint {
+        font-size: 0.72rem;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+
+    .eas-btn-next {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 28px;
+        background: linear-gradient(90deg, #00a859, #0056b3);
+        color: #fff;
+        border: none;
+        border-radius: 13px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: filter 0.18s, transform 0.15s, box-shadow 0.18s;
+        box-shadow: 0 4px 18px rgba(0, 168, 89, 0.3);
+        letter-spacing: 0.2px;
+    }
+
+        .eas-btn-next:hover {
+            filter: brightness(1.07);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(0, 168, 89, 0.38);
+        }
+
+        .eas-btn-next:active {
+            transform: translateY(0);
+            filter: brightness(0.97);
+        }
+
+    .eas-btn-arrow {
+        width: 30px;
+        height: 30px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .eas-btn-back {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 13px 20px;
+        background: #fff;
+        color: #475569;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 13px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: border-color 0.18s, color 0.18s, transform 0.15s;
+    }
+
+        .eas-btn-back:hover {
+            border-color: #94a3b8;
+            color: #0f172a;
+            transform: translateY(-1px);
+        }
+
+    .eas-btn-arrow-left {
+        width: 28px;
+        height: 28px;
+        background: #f1f5f9;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    @@media (max-width: 900px) {
+        .eas-grid-4 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .eas-grid-biz {
+            grid-template-columns: 1fr 100px 36px;
+        }
+
+        .eas-grid-pep {
+            grid-template-columns: 1fr 1fr 36px;
+        }
+    }
+
+    @@media (max-width: 640px) {
+        .eas-grid-2,
+        .eas-grid-4 {
+            grid-template-columns: 1fr;
+        }
+
+        .eas-section {
+            padding: 16px;
+            border-radius: 14px;
+        }
+
+        .eas-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .eas-btn-next,
+        .eas-btn-back {
+            justify-content: center;
+        }
+
+        .eas-rel-card-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 
 @code {
@@ -404,6 +962,7 @@
     private bool employmentHasAttempted = false;
     private bool employmentPassed = false;
     private bool abShowErrors = false;
+    private readonly HashSet<int> ownershipInvalidRows = new();
 
     // ── Lifecycle ──────────────────────────────────────────────────
     protected override void OnInitialized()
@@ -421,7 +980,11 @@
         employmentMessageStore = new ValidationMessageStore(ctx);
         ctx.OnFieldChanged += (_, _) =>
         {
-            if (employmentHasAttempted) { ValidateEmploymentConditional(); ctx.NotifyValidationStateChanged(); }
+            if (employmentHasAttempted)
+            {
+                ValidateEmploymentConditional();
+                ctx.NotifyValidationStateChanged();
+            }
         };
     }
 
@@ -443,7 +1006,6 @@
         await employmentForm!.OnValidSubmit.InvokeAsync();
 
         bool abValid = IsAccountBusinessValid();
-
         if (employmentPassed && abValid)
         {
             await CommitAndAdvance();
@@ -471,7 +1033,6 @@
     }
 
     private void OnEmploymentValidSubmit() => employmentPassed = true;
-
     private async Task CommitAndAdvance()
     {
         // Employment cleanup
@@ -485,13 +1046,24 @@
         InfoModel.CustomerID = CustomerId;
         if (InfoModel.AccountPurpose != PurposeOfAccount.Others) InfoModel.AccountPurposeOther = null;
         if (InfoModel.ProductsAvailed != "Others") InfoModel.ProductsAvailedOther = null;
-        if (!InfoModel.IsGovOfficial) { InfoModel.GovOfficialPositions.Clear(); InfoModel.GovPosition = null; InfoModel.GovPeriod = null; }
-        else { var first = InfoModel.GovOfficialPositions.FirstOrDefault(); InfoModel.GovPosition = first?.Position; InfoModel.GovPeriod = first?.Period; }
+        if (!InfoModel.IsGovOfficial)
+        {
+            InfoModel.GovOfficialPositions.Clear();
+            InfoModel.GovPosition = null;
+            InfoModel.GovPeriod = null;
+        }
+        else
+        {
+            var first = InfoModel.GovOfficialPositions.FirstOrDefault();
+            InfoModel.GovPosition = first?.Position;
+            InfoModel.GovPeriod = first?.Period;
+        }
 
         BusintModel.CustomerID = CustomerId;
         GovRelModel.CustomerID = CustomerId;
         GovRelModel.HighestPositionOccupied = InfoModel.GovPosition;
         GovRelModel.PeriodCovered = InfoModel.GovPeriod;
+
         AccPurpModel.EntityID = CustomerId;
         AccPurpModel.EntityType = EntityType.Individual;
         AccPurpModel.PurposeOfAccount = InfoModel.AccountPurpose;
@@ -512,23 +1084,35 @@
         var ctx = employmentForm?.EditContext;
         if (store == null || ctx == null) return;
         store.Clear();
-        if (EmploymentModel.EmploymentStatus == EmploymentStatus.None) store.Add(() => EmploymentModel.EmploymentStatus, "Employment status is required.");
-        else if (EmploymentModel.EmploymentStatus == EmploymentStatus.Others && string.IsNullOrWhiteSpace(EmploymentModel.EmploymentStatusOther)) store.Add(() => EmploymentModel.EmploymentStatusOther, "Please specify your employment status.");
-        if (EmploymentModel.TypeOfEmployment == TypeOfEmployment.None) store.Add(() => EmploymentModel.TypeOfEmployment, "Type of employment is required.");
-        else if (EmploymentModel.TypeOfEmployment == TypeOfEmployment.Others && string.IsNullOrWhiteSpace(EmploymentModel.TypeOfEmploymentOther)) store.Add(() => EmploymentModel.TypeOfEmploymentOther, "Please specify your employment type.");
-        else if (EmploymentModel.TypeOfEmployment == TypeOfEmployment.OFW && string.IsNullOrWhiteSpace(EmploymentModel.OFWCountry)) store.Add(() => EmploymentModel.OFWCountry, "Country of employment is required for OFW.");
+
+        if (EmploymentModel.EmploymentStatus == EmploymentStatus.None)
+            store.Add(() => EmploymentModel.EmploymentStatus, "Employment status is required.");
+        else if (EmploymentModel.EmploymentStatus == EmploymentStatus.Others && string.IsNullOrWhiteSpace(EmploymentModel.EmploymentStatusOther))
+            store.Add(() => EmploymentModel.EmploymentStatusOther, "Please specify your employment status.");
+
+        if (EmploymentModel.TypeOfEmployment == TypeOfEmployment.None)
+            store.Add(() => EmploymentModel.TypeOfEmployment, "Type of employment is required.");
+        else if (EmploymentModel.TypeOfEmployment == TypeOfEmployment.Others && string.IsNullOrWhiteSpace(EmploymentModel.TypeOfEmploymentOther))
+            store.Add(() => EmploymentModel.TypeOfEmploymentOther, "Please specify your employment type.");
+        else if (EmploymentModel.TypeOfEmployment == TypeOfEmployment.OFW && string.IsNullOrWhiteSpace(EmploymentModel.OFWCountry))
+            store.Add(() => EmploymentModel.OFWCountry, "Country of employment is required for OFW.");
+
         if (string.IsNullOrWhiteSpace(EmploymentModel.NatureOfWork)) store.Add(() => EmploymentModel.NatureOfWork, "Nature of work is required.");
         if (EmploymentModel.AverageMonthlyIncome == AverageMonthlyIncome.None) store.Add(() => EmploymentModel.AverageMonthlyIncome, "Average monthly income is required.");
         if (EmploymentModel.SourceOfFunds == SourceOfFunds.None) store.Add(() => EmploymentModel.SourceOfFunds, "Source of funds is required.");
-        else if (EmploymentModel.SourceOfFunds == SourceOfFunds.Others && string.IsNullOrWhiteSpace(EmploymentModel.SourceOfFundsOther)) store.Add(() => EmploymentModel.SourceOfFundsOther, "Please specify your source of funds.");
+        else if (EmploymentModel.SourceOfFunds == SourceOfFunds.Others && string.IsNullOrWhiteSpace(EmploymentModel.SourceOfFundsOther))
+            store.Add(() => EmploymentModel.SourceOfFundsOther, "Please specify your source of funds.");
+
         if (string.IsNullOrWhiteSpace(EmploymentModel.NameOfEmployer)) store.Add(() => EmploymentModel.NameOfEmployer, "Name of employer is required.");
         if (string.IsNullOrWhiteSpace(EmploymentModel.PositionRank)) store.Add(() => EmploymentModel.PositionRank, "Position / rank is required.");
         if (string.IsNullOrWhiteSpace(EmploymentModel.EmployerStreet)) store.Add(() => EmploymentModel.EmployerStreet, "Street is required.");
         if (string.IsNullOrWhiteSpace(EmploymentModel.EmployerBrgyDistrict)) store.Add(() => EmploymentModel.EmployerBrgyDistrict, "Barangay / district is required.");
         if (string.IsNullOrWhiteSpace(EmploymentModel.EmployerCityTown)) store.Add(() => EmploymentModel.EmployerCityTown, "City / town is required.");
         if (string.IsNullOrWhiteSpace(EmploymentModel.EmployerPhoneNumber)) store.Add(() => EmploymentModel.EmployerPhoneNumber, "Employer phone number is required.");
-        if (string.IsNullOrWhiteSpace(EmploymentModel.EmployerEmailAddress)) store.Add(() => EmploymentModel.EmployerEmailAddress, "Employer email address is required.");
-        else if (!EmploymentModel.EmployerEmailAddress.Contains('@') || !EmploymentModel.EmployerEmailAddress.Contains('.')) store.Add(() => EmploymentModel.EmployerEmailAddress, "Please enter a valid email address.");
+        if (string.IsNullOrWhiteSpace(EmploymentModel.EmployerEmailAddress))
+            store.Add(() => EmploymentModel.EmployerEmailAddress, "Employer email address is required.");
+        else if (!EmploymentModel.EmployerEmailAddress.Contains('@') || !EmploymentModel.EmployerEmailAddress.Contains('.'))
+            store.Add(() => EmploymentModel.EmployerEmailAddress, "Please enter a valid email address.");
     }
 
     // ── AccountBusiness validation ────────────────────────────────
@@ -538,9 +1122,23 @@
         if (InfoModel.AccountPurpose == PurposeOfAccount.Others && string.IsNullOrWhiteSpace(InfoModel.AccountPurposeOther)) return false;
         if (string.IsNullOrWhiteSpace(InfoModel.ProductsAvailed)) return false;
         if (InfoModel.ProductsAvailed == "Others" && string.IsNullOrWhiteSpace(InfoModel.ProductsAvailedOther)) return false;
-        foreach (var biz in InfoModel.BusinessInterests) { if (string.IsNullOrWhiteSpace(biz.BusinessName)) return false; if (biz.OwnershipPercentage == null || biz.OwnershipPercentage < 1 || biz.OwnershipPercentage > 100) return false; }
-        if (InfoModel.IsGovOfficial) { if (InfoModel.GovOfficialPositions.Count == 0) return false; foreach (var p in InfoModel.GovOfficialPositions) { if (string.IsNullOrWhiteSpace(p.Position) || string.IsNullOrWhiteSpace(p.Period)) return false; } }
-        foreach (var rel in InfoModel.GovRelatives) { if (string.IsNullOrWhiteSpace(rel.Name) || string.IsNullOrWhiteSpace(rel.Relationship) || string.IsNullOrWhiteSpace(rel.Position) || string.IsNullOrWhiteSpace(rel.PeriodCovered)) return false; }
+        foreach (var biz in InfoModel.BusinessInterests)
+        {
+            if (string.IsNullOrWhiteSpace(biz.BusinessName)) return false;
+            if (biz.OwnershipPercentage == null || biz.OwnershipPercentage < 0 || biz.OwnershipPercentage > 100) return false;
+        }
+        if (InfoModel.IsGovOfficial)
+        {
+            if (InfoModel.GovOfficialPositions.Count == 0) return false;
+            foreach (var p in InfoModel.GovOfficialPositions)
+            {
+                if (string.IsNullOrWhiteSpace(p.Position) || string.IsNullOrWhiteSpace(p.Period)) return false;
+            }
+        }
+        foreach (var rel in InfoModel.GovRelatives)
+        {
+            if (string.IsNullOrWhiteSpace(rel.Name) || string.IsNullOrWhiteSpace(rel.Relationship) || string.IsNullOrWhiteSpace(rel.Position) || string.IsNullOrWhiteSpace(rel.PeriodCovered)) return false;
+        }
         return true;
     }
 
@@ -551,12 +1149,26 @@
     private void RemoveGovPosition(int i) { if (i >= 0 && i < InfoModel.GovOfficialPositions.Count) InfoModel.GovOfficialPositions.RemoveAt(i); }
     private void AddGovRelative() => InfoModel.GovRelatives.Add(new GovRelativeModel());
     private void RemoveGovRelative(int i) { if (i >= 0 && i < InfoModel.GovRelatives.Count) InfoModel.GovRelatives.RemoveAt(i); }
-    private void HandleOwnershipInput(ChangeEventArgs e, IndividualInfoDTO.PageModel.BusinessInterestModel item)
+    private void HandleOwnershipInput(ChangeEventArgs e, IndividualInfoDTO.PageModel.BusinessInterestModel item, int rowIndex)
     {
-        var input = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
-        if (input.Length > 3) input = input[..3];
-        if (string.IsNullOrEmpty(input)) { item.OwnershipPercentage = null; return; }
-        if (int.TryParse(input, out int parsed)) { if (parsed > 100) parsed = 100; if (parsed < 1) parsed = 1; item.OwnershipPercentage = parsed; }
+        var raw = e.Value?.ToString() ?? "";
+        if (raw.Any(char.IsLetter)) { ownershipInvalidRows.Add(rowIndex); return; }
+        ownershipInvalidRows.Remove(rowIndex);
+        var filtered = new System.Text.StringBuilder();
+        bool hasDot = false;
+        foreach (var ch in raw)
+        {
+            if (char.IsDigit(ch)) filtered.Append(ch);
+            else if (ch == '.' && !hasDot) { filtered.Append(ch); hasDot = true; }
+        }
+        var input = filtered.ToString();
+        if (string.IsNullOrEmpty(input) || input == ".") { item.OwnershipPercentage = null; return; }
+        if (decimal.TryParse(input, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal parsed))
+        {
+            if (parsed > 100) parsed = 100;
+            if (parsed < 0) parsed = 0;
+            item.OwnershipPercentage = parsed;
+        }
     }
     private static string FormatEnum(string value) => System.Text.RegularExpressions.Regex.Replace(value, @"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ");
     private string GetEnumDescription<TEnum>(TEnum value) where TEnum : Enum

@@ -19,8 +19,8 @@
             <div class="bcb-section-header">
                 <div class="bcb-section-icon">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M9 22V12h6v10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M9 22V12h6v10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </div>
                 <span class="bcb-section-title">Business Information</span>
@@ -38,24 +38,47 @@
                             <div class="bcb-radio-dot"></div><span>Government</span>
                         </label>
                     </div>
-                    @if (biAttempted && !biSectorSelected) { <span class="bcb-field-error">Sector is required.</span> }
+                    @if (biAttempted && !biSectorSelected)
+                    {
+                        <span class="bcb-field-error">Sector is required.</span>
+                    }
                 </div>
+
                 <div class="bcb-field bcb-bizname">
                     <label class="bcb-label">Name of Business <span class="bcb-req">*</span></label>
                     <InputText @bind-Value="BusinessModel.NameOfBusiness" class="@(biAttempted && string.IsNullOrWhiteSpace(BusinessModel.NameOfBusiness) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. Dela Cruz Trading Co." />
-                    @if (biAttempted && string.IsNullOrWhiteSpace(BusinessModel.NameOfBusiness)) { <span class="bcb-field-error">Name of business is required.</span> }
+                    @if (biAttempted && string.IsNullOrWhiteSpace(BusinessModel.NameOfBusiness))
+                    {
+                        <span class="bcb-field-error">Name of business is required.</span>
+                    }
                 </div>
                 <div class="bcb-field">
                     <label class="bcb-label">Type of Organization <span class="bcb-req">*</span></label>
                     <div class="bcb-select-wrap">
                         <InputSelect @bind-Value="BusinessModel.TypeOfOrganization" class="@(biAttempted && BusinessModel.TypeOfOrganization == TypeOfOrganization.None ? "bcb-select bcb-invalid" : "bcb-select")">
                             <option value="@TypeOfOrganization.None" disabled>Select Type</option>
-                            @foreach (TypeOfOrganization t in Enum.GetValues<TypeOfOrganization>()) { if (t == TypeOfOrganization.None) continue; <option value="@t">@FormatEnum(t.ToString())</option> }
+                            @foreach (TypeOfOrganization t in Enum.GetValues<TypeOfOrganization>())
+                            {
+                                if (t == TypeOfOrganization.None) continue;
+                                <option value="@t">@FormatEnum(t.ToString())</option>
+                            }
                         </InputSelect>
-                        <svg class="bcb-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <svg class="bcb-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
                     </div>
-                    @if (biAttempted && BusinessModel.TypeOfOrganization == TypeOfOrganization.None) { <span class="bcb-field-error">Type of organization is required.</span> }
-                    @if (BusinessModel.TypeOfOrganization == TypeOfOrganization.Others) { <InputText @bind-Value="BusinessModel.TypeOfOrganizationOther" class="bcb-input mt-2" placeholder="Please specify" /> @if (biAttempted && string.IsNullOrWhiteSpace(BusinessModel.TypeOfOrganizationOther)) { <span class="bcb-field-error">Please specify.</span> } }
+                    @if (biAttempted && BusinessModel.TypeOfOrganization == TypeOfOrganization.None)
+                    {
+                        <span class="bcb-field-error">Type of organization is required.</span>
+                    }
+                    @if (BusinessModel.TypeOfOrganization == TypeOfOrganization.Others)
+                    {
+                        <InputText @bind-Value="BusinessModel.TypeOfOrganizationOther" class="bcb-input mt-2" placeholder="Please specify" />
+                        @if (biAttempted && string.IsNullOrWhiteSpace(BusinessModel.TypeOfOrganizationOther))
+                        {
+                            <span class="bcb-field-error">Please specify.</span>
+                        }
+                    }
                 </div>
             </div>
             <div class="bcb-grid bcb-grid-2 mt-3">
@@ -64,41 +87,76 @@
                     <div class="bcb-select-wrap">
                         <InputSelect @bind-Value="BusinessModel.SizeOfBusiness" class="@(biAttempted && BusinessModel.SizeOfBusiness == SizeOfBusiness.None ? "bcb-select bcb-invalid" : "bcb-select")">
                             <option value="@SizeOfBusiness.None" disabled>Select Size</option>
-                            @foreach (SizeOfBusiness s in Enum.GetValues<SizeOfBusiness>()) { if (s == SizeOfBusiness.None) continue; <option value="@s">@GetEnumDescription(s)</option> }
+                            @foreach (SizeOfBusiness s in Enum.GetValues<SizeOfBusiness>())
+                            {
+                                if (s == SizeOfBusiness.None) continue;
+                                <option value="@s">@GetEnumDescription(s)</option>
+                            }
                         </InputSelect>
-                        <svg class="bcb-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <svg class="bcb-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
                     </div>
-                    @if (biAttempted && BusinessModel.SizeOfBusiness == SizeOfBusiness.None) { <span class="bcb-field-error">Size of business is required.</span> }
+                    @if (biAttempted && BusinessModel.SizeOfBusiness == SizeOfBusiness.None)
+                    {
+                        <span class="bcb-field-error">Size of business is required.</span>
+                    }
                 </div>
                 <div class="bcb-field">
                     <label class="bcb-label">Average Annual Income <span class="bcb-req">*</span></label>
                     <div class="bcb-select-wrap">
                         <InputSelect @bind-Value="BusinessModel.AverageAnnualIncome" class="@(biAttempted && BusinessModel.AverageAnnualIncome == AverageAnnualIncome.None ? "bcb-select bcb-invalid" : "bcb-select")">
                             <option value="@AverageAnnualIncome.None" disabled>Select Income</option>
-                            @foreach (AverageAnnualIncome a in Enum.GetValues<AverageAnnualIncome>()) { if (a == AverageAnnualIncome.None) continue; <option value="@a">@GetEnumDescription(a)</option> }
+                            @foreach (AverageAnnualIncome a in Enum.GetValues<AverageAnnualIncome>())
+                            {
+                                if (a == AverageAnnualIncome.None) continue;
+                                <option value="@a">@GetEnumDescription(a)</option>
+                            }
                         </InputSelect>
-                        <svg class="bcb-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <svg class="bcb-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
                     </div>
-                    @if (biAttempted && BusinessModel.AverageAnnualIncome == AverageAnnualIncome.None) { <span class="bcb-field-error">Average annual income is required.</span> }
+                    @if (biAttempted && BusinessModel.AverageAnnualIncome == AverageAnnualIncome.None)
+                    {
+                        <span class="bcb-field-error">Average annual income is required.</span>
+                    }
                 </div>
             </div>
             <div class="bcb-divider"></div>
-            <div class="bcb-subsection-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/></svg> Business Address <span class="bcb-req">*</span></div>
+            <div class="bcb-subsection-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2" />
+                </svg> Business Address <span class="bcb-req">*</span>
+            </div>
             <div class="bcb-field" id="field-BusinessAddress">
                 <InputTextArea @bind-Value="AddressModel.BusinessAddress" class="@(biAttempted && string.IsNullOrWhiteSpace(AddressModel.BusinessAddress) ? "bcb-textarea bcb-invalid" : "bcb-textarea")" rows="2" placeholder="Enter full business address" />
-                @if (biAttempted && string.IsNullOrWhiteSpace(AddressModel.BusinessAddress)) { <span class="bcb-field-error">Business address is required.</span> }
+                @if (biAttempted && string.IsNullOrWhiteSpace(AddressModel.BusinessAddress))
+                {
+                    <span class="bcb-field-error">Business address is required.</span>
+                }
             </div>
             <div class="bcb-divider"></div>
             <label class="bcb-toggle-row">
-                <div class="bcb-toggle-info"><span class="bcb-toggle-label">Principal Address is different</span><span class="bcb-toggle-sub">Toggle on if principal address differs from business address</span></div>
-                <div class="bcb-toggle-switch @(biShowPrincipalAddress ? "on" : "")"><InputCheckbox @bind-Value="biShowPrincipalAddress" class="bcb-toggle-input" /><div class="bcb-toggle-thumb"></div></div>
+                <div class="bcb-toggle-info">
+                    <span class="bcb-toggle-label">Principal Address is different</span>
+                    <span class="bcb-toggle-sub">Toggle on if principal address differs from business address</span>
+                </div>
+                <div class="bcb-toggle-switch @(biShowPrincipalAddress ? "on" : "")">
+                    <InputCheckbox @bind-Value="biShowPrincipalAddress" class="bcb-toggle-input" />
+                    <div class="bcb-toggle-thumb"></div>
+                </div>
             </label>
             @if (biShowPrincipalAddress)
             {
                 <div class="bcb-field mt-2">
                     <label class="bcb-label">Principal Address <span class="bcb-req">*</span></label>
                     <InputTextArea @bind-Value="AddressModel.PrincipalAddress" class="@(biAttempted && string.IsNullOrWhiteSpace(AddressModel.PrincipalAddress) ? "bcb-textarea bcb-invalid" : "bcb-textarea")" rows="2" placeholder="Enter principal address" />
-                    @if (biAttempted && string.IsNullOrWhiteSpace(AddressModel.PrincipalAddress)) { <span class="bcb-field-error">Principal address is required.</span> }
+                    @if (biAttempted && string.IsNullOrWhiteSpace(AddressModel.PrincipalAddress))
+                    {
+                        <span class="bcb-field-error">Principal address is required.</span>
+                    }
                 </div>
             }
         </div>
@@ -107,58 +165,102 @@
         <div class="bcb-section" id="field-NatureOfBusiness">
             <div class="bcb-section-header">
                 <div class="bcb-section-icon">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="white" stroke-width="2"/><path d="M16 2v4M8 2v4M3 10h18" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="white" stroke-width="2" />
+                        <path d="M16 2v4M8 2v4M3 10h18" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    </svg>
                 </div>
                 <span class="bcb-section-title">Registration Details</span>
             </div>
             <div class="bcb-grid bcb-grid-3">
                 <div class="bcb-field">
                     <label class="bcb-label">Date of Registration <span class="bcb-req">*</span></label>
-                    <InputDate @bind-Value="BusinessModel.DateOfRegistration" 
-                               class="@(biAttempted && (BusinessModel.DateOfRegistration == null || BusinessModel.DateOfRegistration < new DateOnly(1900, 1, 1) || BusinessModel.DateOfRegistration > DateOnly.FromDateTime(DateTime.Today)) ? "bcb-input bcb-invalid" : "bcb-input")" 
-                               TValue="DateOnly?" min="1900-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")"/>
-                    @if (biAttempted && BusinessModel.DateOfRegistration == null) { 
-                        <span class="bcb-field-error">Date of registration is required.</span> 
+                    <InputDate @bind-Value="BusinessModel.DateOfRegistration"
+                               class="@(biAttempted && (BusinessModel.DateOfRegistration == null || BusinessModel.DateOfRegistration < new DateOnly(1900, 1, 1) || BusinessModel.DateOfRegistration > DateOnly.FromDateTime(DateTime.Today)) ? "bcb-input bcb-invalid" : "bcb-input")"
+                               TValue="DateOnly?" min="1900-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    @if (biAttempted && BusinessModel.DateOfRegistration == null)
+                    {
+                        <span class="bcb-field-error">Date of registration is required.</span>
                     }
-                    else if (biAttempted && BusinessModel.DateOfRegistration < new DateOnly(1900, 1, 1)) { 
-                        <span class="bcb-field-error">Date must be Earlier.</span> 
+                    else if (biAttempted && BusinessModel.DateOfRegistration < new DateOnly(1900, 1, 1))
+                    {
+                        <span class="bcb-field-error">Date must be Earlier.</span>
                     }
-                    else if (biAttempted && BusinessModel.DateOfRegistration > DateOnly.FromDateTime(DateTime.Today)) { 
-                        <span class="bcb-field-error">Registration date cannot be in the future.</span> 
+                    else if (biAttempted && BusinessModel.DateOfRegistration > DateOnly.FromDateTime(DateTime.Today))
+                    {
+                        <span class="bcb-field-error">Registration date cannot be in the future.</span>
                     }
                 </div>
-                <div class="bcb-field"><label class="bcb-label">Business Reg. Number <span class="bcb-req">*</span></label><InputText @bind-Value="BusinessModel.BusinessRegNumber" class="@(biAttempted && string.IsNullOrWhiteSpace(BusinessModel.BusinessRegNumber) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. 2024-123456" />@if (biAttempted && string.IsNullOrWhiteSpace(BusinessModel.BusinessRegNumber)) { <span class="bcb-field-error">Registration number is required.</span> }</div>
+                <div class="bcb-field">
+                    <label class="bcb-label">Business Reg. Number <span class="bcb-req">*</span></label>
+                    <InputText @bind-Value="BusinessModel.BusinessRegNumber" class="@(biAttempted && string.IsNullOrWhiteSpace(BusinessModel.BusinessRegNumber) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. 2024-123456" />
+                    @if (biAttempted && string.IsNullOrWhiteSpace(BusinessModel.BusinessRegNumber))
+                    {
+                        <span class="bcb-field-error">Registration number is required.</span>
+                    }
+                </div>
                 <div class="bcb-field">
                     <label class="bcb-label">Registration Expiry <span class="bcb-req">*</span></label>
-                    <InputDate @bind-Value="BusinessModel.BusinessRegExpiry" 
-                               class="@(biAttempted && (BusinessModel.BusinessRegExpiry == null || BusinessModel.BusinessRegExpiry <= DateOnly.FromDateTime(DateTime.Today)) ? "bcb-input bcb-invalid" : "bcb-input")" 
-                               TValue="DateOnly?" min="1900-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")"/>
-                    @if (biAttempted && BusinessModel.BusinessRegExpiry == null) { 
-                        <span class="bcb-field-error">Registration expiry is required.</span> 
+                    <InputDate @bind-Value="BusinessModel.BusinessRegExpiry"
+                               class="@(biAttempted && (BusinessModel.BusinessRegExpiry == null || BusinessModel.BusinessRegExpiry <= DateOnly.FromDateTime(DateTime.Today)) ? "bcb-input bcb-invalid" : "bcb-input")"
+                               TValue="DateOnly?" min="1900-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    @if (biAttempted && BusinessModel.BusinessRegExpiry == null)
+                    {
+                        <span class="bcb-field-error">Registration expiry is required.</span>
                     }
-                    else if (biAttempted && BusinessModel.BusinessRegExpiry <= DateOnly.FromDateTime(DateTime.Today)) { 
-                        <span class="bcb-field-error">Expiry date must be in the future.</span> 
+                    else if (biAttempted && BusinessModel.BusinessRegExpiry <= DateOnly.FromDateTime(DateTime.Today))
+                    {
+                        <span class="bcb-field-error">Expiry date must be in the future.</span>
                     }
                 </div>
-                <div class="bcb-field"><label class="bcb-label">Place of Registration <span class="bcb-req">*</span></label><InputText @bind-Value="BusinessModel.PlaceOfRegistration" class="@(biAttempted && string.IsNullOrWhiteSpace(BusinessModel.PlaceOfRegistration) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. Manila, Philippines" />@if (biAttempted && string.IsNullOrWhiteSpace(BusinessModel.PlaceOfRegistration)) { <span class="bcb-field-error">Place of registration is required.</span> }</div>
-                <div class="bcb-field"><label class="bcb-label">Nature of Business <span class="bcb-req">*</span></label><InputText @bind-Value="BusinessModel.NatureOfBusiness" class="@(biAttempted && string.IsNullOrWhiteSpace(BusinessModel.NatureOfBusiness) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. Retail, Manufacturing" />@if (biAttempted && string.IsNullOrWhiteSpace(BusinessModel.NatureOfBusiness)) { <span class="bcb-field-error">Nature of business is required.</span> }</div>
+                <div class="bcb-field">
+                    <label class="bcb-label">Place of Registration <span class="bcb-req">*</span></label>
+                    <InputText @bind-Value="BusinessModel.PlaceOfRegistration" class="@(biAttempted && string.IsNullOrWhiteSpace(BusinessModel.PlaceOfRegistration) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. Manila, Philippines" />
+                    @if (biAttempted && string.IsNullOrWhiteSpace(BusinessModel.PlaceOfRegistration))
+                    {
+                        <span class="bcb-field-error">Place of registration is required.</span>
+                    }
+                </div>
+                <div class="bcb-field">
+                    <label class="bcb-label">Nature of Business <span class="bcb-req">*</span></label>
+                    <InputText @bind-Value="BusinessModel.NatureOfBusiness" class="@(biAttempted && string.IsNullOrWhiteSpace(BusinessModel.NatureOfBusiness) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. Retail, Manufacturing" />
+                    @if (biAttempted && string.IsNullOrWhiteSpace(BusinessModel.NatureOfBusiness))
+                    {
+                        <span class="bcb-field-error">Nature of business is required.</span>
+                    }
+                </div>
                 <div class="bcb-field">
                     <label class="bcb-label">Tax Identification Number (TIN) <span class="bcb-req">*</span></label>
                     <input type="text" value="@BusinessModel.TaxIdentificationNumber" class="@(biAttempted && (string.IsNullOrWhiteSpace(BusinessModel.TaxIdentificationNumber) || BusinessModel.TaxIdentificationNumber?.Length < 15) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="000-000-000-000" maxlength="15" inputmode="numeric" @oninput="OnTINInput" />
-                    @if (biAttempted && string.IsNullOrWhiteSpace(BusinessModel.TaxIdentificationNumber)) { <span class="bcb-field-error">TIN is required.</span> }
-                    else if (biAttempted && BusinessModel.TaxIdentificationNumber?.Length < 15) { <span class="bcb-field-error">TIN must follow format 000-000-000-000.</span> }
+                    @if (biAttempted && string.IsNullOrWhiteSpace(BusinessModel.TaxIdentificationNumber))
+                    {
+                        <span class="bcb-field-error">TIN is required.</span>
+                    }
+                    else if (biAttempted && BusinessModel.TaxIdentificationNumber?.Length < 15)
+                    {
+                        <span class="bcb-field-error">TIN must follow format 000-000-000-000.</span>
+                    }
                 </div>
-                <div class="bcb-field"><label class="bcb-label">DTI Cert Number <span class="bcb-req">*</span></label><InputText @bind-Value="BusinessModel.DTICertNumber" class="@(biAttempted && string.IsNullOrWhiteSpace(BusinessModel.DTICertNumber) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="DTI certificate number" />@if (biAttempted && string.IsNullOrWhiteSpace(BusinessModel.DTICertNumber)) { <span class="bcb-field-error">DTI certificate number is required.</span> }</div>
+                <div class="bcb-field">
+                    <label class="bcb-label">DTI Cert Number <span class="bcb-req">*</span></label>
+                    <InputText @bind-Value="BusinessModel.DTICertNumber" class="@(biAttempted && string.IsNullOrWhiteSpace(BusinessModel.DTICertNumber) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="DTI certificate number" />
+                    @if (biAttempted && string.IsNullOrWhiteSpace(BusinessModel.DTICertNumber))
+                    {
+                        <span class="bcb-field-error">DTI certificate number is required.</span>
+                    }
+                </div>
                 <div class="bcb-field">
                     <label class="bcb-label">DTI Cert Expiry <span class="bcb-req">*</span></label>
-                    <InputDate @bind-Value="BusinessModel.DTICertExpiry" 
-                               class="@(biAttempted && (BusinessModel.DTICertExpiry == null || BusinessModel.DTICertExpiry <= DateOnly.FromDateTime(DateTime.Today)) ? "bcb-input bcb-invalid" : "bcb-input")" 
-                               TValue="DateOnly?" min="1900-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")"/>
-                    @if (biAttempted && BusinessModel.DTICertExpiry == null) { 
-                        <span class="bcb-field-error">DTI expiry is required.</span> 
+                    <InputDate @bind-Value="BusinessModel.DTICertExpiry"
+                               class="@(biAttempted && (BusinessModel.DTICertExpiry == null || BusinessModel.DTICertExpiry <= DateOnly.FromDateTime(DateTime.Today)) ? "bcb-input bcb-invalid" : "bcb-input")"
+                               TValue="DateOnly?" min="1900-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    @if (biAttempted && BusinessModel.DTICertExpiry == null)
+                    {
+                        <span class="bcb-field-error">DTI expiry is required.</span>
                     }
-                    else if (biAttempted && BusinessModel.DTICertExpiry <= DateOnly.FromDateTime(DateTime.Today)) { 
-                        <span class="bcb-field-error">DTI expiry must be in the future.</span> 
+                    else if (biAttempted && BusinessModel.DTICertExpiry <= DateOnly.FromDateTime(DateTime.Today))
+                    {
+                        <span class="bcb-field-error">DTI expiry must be in the future.</span>
                     }
                 </div>
             </div>
@@ -173,10 +275,13 @@
 <div class="bcb-wrap">
 
     @* ── Business Account Purpose & Products ── *@
-    <div class="bcb-section" id="field-AccountContact">
+    <div class="bcb-section" style="margin-top: 8px;" id="field-AccountContact">
         <div class="bcb-section-header">
             <div class="bcb-section-icon">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
             </div>
             <span class="bcb-section-title">Business Account Purpose &amp; Products</span>
         </div>
@@ -186,47 +291,100 @@
                 <div class="bcb-select-wrap">
                     <InputSelect @bind-Value="AccountContactModel.AccountPurpose" class="@(acShowErrors && AccountContactModel.AccountPurpose == PurposeOfAccount.None ? "bcb-select bcb-invalid" : "bcb-select")">
                         <option value="@PurposeOfAccount.None" disabled>Select Purpose of Account</option>
-                        @foreach (var val in GetBusinessPurposes()) { <option value="@val">@GetDescription(val)</option> }
+                        @foreach (var val in GetBusinessPurposes())
+                        {
+                            <option value="@val">@GetDescription(val)</option>
+                        }
                     </InputSelect>
-                    <svg class="bcb-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg class="bcb-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
                 </div>
-                @if (acShowErrors && AccountContactModel.AccountPurpose == PurposeOfAccount.None) { <span class="bcb-field-error">Purpose of account is required.</span> }
-                @if (AccountContactModel.AccountPurpose == PurposeOfAccount.Others) { <InputText @bind-Value="AccountContactModel.AccountPurposeOther" class="bcb-input mt-2" placeholder="Please specify" /> @if (acShowErrors && string.IsNullOrWhiteSpace(AccountContactModel.AccountPurposeOther)) { <span class="bcb-field-error">Please specify the purpose.</span> } }
+                @if (acShowErrors && AccountContactModel.AccountPurpose == PurposeOfAccount.None)
+                {
+                    <span class="bcb-field-error">Purpose of account is required.</span>
+                }
+                @if (AccountContactModel.AccountPurpose == PurposeOfAccount.Others)
+                {
+                    <InputText @bind-Value="AccountContactModel.AccountPurposeOther" class="bcb-input mt-2" placeholder="Please specify" />
+                    @if (acShowErrors && string.IsNullOrWhiteSpace(AccountContactModel.AccountPurposeOther))
+                    {
+                        <span class="bcb-field-error">Please specify the purpose.</span>
+                    }
+                }
             </div>
         </div>
         <div class="bcb-divider"></div>
-        <div class="bcb-subsection-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/></svg> Products to be Availed <span class="bcb-req">*</span></div>
+        <div class="bcb-subsection-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" />
+                <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" />
+                <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" />
+                <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2" />
+            </svg> Products to be Availed <span class="bcb-req">*</span>
+        </div>
         <div class="bcb-checkbox-group">
             @foreach (var product in acProductOptions)
             {
                 <label class="bcb-checkbox-card @(acSelectedProducts.Contains(product) ? "checked" : "")">
                     <input type="checkbox" class="bcb-checkbox-input" checked="@acSelectedProducts.Contains(product)" @onchange="(e) => ToggleProduct(product, e)" />
-                    <div class="bcb-checkbox-tick"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div class="bcb-checkbox-tick">
+                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                            <path d="M2 6l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
                     <span>@product</span>
                 </label>
             }
         </div>
-        @if (acShowErrors && acSelectedProducts.Count == 0) { <span class="bcb-field-error mt-1">At least one product must be selected.</span> }
-        @if (acSelectedProducts.Contains("Others")) { <div class="bcb-field mt-2"><label class="bcb-label">Specify Other Products <span class="bcb-req">*</span></label><InputText @bind-Value="AccountContactModel.ProductsAvailedOther" class="@(acShowErrors && string.IsNullOrWhiteSpace(AccountContactModel.ProductsAvailedOther) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="Please specify" />@if (acShowErrors && string.IsNullOrWhiteSpace(AccountContactModel.ProductsAvailedOther)) { <span class="bcb-field-error">Please specify the product.</span> }</div> }
+        @if (acShowErrors && acSelectedProducts.Count == 0)
+        {
+            <span class="bcb-field-error mt-1">At least one product must be selected.</span>
+        }
+        @if (acSelectedProducts.Contains("Others"))
+        {
+            <div class="bcb-field mt-2">
+                <label class="bcb-label">Specify Other Products <span class="bcb-req">*</span></label>
+                <InputText @bind-Value="AccountContactModel.ProductsAvailedOther" class="@(acShowErrors && string.IsNullOrWhiteSpace(AccountContactModel.ProductsAvailedOther) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="Please specify" />
+                @if (acShowErrors && string.IsNullOrWhiteSpace(AccountContactModel.ProductsAvailedOther))
+                {
+                    <span class="bcb-field-error">Please specify the product.</span>
+                }
+            </div>
+        }
     </div>
 
     @* ── Business Contact Information ── *@
     <div class="bcb-section" id="field-BusinessContact">
         <div class="bcb-section-header">
             <div class="bcb-section-icon">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.0 1.18 2 2 0 012 .0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.0 1.18 2 2 0 012 .0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
             </div>
             <span class="bcb-section-title">Business Contact Information</span>
         </div>
         <div class="bcb-grid bcb-grid-3">
-            <div class="bcb-field"><label class="bcb-label">Office Phone No.</label><InputText @bind-Value="AccountContactModel.OfficePhoneNo" class="bcb-input" placeholder="e.g. 02-1234567" /></div>
+            <div class="bcb-field">
+                <label class="bcb-label">Office Phone No.</label>
+                <InputText @bind-Value="AccountContactModel.OfficePhoneNo" class="bcb-input" placeholder="e.g. 02-1234567" />
+            </div>
             <div class="bcb-field">
                 <label class="bcb-label">Email Address <span class="bcb-req">*</span></label>
                 <InputText @bind-Value="AccountContactModel.EmailAddress" class="@(acShowErrors && !IsValidEmail(AccountContactModel.EmailAddress) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. info@company.com" />
-                @if (acShowErrors && string.IsNullOrWhiteSpace(AccountContactModel.EmailAddress)) { <span class="bcb-field-error">Email address is required.</span> }
-                else if (acShowErrors && !string.IsNullOrWhiteSpace(AccountContactModel.EmailAddress) && !IsValidEmail(AccountContactModel.EmailAddress)) { <span class="bcb-field-error">Please enter a valid email address.</span> }
+                @if (acShowErrors && string.IsNullOrWhiteSpace(AccountContactModel.EmailAddress))
+                {
+                    <span class="bcb-field-error">Email address is required.</span>
+                }
+                else if (acShowErrors && !string.IsNullOrWhiteSpace(AccountContactModel.EmailAddress) && !IsValidEmail(AccountContactModel.EmailAddress))
+                {
+                    <span class="bcb-field-error">Please enter a valid email address.</span>
+                }
             </div>
-            <div class="bcb-field"><label class="bcb-label">Contact Person</label><InputText @bind-Value="AccountContactModel.ContactPerson" class="bcb-input" placeholder="e.g. Juan Dela Cruz" /></div>
+            <div class="bcb-field">
+                <label class="bcb-label">Contact Person</label>
+                <InputText @bind-Value="AccountContactModel.ContactPerson" class="bcb-input" placeholder="e.g. Juan Dela Cruz" />
+            </div>
         </div>
     </div>
 
@@ -238,10 +396,13 @@
 <div class="bcb-wrap">
 
     @* ── Beneficiary Information ── *@
-    <div class="bcb-section" id="field-BeneficiaryInfo">
+    <div class="bcb-section" style="margin-top: 8px;" id="field-BeneficiaryInfo">
         <div class="bcb-section-header">
             <div class="bcb-section-icon">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="white" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7" r="4" stroke="white" stroke-width="2"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="12" cy="7" r="4" stroke="white" stroke-width="2" />
+                </svg>
             </div>
             <span class="bcb-section-title">Beneficiary Information</span>
         </div>
@@ -254,38 +415,87 @@
                         <option value="@TrustType.ITF">In Trust For (ITF)</option>
                         <option value="@TrustType.FAO">For the Account Of (FAO)</option>
                     </InputSelect>
-                    <svg class="bcb-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <svg class="bcb-select-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
                 </div>
-                @if (bnShowErrors && BeneficiaryModel.TrustType == TrustType.None) { <span class="bcb-field-error">Trust type is required.</span> }
+                @if (bnShowErrors && BeneficiaryModel.TrustType == TrustType.None)
+                {
+                    <span class="bcb-field-error">Trust type is required.</span>
+                }
             </div>
-            <div class="bcb-field"><label class="bcb-label">Beneficiary Name <span class="bcb-req">*</span></label><InputText @bind-Value="BeneficiaryModel.BeneficiaryName" class="@(bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.BeneficiaryName) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. Maria Dela Cruz" />@if (bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.BeneficiaryName)) { <span class="bcb-field-error">Beneficiary name is required.</span> }</div>
+            <div class="bcb-field">
+                <label class="bcb-label">Beneficiary Name <span class="bcb-req">*</span></label>
+                <InputText @bind-Value="BeneficiaryModel.BeneficiaryName" class="@(bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.BeneficiaryName) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. Maria Dela Cruz" />
+                @if (bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.BeneficiaryName))
+                {
+                    <span class="bcb-field-error">Beneficiary name is required.</span>
+                }
+            </div>
             <div class="bcb-field">
                 <label class="bcb-label">Birthday <span class="bcb-req">*</span></label>
-                <InputDate @bind-Value="BeneficiaryModel.Birthday" 
-                           class="@(bnShowErrors && (BeneficiaryModel.Birthday == null || BeneficiaryModel.Birthday < new DateOnly(1900, 1, 1) || BeneficiaryModel.Birthday > DateOnly.FromDateTime(DateTime.Today)) ? "bcb-input bcb-invalid" : "bcb-input")" 
-                           TValue="DateOnly?" min="1900-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")"/>
-                @if (bnShowErrors && BeneficiaryModel.Birthday == null) { 
-                    <span class="bcb-field-error">Birthday is required.</span> 
+                <InputDate @bind-Value="BeneficiaryModel.Birthday"
+                           class="@(bnShowErrors && (BeneficiaryModel.Birthday == null || BeneficiaryModel.Birthday < new DateOnly(1900, 1, 1) || BeneficiaryModel.Birthday > DateOnly.FromDateTime(DateTime.Today)) ? "bcb-input bcb-invalid" : "bcb-input")"
+                           TValue="DateOnly?" min="1900-01-01" max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                @if (bnShowErrors && BeneficiaryModel.Birthday == null)
+                {
+                    <span class="bcb-field-error">Birthday is required.</span>
                 }
-                else if (bnShowErrors && BeneficiaryModel.Birthday < new DateOnly(1900, 1, 1)) { 
-                    <span class="bcb-field-error">Date must be on or after 01/01/1900.</span> 
+                else if (bnShowErrors && BeneficiaryModel.Birthday < new DateOnly(1900, 1, 1))
+                {
+                    <span class="bcb-field-error">Date must be on or after 01/01/1900.</span>
                 }
-                else if (bnShowErrors && BeneficiaryModel.Birthday > DateOnly.FromDateTime(DateTime.Today)) { 
-                    <span class="bcb-field-error">Birthday cannot be in the future.</span> 
+                else if (bnShowErrors && BeneficiaryModel.Birthday > DateOnly.FromDateTime(DateTime.Today))
+                {
+                    <span class="bcb-field-error">Birthday cannot be in the future.</span>
                 }
             </div>
-            <div class="bcb-field"><label class="bcb-label">Place of Birth <span class="bcb-req">*</span></label><InputText @bind-Value="BeneficiaryModel.PlaceOfBirth" class="@(bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.PlaceOfBirth) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. Manila, Philippines" />@if (bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.PlaceOfBirth)) { <span class="bcb-field-error">Place of birth is required.</span> }</div>
-            <div class="bcb-field"><label class="bcb-label">Nationality <span class="bcb-req">*</span></label><InputText @bind-Value="BeneficiaryModel.Nationality" class="@(bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.Nationality) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. Filipino" />@if (bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.Nationality)) { <span class="bcb-field-error">Nationality is required.</span> }</div>
-            <div class="bcb-field"><label class="bcb-label">Nature of Work <span class="bcb-req">*</span></label><InputText @bind-Value="BeneficiaryModel.NatureOfWork" class="@(bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.NatureOfWork) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. Employee, Self-employed" />@if (bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.NatureOfWork)) { <span class="bcb-field-error">Nature of work is required.</span> }</div>
+            <div class="bcb-field">
+                <label class="bcb-label">Place of Birth <span class="bcb-req">*</span></label>
+                <InputText @bind-Value="BeneficiaryModel.PlaceOfBirth" class="@(bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.PlaceOfBirth) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. Manila, Philippines" />
+                @if (bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.PlaceOfBirth))
+                {
+                    <span class="bcb-field-error">Place of birth is required.</span>
+                }
+            </div>
+            <div class="bcb-field">
+                <label class="bcb-label">Nationality <span class="bcb-req">*</span></label>
+                <InputText @bind-Value="BeneficiaryModel.Nationality" class="@(bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.Nationality) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. Filipino" />
+                @if (bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.Nationality))
+                {
+                    <span class="bcb-field-error">Nationality is required.</span>
+                }
+            </div>
+            <div class="bcb-field">
+                <label class="bcb-label">Nature of Work <span class="bcb-req">*</span></label>
+                <InputText @bind-Value="BeneficiaryModel.NatureOfWork" class="@(bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.NatureOfWork) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="e.g. Employee, Self-employed" />
+                @if (bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.NatureOfWork))
+                {
+                    <span class="bcb-field-error">Nature of work is required.</span>
+                }
+            </div>
         </div>
         <div class="bcb-divider"></div>
-        <div class="bcb-subsection-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/></svg> Address <span class="bcb-req">*</span></div>
+        <div class="bcb-subsection-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2" />
+            </svg> Address <span class="bcb-req">*</span>
+        </div>
         <div class="bcb-field">
             <InputTextArea @bind-Value="BeneficiaryModel.Address" class="@(bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.Address) ? "bcb-textarea bcb-invalid" : "bcb-textarea")" rows="2" placeholder="Enter full address" />
-            @if (bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.Address)) { <span class="bcb-field-error">Address is required.</span> }
+            @if (bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.Address))
+            {
+                <span class="bcb-field-error">Address is required.</span>
+            }
         </div>
         <div class="bcb-divider"></div>
-        <div class="bcb-subsection-label"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Source of Funds <span class="bcb-sof-note">— Select One</span></div>
+        <div class="bcb-subsection-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg> Source of Funds <span class="bcb-sof-note">— Select One</span>
+        </div>
         <div class="bcb-radio-group">
             @foreach (var src in bnSourceOptions)
             {
@@ -295,20 +505,41 @@
                 </label>
             }
         </div>
-        @if (bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.SourceOfFunds)) { <span class="bcb-field-error mt-1">Source of funds is required.</span> }
-        @if (BeneficiaryModel.SourceOfFunds == "Others") { <div class="bcb-field mt-2"><label class="bcb-label">Specify Source <span class="bcb-req">*</span></label><InputText @bind-Value="BeneficiaryModel.SourceOfFundsOther" class="@(bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.SourceOfFundsOther) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="Please specify" />@if (bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.SourceOfFundsOther)) { <span class="bcb-field-error">Please specify the source of funds.</span> }</div> }
+        @if (bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.SourceOfFunds))
+        {
+            <span class="bcb-field-error mt-1">Source of funds is required.</span>
+        }
+        @if (BeneficiaryModel.SourceOfFunds == "Others")
+        {
+            <div class="bcb-field mt-2">
+                <label class="bcb-label">Specify Source <span class="bcb-req">*</span></label>
+                <InputText @bind-Value="BeneficiaryModel.SourceOfFundsOther" class="@(bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.SourceOfFundsOther) ? "bcb-input bcb-invalid" : "bcb-input")" placeholder="Please specify" />
+                @if (bnShowErrors && string.IsNullOrWhiteSpace(BeneficiaryModel.SourceOfFundsOther))
+                {
+                    <span class="bcb-field-error">Please specify the source of funds.</span>
+                }
+            </div>
+        }
     </div>
 
     @* ── Footer ── *@
     <div class="bcb-footer">
         <button type="button" class="bcb-btn-back" @onclick="OnBack">
-            <div class="bcb-btn-arrow-left"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="bcb-btn-arrow-left">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
             <span>Back</span>
         </button>
         <div class="bcb-footer-hint"><span class="bcb-req">*</span>&nbsp;Required fields must be filled before continuing</div>
         <button type="button" class="bcb-btn-next" @onclick="TriggerAll">
             <span>Continue</span>
-            <div class="bcb-btn-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="bcb-btn-arrow">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12h14M13 6l6 6-6 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
         </button>
     </div>
 
@@ -405,7 +636,6 @@
     private bool acShowErrors = false;
     private List<string> acProductOptions = new() { "Savings", "Current", "TD", "Loan", "Sale Of ROPA", "Others" };
     private List<string> acSelectedProducts = new();
-
     private bool bnShowErrors = false;
     private List<string> bnSourceOptions = new() { "Salary", "Business", "Inheritance", "Others" };
 
@@ -450,9 +680,13 @@
             "field-BusinessContact",
             "field-BeneficiaryInfo"
         };
+
         foreach (var id in scrollIds)
         {
-            try { if (await JS.InvokeAsync<bool>("scrollToFirstError", id)) break; }
+            try 
+            { 
+                if (await JS.InvokeAsync<bool>("scrollToFirstError", id)) break;
+            }
             catch { }
         }
     }
@@ -524,37 +758,80 @@
     }
 
     // ── Helpers ───────────────────────────────────────────────────
-    private void SetSector(bool isPrivate) { BusinessModel.IsPrivate = isPrivate; BusinessModel.IsGovernment = !isPrivate; biSectorSelected = true; }
-    private void SetSourceOfFunds(string src) { BeneficiaryModel.SourceOfFunds = src; if (src != "Others") BeneficiaryModel.SourceOfFundsOther = null; }
+    private void SetSector(bool isPrivate)
+    {
+        BusinessModel.IsPrivate = isPrivate;
+        BusinessModel.IsGovernment = !isPrivate;
+        biSectorSelected = true;
+    }
+
+    private void SetSourceOfFunds(string src)
+    {
+        BeneficiaryModel.SourceOfFunds = src;
+        if (src != "Others") BeneficiaryModel.SourceOfFundsOther = null;
+    }
+
     private void ToggleProduct(string product, ChangeEventArgs e)
     {
         var isChecked = (bool)e.Value!;
-        if (isChecked) { if (!acSelectedProducts.Contains(product)) acSelectedProducts.Add(product); }
-        else { acSelectedProducts.Remove(product); }
+        if (isChecked)
+        {
+            if (!acSelectedProducts.Contains(product)) acSelectedProducts.Add(product);
+        }
+        else
+        {
+            acSelectedProducts.Remove(product);
+        }
         AccountContactModel.ProductsAvailed = string.Join(",", acSelectedProducts);
     }
+
     private List<PurposeOfAccount> GetBusinessPurposes()
     {
-        return Enum.GetValues<PurposeOfAccount>().Where(val => { if (val == PurposeOfAccount.None) return false; var field = val.GetType().GetField(val.ToString()!); var cat = field?.GetCustomAttribute<CategoryAttribute>(); return cat?.Category == "Business" || cat?.Category == "Both"; }).ToList();
+        return Enum.GetValues<PurposeOfAccount>().Where(val =>
+        {
+            if (val == PurposeOfAccount.None) return false;
+            var field = val.GetType().GetField(val.ToString()!);
+            var cat = field?.GetCustomAttribute<CategoryAttribute>();
+            return cat?.Category == "Business" || cat?.Category == "Both";
+        }).ToList();
     }
+
     private string GetDescription(PurposeOfAccount val)
     {
         var field = val.GetType().GetField(val.ToString());
         var attr = (DescriptionAttribute?)Attribute.GetCustomAttribute(field!, typeof(DescriptionAttribute));
         return attr?.Description ?? FormatEnum(val.ToString());
     }
+
     private static bool IsValidEmail(string? email)
     {
         if (string.IsNullOrWhiteSpace(email)) return false;
-        try { var addr = new System.Net.Mail.MailAddress(email); return addr.Address == email.Trim(); } catch { return false; }
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email.Trim();
+        }
+        catch
+        {
+            return false;
+        }
     }
+
     private void OnTINInput(ChangeEventArgs e)
     {
         var raw = new string((e.Value?.ToString() ?? "").Where(char.IsDigit).ToArray());
         if (raw.Length > 12) raw = raw[..12];
-        BusinessModel.TaxIdentificationNumber = raw.Length switch { <= 3 => raw, <= 6 => $"{raw[..3]}-{raw[3..]}", <= 9 => $"{raw[..3]}-{raw[3..6]}-{raw[6..]}", _ => $"{raw[..3]}-{raw[3..6]}-{raw[6..9]}-{raw[9..]}" };
+        BusinessModel.TaxIdentificationNumber = raw.Length switch
+        {
+            <= 3 => raw,
+            <= 6 => $"{raw[..3]}-{raw[3..]}",
+            <= 9 => $"{raw[..3]}-{raw[3..6]}-{raw[6..]}",
+            _ => $"{raw[..3]}-{raw[3..6]}-{raw[6..9]}-{raw[9..]}"
+        };
     }
+
     private static string FormatEnum(string value) => System.Text.RegularExpressions.Regex.Replace(value, @"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ");
+
     private static string GetEnumDescription<TEnum>(TEnum value) where TEnum : Enum
     {
         var field = value.GetType().GetField(value.ToString()!);

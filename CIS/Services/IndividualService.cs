@@ -7,6 +7,7 @@ public class IndividualService
 {
     private readonly HttpClient _http;
     private const string BaseUrl = "api/individual";
+    private record SubmitResult(long CustomerId, string CIDNumber);
 
     public IndividualService(HttpClient http) => _http = http;
 
@@ -35,16 +36,17 @@ public class IndividualService
     public async Task UpsertIdentificationAsync(IndividualIdentificationDTO.PageModel request) =>
         await _http.PostAsJsonAsync($"{BaseUrl}/identification", request);
 
-    public async Task<long> FinalizeRegistrationAsync(IndividualRegistrationRequest request)
+    public async Task<(long CustomerId, string CIDNumber)> FinalizeRegistrationAsync(IndividualRegistrationRequest request)
     {
         var response = await _http.PostAsJsonAsync($"{BaseUrl}/submit", request);
 
         if (response.IsSuccessStatusCode)
         {
-            return await response.Content.ReadFromJsonAsync<long>();
+            var result = await response.Content.ReadFromJsonAsync<SubmitResult>();
+            return (result!.CustomerId, result.CIDNumber);
         }
 
-        return 0;
+        return (0, "");
     }
 
     public async Task<IndividualRegistrationRequest?> GetRegistrationDetailsAsync(long customerId)

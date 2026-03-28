@@ -15,8 +15,8 @@ public class IndividualController : ControllerBase
     [HttpPost("submit")]
     public async Task<IActionResult> SubmitFullRegistration([FromBody] IndividualRegistrationRequest request)
     {
-        var customerId = await _repository.IndividualFullRegistrationAsync(request);
-        return Ok(customerId);
+        var (customerId, cidNumber) = await _repository.IndividualFullRegistrationAsync(request);
+        return Ok(new { customerId, cidNumber });
     }
 
     [HttpGet("details/{customerId}")]

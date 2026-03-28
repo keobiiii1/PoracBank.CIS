@@ -3,12 +3,13 @@
 @using CIS.Client.Services
 @inject IndividualService IndividualService
 @inject RegistrationStorageService Storage
+@inject NavigationManager Nav
 @inject IJSRuntime JS
 
 @* ══════════════════════════════════════════
    STEPPER HEADER  (hidden on success screen)
 ══════════════════════════════════════════ *@
-@if (CurrentStep < 9)
+@if (CurrentStep < 8)
 {
     <div class="ist-shell">
 
@@ -77,10 +78,13 @@
         </div>
 
         @* ── Active step name banner ── *@
-        <div class="ist-current-banner">
-            <div class="ist-banner-dot"></div>
-            <span>@StepLabels[CurrentStep - 1]</span>
-        </div>
+        @if (CurrentStep <= StepLabels.Length)
+        {
+            <div class="ist-current-banner">
+                <div class="ist-banner-dot"></div>
+                <span>@StepLabels[CurrentStep - 1]</span>
+            </div>
+        }
 
     </div>
 }
@@ -100,24 +104,17 @@
     @if (CurrentStep == 1)
     {
         customerModel.EntityType = EntityType.Individual;
-        <PersonalContactStep @bind-Customer="customerModel"
-                             @bind-Model="personalModel"
-                             @bind-ForeignerModel="foreignerModel"
-                             AddressModel="addressModel"
-                             InfoModel="personalModel"
-                             @bind-ContactModel="contactModel"
-                             OnNext="HandleNext" />
+        <BasicInformation @bind-Customer="customerModel"
+                        @bind-Model="personalModel"
+                        @bind-ForeignerModel="foreignerModel"
+                        AddressModel="addressModel"
+                        InfoModel="personalModel"
+                        @bind-ContactModel="contactModel"
+                        OnNext="HandleNext" />
     }
     else if (CurrentStep == 2)
     {
-        <IdentificationInformation IdModel="identificationModel"
-                                   CustomerId="customerModel.CustomerID"
-                                   OnNext="HandleNext"
-                                   OnBack="PrevStep" />
-    }
-    else if (CurrentStep == 3)
-    {
-        <EmploymentAccountStep EmploymentModel="employmentModel"
+        <EmploymentInformation EmploymentModel="employmentModel"
                                InfoModel="personalModel"
                                CustomerId="customerModel.CustomerID"
                                @bind-BusintModel="busintModel"
@@ -126,9 +123,16 @@
                                OnNext="HandleNext"
                                OnBack="PrevStep" />
     }
+    else if (CurrentStep == 3)
+    {
+        <IdentificationInformation IdModel="identificationModel"
+                                   CustomerId="customerModel.CustomerID"
+                                   OnNext="HandleNext"
+                                   OnBack="PrevStep" />
+    }
     else if (CurrentStep == 4)
     {
-        <BusinessContactBeneficiaryStep @bind-BusinessModel="businessInfoModel"
+        <Business_Beneficiary @bind-BusinessModel="businessInfoModel"
                                         AddressModel="addressModel"
                                         @bind-AccountContactModel="accountContactModel"
                                         @bind-BeneficiaryModel="beneficiaryModel"
@@ -149,7 +153,7 @@
     }
     else if (CurrentStep == 7)
     {
-        <IndividualReview Customer="customerModel"
+        <Review_Submit Customer="customerModel"
                           Personal="personalModel"
                           Address="addressModel"
                           Identification="identificationModel"
@@ -165,7 +169,8 @@
     else if (CurrentStep == 8)
     {
         <RegistrationSuccess CustomerName="@($"{personalModel.FirstName} {personalModel.LastName}")"
-                             CustomerId="customerModel.CustomerID"
+                             CustomerId="@customerModel.CustomerID"
+                             CIDNumber="@customerModel.CIDNumber"
                              RegistrationType="Individual"
                              OnReset="ResetStepper" />
     }
@@ -217,8 +222,8 @@
 
     private static readonly string[] StepLabels =
     [
-        "Personal & Contact", "Identification",
-        "Employment & Account", "Business & Beneficiary",
+        "Personal & Contact", "Employment & Account",
+        "Identification", "Business & Beneficiary",
         "Acknowledgement", "Bank Use Only", "Review"
     ];
 
@@ -292,10 +297,11 @@
             businessInfoModel, accountContactModel, beneficiaryModel,
             acknowledgementModel, bankReviewModel
         );
-        var newCustomerId = await IndividualService.FinalizeRegistrationAsync(request);
+        var (newCustomerId, cidNumber) = await IndividualService.FinalizeRegistrationAsync(request);
         if (newCustomerId > 0)
         {
             customerModel.CustomerID = newCustomerId;
+            customerModel.CIDNumber  = cidNumber;
             CurrentStep = 8;
             await Storage.ClearIndividualDraftAsync();
             StateHasChanged();
@@ -320,13 +326,6 @@
     private async Task ResetStepper()
     {
         await Storage.ClearIndividualDraftAsync();
-        CurrentStep = 1;
-        customerModel = new(); personalModel = new(); addressModel = new();
-        identificationModel = new(); employmentModel = new(); familyModel = new();
-        contactModel = new(); foreignerModel = new(); busintModel = new();
-        govrelModel = new(); accpurpModel = new(); businessInfoModel = new();
-        accountContactModel = new(); beneficiaryModel = new();
-        acknowledgementModel = new(); bankReviewModel = new();
-        StateHasChanged();
+        Nav.NavigateTo("/", forceLoad: true);
     }
 }

@@ -47,7 +47,6 @@
 
             @* Options *@
             <div class="asel-options">
-
                 <div class="asel-opt @(selectedType == "individual" ? "selected" : "")"
                      @onclick='() => selectedType = "individual"'>
                     <div class="asel-opt-check @(selectedType == "individual" ? "active" : "")">
@@ -82,7 +81,6 @@
                         <i class="bi bi-chevron-right"></i>
                     </div>
                 </div> *@
-
             </div>
 
             @* CTA *@
@@ -229,7 +227,6 @@
         max-width: 460px;
     }
 
-    /* Step label */
     .asel-step-label {
         display: flex;
         align-items: center;
@@ -470,7 +467,8 @@
 @code {
     private string selectedType = "individual";
 
-    [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject]
+    private NavigationManager Nav { get; set; } = default!;
 
     private async Task HandleStart()
     {
