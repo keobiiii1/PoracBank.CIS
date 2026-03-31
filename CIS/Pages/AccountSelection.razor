@@ -45,6 +45,20 @@
             <h1 class="asel-form-title">What type of account<br />are you opening?</h1>
             <p class="asel-form-sub">Select the option that best describes you.</p>
 
+            @* Demo Mode Banner *@
+            <div class="asel-demo-banner" @onclick="HandleDemo">
+                <div class="asel-demo-icon">
+                    <i class="bi bi-play-circle-fill"></i>
+                </div>
+                <div class="asel-demo-body">
+                    <div class="asel-demo-title">Demo Mode</div>
+                    <div class="asel-demo-sub">Walk through the full registration flow without entering data</div>
+                </div>
+                <div class="asel-demo-arrow">
+                    <i class="bi bi-chevron-right"></i>
+                </div>
+            </div>
+
             @* Options *@
             <div class="asel-options">
                 <div class="asel-opt @(selectedType == "individual" ? "selected" : "")"
@@ -112,5 +126,12 @@
         await Storage.ClearIndividualDraftAsync();
         await Storage.ClearDraftAsync();
         Nav.NavigateTo($"/cis/{selectedType}");
+    }
+
+    private async Task HandleDemo()
+    {
+        await Storage.ClearIndividualDraftAsync();
+        await Storage.ClearDraftAsync();
+        Nav.NavigateTo("/cis/individual?demo=true");
     }
 }

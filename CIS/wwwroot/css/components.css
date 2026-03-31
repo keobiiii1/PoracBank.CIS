@@ -312,6 +312,63 @@
     margin: 0;
 }
 
+/* ── AccountSelection: Demo Mode banner ── */
+.asel-demo-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    background: linear-gradient(135deg, #fff8e1 0%, #fffde7 100%);
+    border: 1.5px dashed #f59e0b;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: box-shadow 0.18s, border-color 0.18s, background 0.18s;
+}
+
+    .asel-demo-banner:hover {
+        background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%);
+        border-color: #d97706;
+        box-shadow: 0 4px 18px rgba(245,158,11,0.15);
+    }
+
+.asel-demo-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+}
+
+.asel-demo-body {
+    flex: 1;
+}
+
+.asel-demo-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: #92400e;
+    letter-spacing: 0.01em;
+}
+
+.asel-demo-sub {
+    font-size: 12px;
+    color: #b45309;
+    margin-top: 2px;
+    line-height: 1.4;
+}
+
+.asel-demo-arrow {
+    color: #d97706;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
 @media (min-width: 768px) {
     .asel-page {
         gap: 24px;
@@ -5382,6 +5439,74 @@
 .page-break {
     margin-top: 0;
 }
+
+/* ── Demo Mode: ribbon banner & skip FAB (PageStepper) ── */
+.demo-ribbon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(90deg, #fffbeb, #fef3c7);
+    border-bottom: 2px solid #f59e0b;
+    font-size: 13px;
+    color: #92400e;
+    font-weight: 500;
+    flex-wrap: wrap;
+}
+
+    .demo-ribbon em {
+        font-style: normal;
+        font-weight: 700;
+        color: #b45309;
+    }
+
+.demo-ribbon-exit {
+    margin-left: auto;
+    padding: 4px 14px;
+    background: #f59e0b;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+}
+
+    .demo-ribbon-exit:hover {
+        background: #d97706;
+    }
+
+.demo-skip-fab {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 13px 22px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 50px;
+    box-shadow: 0 6px 24px rgba(245,158,11,0.45);
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.02em;
+}
+
+    .demo-skip-fab:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(245,158,11,0.55);
+    }
+
+    .demo-skip-fab:active {
+        transform: translateY(0);
+    }
 
 @media print {
     @page {

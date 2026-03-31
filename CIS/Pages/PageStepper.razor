@@ -89,6 +89,18 @@
     </div>
 }
 
+@* ══════════════════════════════════════════
+   DEMO MODE BANNER
+══════════════════════════════════════════ *@
+@if (IsDemo && CurrentStep < 8)
+{
+    <div class="demo-ribbon">
+        <i class="bi bi-play-circle-fill me-2"></i>
+        <strong>Demo Mode</strong> — validation is skipped. Click <em>Next</em> on each step to walk through the full flow.
+        <button class="demo-ribbon-exit" @onclick="ExitDemo">Exit Demo</button>
+    </div>
+}
+
 @* ══════════════════════════════════════════════════════════
    BUSINESS & BENEFICIARY SELECTION MODAL
 ══════════════════════════════════════════════════════════ *@
@@ -185,7 +197,16 @@
 @* ══════════════════════════════════════════
    STEP CONTENT
 ══════════════════════════════════════════ *@
-<div class="ist-content">
+<div class="ist-content" style="position: relative;">
+
+    @* ── Demo skip button (floats over step content) ── *@
+    @if (IsDemo && CurrentStep is >= 1 and <= 6)
+    {
+        <div class="demo-skip-fab" @onclick="HandleNext">
+            <i class="bi bi-skip-forward-fill me-1"></i>
+            Skip Step
+        </div>
+    }
     @if (submitError != null)
     {
         <div class="alert alert-danger d-flex align-items-center gap-2 mb-4">
@@ -275,6 +296,9 @@
     private int CurrentStep = 1;
     private const int TotalSteps = 7;
 
+    [SupplyParameterFromQuery(Name = "demo")]
+    public bool IsDemo { get; set; }
+
     private readonly HashSet<int> validatedSteps = new();
 
     // ── Business & Beneficiary modal state ────────────────────────
@@ -338,8 +362,27 @@
     private async Task HandleNext()
     {
         // After Identification (step 3), show the Business & Beneficiary selection modal
+        // In demo mode, skip the modal and jump straight to step 5
         if (CurrentStep == 3)
         {
+            if (IsDemo)
+            {
+                showBusinessSection = false;
+                showBeneficiarySection = false;
+                validatedSteps.Add(CurrentStep);
+                CurrentStep = 5;
+                await Storage.SaveIndividualDraftAsync(
+                    customerModel, personalModel, addressModel, identificationModel,
+                    employmentModel, familyModel, contactModel, foreignerModel,
+                    busintModel, govrelModel, accpurpModel,
+                    businessInfoModel, accountContactModel, beneficiaryModel,
+                    acknowledgementModel, bankReviewModel, CurrentStep
+                );
+                StateHasChanged();
+                await JS.InvokeVoidAsync("window.scrollTo", 0, 0);
+                return;
+            }
+
             showSelectionModal = true;
             modalValidationError = false;
             StateHasChanged();
@@ -403,6 +446,20 @@
     private async Task HandleSubmit()
     {
         submitError = null;
+
+        // In demo mode, skip the API call and simulate success
+        if (IsDemo)
+        {
+            customerModel.CustomerID = 9999;
+            customerModel.CIDNumber = "DEMO-2026-00001";
+            if (string.IsNullOrWhiteSpace(personalModel.FirstName)) personalModel.FirstName = "Juan";
+            if (string.IsNullOrWhiteSpace(personalModel.LastName)) personalModel.LastName = "Demo";
+            CurrentStep = 8;
+            await Storage.ClearIndividualDraftAsync();
+            StateHasChanged();
+            return;
+        }
+
         var request = Storage.BuildRegistrationRequest(
             customerModel, personalModel, addressModel, identificationModel,
             employmentModel, familyModel, contactModel, foreignerModel,
@@ -435,7 +492,6 @@
     {
         if (CurrentStep > 1)
         {
-            // If both sections were skipped and we're on step 5, go back to step 3
             if (CurrentStep == 5 && !showBusinessSection && !showBeneficiarySection)
                 CurrentStep = 3;
             else
@@ -447,6 +503,11 @@
     private async Task ResetStepper()
     {
         await Storage.ClearIndividualDraftAsync();
+        Nav.NavigateTo("/", forceLoad: true);
+    }
+
+    private void ExitDemo()
+    {
         Nav.NavigateTo("/", forceLoad: true);
     }
 }
