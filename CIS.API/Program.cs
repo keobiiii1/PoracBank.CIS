@@ -37,9 +37,6 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // --- 6. CORS ---
-// !! Add your CIS.Client port to Cors:AllowedOrigins in appsettings.json !!
-// e.g. "https://localhost:7186,http://localhost:5186"
-// Check CIS.Client/Properties/launchSettings.json for the exact port.
 var allowedOrigins = builder.Configuration
     .GetSection("Cors:AllowedOrigins")
     .Get<string[]>()
@@ -56,9 +53,11 @@ builder.Services.AddCors(options =>
     });
 });
 
-// --- 7. KYC IMAGE UPLOADS — raise Kestrel body limit to 10 MB ---
+// --- 7. KESTREL — body limit only ---
 builder.WebHost.ConfigureKestrel(opts =>
-    opts.Limits.MaxRequestBodySize = 10 * 1024 * 1024);
+{
+    opts.Limits.MaxRequestBodySize = 10 * 1024 * 1024;
+});
 
 var app = builder.Build();
 
@@ -69,9 +68,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();  // added — redirects HTTP → HTTPS
-app.UseStaticFiles();       // serves wwwroot/uploads/kyc/** as static URLs
-app.UseRouting();           // added — required before UseCors/MapControllers
+app.UseStaticFiles();
+app.UseRouting();
 app.UseCors("BlazorPolicy");
 app.UseAuthorization();
 app.MapControllers();
