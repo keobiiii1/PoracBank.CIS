@@ -59,6 +59,20 @@
                 </div>
             </div>
 
+            @* Customer Records Dashboard *@
+            <div class="asel-dashboard-btn" @onclick='() => Nav.NavigateTo("/cis/dashboard")'>
+                <div class="asel-dashboard-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="asel-dashboard-body">
+                    <div class="asel-dashboard-title">Customer Records</div>
+                    <div class="asel-dashboard-sub">View and print registered customer profiles</div>
+                </div>
+                <div class="asel-dashboard-arrow">
+                    <i class="bi bi-chevron-right"></i>
+                </div>
+            </div>
+
             @* Options *@
             <div class="asel-options">
                 <div class="asel-opt @(selectedType == "individual" ? "selected" : "")"
@@ -98,7 +112,9 @@
             </div>
 
             @* CTA *@
-            <button class="asel-cta" @onclick="HandleStart">
+            <button class="asel-cta @(string.IsNullOrEmpty(selectedType) ? "disabled" : "")"
+                    @onclick="HandleStart"
+                    disabled="@(string.IsNullOrEmpty(selectedType))">
                 <span>Continue</span>
                 <div class="asel-cta-arrow">
                     <i class="bi bi-arrow-right"></i>
@@ -115,14 +131,16 @@
 
 </div>
 
+
 @code {
-    private string selectedType = "individual";
+    private string selectedType = "";
 
     [Inject]
     private NavigationManager Nav { get; set; } = default!;
 
     private async Task HandleStart()
     {
+        if (string.IsNullOrEmpty(selectedType)) return;
         await Storage.ClearIndividualDraftAsync();
         await Storage.ClearDraftAsync();
         Nav.NavigateTo($"/cis/{selectedType}");

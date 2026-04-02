@@ -485,3 +485,6 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 CIS.API/appsettings.json
+/CIS.API/Migrations/CISDbContextModelSnapshot.cs
+/CIS/Properties/launchSettings.json
+/CIS.API/appsettings.json

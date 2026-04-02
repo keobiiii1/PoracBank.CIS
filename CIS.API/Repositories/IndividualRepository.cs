@@ -282,6 +282,17 @@ public class IndividualRepository
             .FirstOrDefaultAsync(e => e.CustomerID == customerId);
         response.Family = _mapper.Map<IndividualFamilyDTO.PageModel>(family);
 
+        // Sync Family fields into Individual so Review_Submit can read them from Personal
+        if (family != null && response.Individual != null)
+        {
+            response.Individual.SpouseGivenName = family.SpouseGivenName;
+            response.Individual.SpouseLastName = family.SpouseLastName;
+            response.Individual.SpouseMiddleName = family.SpouseMiddleName;
+            response.Individual.MotherMaidenGivenName = family.MotherMaidenGivenName;
+            response.Individual.MotherMaidenLastName = family.MotherMaidenLastName;
+            response.Individual.MotherMaidenMiddleName = family.MotherMaidenMiddleName;
+        }
+
         // 9. Table: IndividualForeigners (Optional)
         var foreigner = await _db.IndividualForeigners.AsNoTracking()
             .FirstOrDefaultAsync(e => e.CustomerID == customerId);
@@ -291,6 +302,14 @@ public class IndividualRepository
         var contact = await _db.Contacts.AsNoTracking()
             .FirstOrDefaultAsync(e => e.EntityID == customerId && e.EntityType == EntityType.Individual);
         response.Contact = _mapper.Map<ContactDTO.PageModel>(contact);
+
+        // Sync Contact fields into Individual so Review_Submit can read them from Personal
+        if (contact != null && response.Individual != null)
+        {
+            response.Individual.HomePhoneNumber = contact.HomePhoneNumber;
+            response.Individual.MobilePhoneNumber = contact.MobilePhoneNumber;
+            response.Individual.EmailAddress = contact.EmailAddress;
+        }
 
         var purpose = await _db.AccountPurposes.AsNoTracking()
             .FirstOrDefaultAsync(e => e.EntityID == customerId && e.EntityType == EntityType.Individual);

@@ -1,0 +1,307 @@
+﻿@page "/cis/dashboard"
+@namespace CIS.Client.Pages
+@using CIS.Client.Services
+@using CIS.Assets.DTO
+@using CIS.Assets.Common
+@inject IndividualService IndividualService
+@inject CustomerService CustomerService
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<div class="db-shell">
+
+    @* ── Sidebar / List panel ── *@
+    <div class="db-sidebar">
+
+        <div class="db-sidebar-header">
+            <button class="db-back-btn" @onclick='() => Nav.NavigateTo("/")'>
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <div class="db-sidebar-title-wrap">
+                <div class="db-sidebar-title">Customer Records</div>
+                <div class="db-sidebar-sub">Registered Individuals</div>
+            </div>
+        </div>
+
+        <div class="db-search-wrap">
+            <i class="bi bi-search db-search-icon"></i>
+            <input class="db-search-input"
+                   placeholder="Search by CID number…"
+                   @bind="SearchText"
+                   @bind:event="oninput"
+                   @onkeyup="OnSearchKeyUp" />
+            @if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                <button class="db-search-clear" @onclick="ClearSearch">
+                    <i class="bi bi-x"></i>
+                </button>
+            }
+        </div>
+
+        <div class="db-list-wrap">
+            @if (IsLoading)
+            {
+                <div class="db-loading">
+                    <div class="db-spinner"></div>
+                    <span>Loading customers…</span>
+                </div>
+            }
+            else if (ErrorMessage != null)
+            {
+                <div class="db-empty">
+                    <i class="bi bi-exclamation-triangle db-empty-icon" style="color:#f59e0b;"></i>
+                    <span style="text-align:center; font-size:0.8rem;">@ErrorMessage</span>
+                    <button class="db-page-btn" style="width:auto; padding: 0 12px;" @onclick="LoadCustomersAsync">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Retry
+                    </button>
+                </div>
+            }
+            else if (Customers.Count == 0)
+            {
+                <div class="db-empty">
+                    <i class="bi bi-people db-empty-icon"></i>
+                    <span>No records found.</span>
+                </div>
+            }
+            else
+            {
+                @foreach (var c in Customers)
+                {
+                    <div class="db-list-item @(SelectedCustomerId == c.CustomerID ? "active" : "")"
+                         @onclick="() => SelectCustomerAsync(c.CustomerID)">
+                        <div class="db-list-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <div class="db-list-info">
+                            <div class="db-list-cid">@c.CIDNumber</div>
+                            <div class="db-list-cats">
+                                @if (c.CustomerCategories != null)
+                                {
+                                    @foreach (var cat in c.CustomerCategories)
+                                    {
+                                        <span class="db-cat-pill">@GetCategoryShort(cat)</span>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <i class="bi bi-chevron-right db-list-arrow"></i>
+                    </div>
+                }
+
+                @* Pagination *@
+                @if (TotalPages > 1)
+                {
+                    <div class="db-pagination">
+                        <button class="db-page-btn" disabled="@(CurrentPage == 1)" @onclick="PrevPage">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <span class="db-page-label">@CurrentPage / @TotalPages</span>
+                        <button class="db-page-btn" disabled="@(CurrentPage == TotalPages)" @onclick="NextPage">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    @* ── Detail panel ── *@
+    <div class="db-detail @(SelectedCustomerId > 0 ? "visible" : "")">
+        @if (IsDetailLoading)
+        {
+            <div class="db-detail-loading">
+                <div class="db-spinner large"></div>
+                <span>Loading customer details…</span>
+            </div>
+        }
+        else if (SelectedData == null && SelectedCustomerId == 0)
+        {
+            <div class="db-detail-empty">
+                <div class="db-detail-empty-icon">
+                    <i class="bi bi-person-lines-fill"></i>
+                </div>
+                <div class="db-detail-empty-text">Select a customer<br />to view their details</div>
+            </div>
+        }
+        else if (SelectedData != null)
+        {
+            @* ── Detail toolbar ── *@
+            <div class="db-detail-toolbar">
+                <div class="db-detail-toolbar-left">
+                    <button class="db-toolbar-close" @onclick="ClearSelection">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                    <div class="db-detail-name">
+                        <span class="db-detail-fullname">@SelectedPersonalName</span>
+                        <span class="db-detail-cid">@SelectedData.Individual?.CIDNumber</span>
+                    </div>
+                </div>
+                <button class="db-print-btn"
+                        @onclick="() => PrintCustomer(SelectedCustomerId)">
+                    <i class="bi bi-printer-fill me-1"></i>
+                    Print Form
+                </button>
+            </div>
+
+            @* ── Review content ── *@
+            <div class="db-detail-body">
+                <Review_Submit Customer="@DetailCustomer"
+                               Personal="@(SelectedData.Individual ?? new())"
+                               Address="@(SelectedData.Address ?? new())"
+                               Identification="@(SelectedData.Identification ?? new())"
+                               Employment="@(SelectedData.Employment ?? new())"
+                               BusinessInfo="@(SelectedData.Business ?? new())"
+                               AccountContact="@(SelectedData.AccountContact ?? new())"
+                               Beneficiary="@(SelectedData.Beneficiary ?? new())"
+                               Acknowledgement="@(SelectedData.Acknowledgement ?? new())"
+                               BankReview="@(SelectedData.BankReview ?? new())"
+                               OnBack="ClearSelection"
+                               OnSubmit="EventCallback.Empty" />
+            </div>
+        }
+    </div>
+
+</div>
+
+@* Mobile back-to-list button (visible only on small screens when detail is open) *@
+@if (SelectedCustomerId > 0)
+{
+    <button class="db-mobile-back" @onclick="ClearSelection">
+        <i class="bi bi-chevron-left me-1"></i> Back to list
+    </button>
+}
+
+
+@code {
+    private List<CustomerDTO.Browse> Customers = new();
+    private bool IsLoading = false;
+    private bool IsDetailLoading = false;
+    private string SearchText = "";
+    private int CurrentPage = 1;
+    private int TotalPages = 1;
+    private const int PageSize = 15;
+
+    private long SelectedCustomerId = 0;
+    private IndividualRegistrationRequest? SelectedData;
+    private CustomerDTO.PageModel DetailCustomer = new();
+    private string SelectedPersonalName = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCustomersAsync();
+    }
+
+    private string? ErrorMessage;
+
+    private async Task LoadCustomersAsync()
+    {
+        IsLoading = true;
+        ErrorMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            var filter = new CustomerDTO.Filter
+            {
+                SearchText = SearchText,
+                CurrentPage = CurrentPage,
+                PageSize = PageSize
+            };
+
+            var result = await CustomerService.BrowseAsync(filter);
+            Customers = result?.Data ?? new();
+            TotalPages = (result?.TotalPages ?? 0) > 0 ? result!.TotalPages : 1;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Could not load customers: {ex.Message}";
+            Customers = new();
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task OnSearchKeyUp()
+    {
+        CurrentPage = 1;
+        await LoadCustomersAsync();
+    }
+
+    private async Task ClearSearch()
+    {
+        SearchText = "";
+        CurrentPage = 1;
+        await LoadCustomersAsync();
+    }
+
+    private async Task PrevPage()
+    {
+        if (CurrentPage > 1) { CurrentPage--; await LoadCustomersAsync(); }
+    }
+
+    private async Task NextPage()
+    {
+        if (CurrentPage < TotalPages) { CurrentPage++; await LoadCustomersAsync(); }
+    }
+
+    private async Task SelectCustomerAsync(long customerId)
+    {
+        if (SelectedCustomerId == customerId) return;
+
+        SelectedCustomerId = customerId;
+        SelectedData = null;
+        IsDetailLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var data = await IndividualService.GetRegistrationDetailsAsync(customerId);
+            SelectedData = data;
+
+            if (data?.Individual != null)
+            {
+                var ind = data.Individual;
+                SelectedPersonalName = string.Join(" ", new[] { ind.FirstName, ind.MiddleName, ind.LastName }
+                    .Where(s => !string.IsNullOrWhiteSpace(s)));
+
+                DetailCustomer = new CustomerDTO.PageModel
+                {
+                    CustomerID = customerId,
+                    CIDNumber = ind.CIDNumber,
+                    CustomerCategories = ind.CustomerCategories
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Could not load customer details: {ex.Message}";
+            SelectedCustomerId = 0;
+        }
+        finally
+        {
+            IsDetailLoading = false;
+        }
+    }
+
+    private void ClearSelection()
+    {
+        SelectedCustomerId = 0;
+        SelectedData = null;
+    }
+
+    private async Task PrintCustomer(long customerId)
+    {
+        var url = $"/porac-bank-cis?customerId={customerId}";
+        await JS.InvokeVoidAsync("open", url, "_blank");
+    }
+
+    private static string GetCategoryShort(CustomerCategory cat) => cat switch
+    {
+        CustomerCategory.LoanBorrower => "Borrower",
+        CustomerCategory.LoanCoMaker => "Co-Maker",
+        CustomerCategory.Depositor => "Depositor",
+        _ => cat.ToString()
+    };
+}
