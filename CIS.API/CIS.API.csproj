@@ -28,8 +28,4 @@
     <ProjectReference Include="..\CIS.Assets\CIS.Assets.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
 </Project>
