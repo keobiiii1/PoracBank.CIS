@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using CIS.API.Data;
 using CIS.Assets.Models;
 using CIS.Assets.DTO;
@@ -8,13 +7,11 @@ namespace CIS.API.Repositories;
 
 public class ProfileRepository
 {
-    private readonly IMapper _mapper;
     private readonly IDbContextFactory<CISDbContext> _dbContextFactory;
     private readonly ITransactionPolicy _transactionPolicy;
 
-    public ProfileRepository(IMapper mapper, IDbContextFactory<CISDbContext> dbContextFactory, ITransactionPolicy transactionPolicy)
+    public ProfileRepository(IDbContextFactory<CISDbContext> dbContextFactory, ITransactionPolicy transactionPolicy)
     {
-        _mapper = mapper;
         _dbContextFactory = dbContextFactory;
         _transactionPolicy = transactionPolicy;
     }
@@ -28,12 +25,12 @@ public class ProfileRepository
             var old = await _db.Addresses.FirstOrDefaultAsync(e => e.AddressID == request.AddressID);
             if (old == null)
             {
-                var model = _mapper.Map<Address>(request);
+                var model = DtoMapper.ToAddress(request);
                 _db.Addresses.Add(model);
             }
             else
             {
-                _mapper.Map(request, old);
+                DtoMapper.CopyAddress(request, old);
                 _db.Addresses.Update(old);
             }
             await _db.SaveChangesAsync();
@@ -50,12 +47,12 @@ public class ProfileRepository
 
         if (old == null)
         {
-            var model = _mapper.Map<Contact>(request);
+            var model = DtoMapper.ToContact(request);
             _db.Contacts.Add(model);
         }
         else
         {
-            _mapper.Map(request, old);
+            DtoMapper.CopyContact(request, old);
             _db.Contacts.Update(old);
         }
         await _db.SaveChangesAsync();

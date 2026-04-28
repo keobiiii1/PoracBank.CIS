@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using FluentValidation;
 using CIS.Assets.Enum;
 using CIS.Assets.Models;
@@ -26,18 +25,5 @@ public class BeneficiaryDTO
         public string? SourceOfFunds { get; set; }
         public string? SourceOfFundsOther { get; set; }
         public string? NatureOfWork { get; set; }
-    }
-
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<Beneficiary, Browse>().ReverseMap();
-
-            CreateMap<PageModel, Beneficiary>()
-                .ForMember(dest => dest.BeneficiaryID, opt => opt.Ignore());
-
-            CreateMap<Beneficiary, PageModel>();
-        }
     }
 }

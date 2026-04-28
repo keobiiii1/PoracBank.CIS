@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using FluentValidation;
 using CIS.Assets.Enum;
 using CIS.Assets.Models;
@@ -29,21 +28,6 @@ public class AccountPurposeDTO
             {
                 RuleFor(x => x.PurposeOfAccount).NotEqual(PurposeOfAccount.None);
             }
-        }
-    }
-
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<AccountPurpose, PageModel>().ReverseMap();
-
-            CreateMap<BusinessInfoDTO.PageModel, AccountPurpose>()
-                .ForMember(d => d.AccountPurposeID, o => o.Ignore())
-                .ForMember(d => d.EntityID, o => o.MapFrom(s => s.CustomerID))
-                .ForMember(d => d.EntityType, o => o.MapFrom(s => EntityType.Business))
-                .ForMember(d => d.PurposeOfAccount, o => o.MapFrom(s => s.AccountPurpose))
-                .ForMember(d => d.PurposeOfAccountOther, o => o.MapFrom(s => s.AccountPurposeOther));
         }
     }
 }

@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using FluentValidation;
 using CIS.Assets.Models;
 
@@ -31,18 +30,6 @@ public class IndividualFamilyDTO
                 RuleFor(x => x.MotherMaidenLastName).NotEmpty().MaximumLength(100);
                 RuleFor(x => x.MotherMaidenGivenName).NotEmpty().MaximumLength(100);
             }
-        }
-    }
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<IndividualFamily, Browse>().ReverseMap();
-
-            CreateMap<PageModel, IndividualFamily>().ReverseMap();
-
-            CreateMap<IndividualInfoDTO.PageModel, IndividualFamily>()
-                .ForMember(dest => dest.FamilyID, opt => opt.Ignore());
         }
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CIS.API.Migrations
 {
     [DbContext(typeof(CISDbContext))]
-    [Migration("20260427085510_0.0.001")]
+    [Migration("20260427090347_0.0.001")]
     partial class _00001
     {
         /// <inheritdoc />

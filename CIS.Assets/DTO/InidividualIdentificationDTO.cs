@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using System.ComponentModel.DataAnnotations;
 using CIS.Assets.Models;
 
@@ -39,7 +38,7 @@ public class IndividualIdentificationDTO
         public string? OtherIDNumber { get; set; }
         public DateOnly? OtherIDExpiry { get; set; }
 
-        // KYC — stored as data URLs (data:image/jpeg;base64,...) for preview + saving
+        // KYC - stored as data URLs (data:image/jpeg;base64,...) for preview + saving
         // On save these are split into byte[] + content type before writing to DB
         public string? SelfieDataUrl { get; set; }
         public string? TINFrontDataUrl { get; set; }
@@ -79,31 +78,5 @@ public class IndividualIdentificationDTO
     {
         if (bytes == null || bytes.Length == 0) return null;
         return $"data:{contentType ?? "image/jpeg"};base64,{Convert.ToBase64String(bytes)}";
-    }
-
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<IndividualIdentification, Browse>().ReverseMap();
-
-            // Map binary DB columns → data URLs for display
-            CreateMap<IndividualIdentification, PageModel>()
-                .ForMember(d => d.SelfieDataUrl, e => e.MapFrom(s => BuildDataUrl(s.SelfieImage, s.SelfieContentType)))
-                .ForMember(d => d.TINFrontDataUrl, e => e.MapFrom(s => BuildDataUrl(s.TINFrontImage, s.TINFrontContentType)))
-                .ForMember(d => d.TINBackDataUrl, e => e.MapFrom(s => BuildDataUrl(s.TINBackImage, s.TINBackContentType)))
-                .ForMember(d => d.SSSFrontDataUrl, e => e.MapFrom(s => BuildDataUrl(s.SSSFrontImage, s.SSSFrontContentType)))
-                .ForMember(d => d.SSSBackDataUrl, e => e.MapFrom(s => BuildDataUrl(s.SSSBackImage, s.SSSBackContentType)))
-                .ForMember(d => d.GSISFrontDataUrl, e => e.MapFrom(s => BuildDataUrl(s.GSISFrontImage, s.GSISFrontContentType)))
-                .ForMember(d => d.GSISBackDataUrl, e => e.MapFrom(s => BuildDataUrl(s.GSISBackImage, s.GSISBackContentType)))
-                .ForMember(d => d.DriversLicenseFrontDataUrl, e => e.MapFrom(s => BuildDataUrl(s.DriversLicenseFrontImage, s.DriversLicenseFrontContentType)))
-                .ForMember(d => d.DriversLicenseBackDataUrl, e => e.MapFrom(s => BuildDataUrl(s.DriversLicenseBackImage, s.DriversLicenseBackContentType)))
-                .ForMember(d => d.PassportFrontDataUrl, e => e.MapFrom(s => BuildDataUrl(s.PassportFrontImage, s.PassportFrontContentType)))
-                .ForMember(d => d.PassportBackDataUrl, e => e.MapFrom(s => BuildDataUrl(s.PassportBackImage, s.PassportBackContentType)))
-                .ForMember(d => d.OtherIDFrontDataUrl, e => e.MapFrom(s => BuildDataUrl(s.OtherIDFrontImage, s.OtherIDFrontContentType)))
-                .ForMember(d => d.OtherIDBackDataUrl, e => e.MapFrom(s => BuildDataUrl(s.OtherIDBackImage, s.OtherIDBackContentType)))
-                .ReverseMap()
-                .ForMember(d => d.PassportIDExpiry, opt => opt.MapFrom(s => s.PassportIDExpiry));
-        }
     }
 }

@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using FluentValidation;
 using CIS.Assets.Enum;
 using CIS.Assets.Models;
@@ -36,14 +35,5 @@ public class IndividualEmploymentDTO
         public string? EmployerPhoneNumber { get; set; }
         public string? EmployerEmailAddress { get; set; }
         public string? PositionRank { get; set; }
-    }
-
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<IndividualEmployment, Browse>().ReverseMap();
-            CreateMap<IndividualEmployment, PageModel>().ReverseMap();
-        }
     }
 }

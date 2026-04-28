@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using CIS.Assets.Enum;
 using CIS.Assets.Models;
 
@@ -48,14 +47,5 @@ public class AddressDTO
         public bool IsPresentSameAsPermanent { get; set; }
 
         public MailingPreference MailingPreference { get; set; }
-    }
-
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<Address, Browse>().ReverseMap();
-            CreateMap<Address, PageModel>().ReverseMap();
-        }
     }
 }

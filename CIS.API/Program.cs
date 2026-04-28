@@ -1,7 +1,6 @@
 using CIS.API.Data;
 using CIS.API.Repositories;
 using CIS.Assets;
-using CIS.Assets.DTO;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,9 +17,6 @@ builder.Services.AddPooledDbContextFactory<CISDbContext>(options =>
 
 builder.Services.AddScoped<CISDbContext>(p =>
     p.GetRequiredService<IDbContextFactory<CISDbContext>>().CreateDbContext());
-
-// --- 3. AUTOMAPPER ---
-builder.Services.AddAutoMapper(typeof(CustomerDTO.MappingProfile).Assembly);
 
 // --- 4. REPOSITORIES ---
 builder.Services.AddScoped<ITransactionPolicy, DefaultTransactionPolicy>();

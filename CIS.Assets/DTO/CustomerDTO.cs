@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using FluentValidation;
 using CIS.Assets.Enum;
 using CIS.Assets.Models;
@@ -36,15 +35,6 @@ public class CustomerDTO
             {
                 RuleFor(x => x.CIDNumber).MaximumLength(50);
             }
-        }
-    }
-
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<Customer, Browse>().ReverseMap();
-            CreateMap<Customer, PageModel>().ReverseMap();
         }
     }
 }

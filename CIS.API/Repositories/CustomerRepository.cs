@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using CIS.API.Data;
 using CIS.Assets.Common;
 using CIS.Assets.Models;
@@ -14,13 +13,11 @@ namespace CIS.API.Repositories;
 /// </summary>
 public class CustomerRepository
 {
-    private readonly IMapper _mapper;
     private readonly IDbContextFactory<CISDbContext> _dbContextFactory;
     private readonly ITransactionPolicy _transactionPolicy;
 
-    public CustomerRepository(IMapper mapper, IDbContextFactory<CISDbContext> dbContextFactory, ITransactionPolicy transactionPolicy)
+    public CustomerRepository(IDbContextFactory<CISDbContext> dbContextFactory, ITransactionPolicy transactionPolicy)
     {
-        _mapper = mapper;
         _dbContextFactory = dbContextFactory;
         _transactionPolicy = transactionPolicy;
     }

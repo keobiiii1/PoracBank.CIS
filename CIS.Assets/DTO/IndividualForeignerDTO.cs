@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using FluentValidation;
 using CIS.Assets.Models;
 
@@ -29,19 +28,6 @@ public class IndividualForeignerDTO
             {
                 RuleFor(x => x.PassportIDNumber).MaximumLength(50);
             }
-        }
-    }
-
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<IndividualForeigner, Browse>().ReverseMap();
-
-            CreateMap<PageModel, IndividualForeigner>().ReverseMap();
-
-            CreateMap<IndividualInfoDTO.PageModel, IndividualForeigner>()
-                .ForMember(dest => dest.ForeignerID, opt => opt.Ignore());
         }
     }
 }

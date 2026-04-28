@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using FluentValidation;
 using CIS.Assets.Models;
 
@@ -27,15 +26,6 @@ public class BusinessInterestDTO
                 RuleFor(x => x.BusinessName).NotEmpty().MaximumLength(200);
                 RuleFor(x => x.OwnershipPercentage).InclusiveBetween(0, 100);
             }
-        }
-    }
-
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<BusinessInterest, Browse>().ReverseMap();
-            CreateMap<BusinessInterest, PageModel>().ReverseMap();
         }
     }
 }

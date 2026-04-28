@@ -1,6 +1,4 @@
-﻿using CIS.API.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 
 namespace CIS.API.Data
 {

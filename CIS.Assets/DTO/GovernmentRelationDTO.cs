@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using FluentValidation;
 using CIS.Assets.Models;
 
@@ -29,15 +28,6 @@ public class GovernmentRelationDTO
                 RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
                 RuleFor(x => x.Relationship).NotEmpty().MaximumLength(100);
             }
-        }
-    }
-
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<GovernmentRelation, Browse>().ReverseMap();
-            CreateMap<GovernmentRelation, PageModel>().ReverseMap();
         }
     }
 }

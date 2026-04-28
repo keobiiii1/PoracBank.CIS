@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using System.ComponentModel.DataAnnotations;
 using CIS.Assets.Enum;
 using CIS.Assets.Models;
@@ -146,25 +145,6 @@ public class IndividualInfoDTO
                 return new ValidationResult("Applicant must be at least 21 years old.");
 
             return ValidationResult.Success;
-        }
-    }
-
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<IndividualInfo, Browse>().ReverseMap();
-
-            CreateMap<PageModel, IndividualFamily>().ReverseMap()
-                .ForMember(dest => dest.IndividualInfoID, opt => opt.Ignore());
-
-            CreateMap<PageModel, IndividualForeigner>().ReverseMap()
-                .ForMember(dest => dest.IndividualInfoID, opt => opt.Ignore());
-
-            CreateMap<IndividualInfo, PageModel>().ReverseMap()
-                .ForMember(dest => dest.IndividualInfoID, opt => opt.Ignore());
-
-            CreateMap<PageModel, IndividualForeigner>();
         }
     }
 }

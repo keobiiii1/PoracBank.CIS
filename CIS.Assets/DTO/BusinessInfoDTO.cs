@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using FluentValidation;
 using CIS.Assets.Enum;
 using CIS.Assets.Models;
@@ -62,30 +61,5 @@ public class BusinessInfoDTO
     {
         public PageModel Business { get; set; } = new();
         public AddressDTO.PageModel Address { get; set; } = new();
-    }
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<BusinessInfo, PageModel>().ReverseMap();
-
-            CreateMap<PageModel, BusinessInfo>()
-                .ForMember(d => d.BusinessInfoID, o => o.Ignore())
-                .ForMember(d => d.CustomerID, o => o.Ignore());
-
-            CreateMap<PageModel, AccountPurpose>()
-                .ForMember(d => d.AccountPurposeID, o => o.Ignore())
-                .ForMember(d => d.PurposeOfAccount, o => o.MapFrom(s => s.AccountPurpose))
-                .ForMember(d => d.PurposeOfAccountOther, o => o.MapFrom(s => s.AccountPurposeOther));
-
-            CreateMap<PageModel, Contact>()
-                .ForMember(d => d.ContactID, o => o.Ignore())
-                .ForMember(d => d.EmailAddress, o => o.MapFrom(s => s.EmailAddress))
-                .ForMember(d => d.ContactPerson, o => o.MapFrom(s => s.ContactPerson))
-                .ForMember(d => d.MobilePhoneNumber, o => o.MapFrom(s => s.OfficePhoneNo));
-
-            CreateMap<AddressDTO.PageModel, Address>()
-                .ForMember(d => d.AddressID, o => o.Ignore());
-        }
     }
 }

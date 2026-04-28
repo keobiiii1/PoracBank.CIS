@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using CIS.API.Data;
 using CIS.Assets.Models;
 using CIS.Assets.DTO;
@@ -9,13 +8,11 @@ namespace CIS.API.Repositories;
 
 public class BusinessRepository
 {
-    private readonly IMapper _mapper;
     private readonly IDbContextFactory<CISDbContext> _dbContextFactory;
     private readonly ITransactionPolicy _transactionPolicy;
 
-    public BusinessRepository(IMapper mapper, IDbContextFactory<CISDbContext> dbContextFactory, ITransactionPolicy transactionPolicy)
+    public BusinessRepository(IDbContextFactory<CISDbContext> dbContextFactory, ITransactionPolicy transactionPolicy)
     {
-        _mapper = mapper;
         _dbContextFactory = dbContextFactory;
         _transactionPolicy = transactionPolicy;
     }
@@ -42,12 +39,12 @@ public class BusinessRepository
             long customerId = customer.CustomerID;
 
             // 2. Map and Add Main Business Info
-            var bizInfo = _mapper.Map<BusinessInfo>(request.Business);
+            var bizInfo = DtoMapper.ToBusinessInfo(request.Business);
             bizInfo.CustomerID = customerId;
             _db.BusinessInfos.Add(bizInfo);
 
             // 3. Save Address
-            var address = _mapper.Map<Address>(request.Address);
+            var address = DtoMapper.ToAddress(request.Address);
             address.EntityID = customerId;
             address.EntityType = EntityType.Business;
             _db.Addresses.Add(address);
@@ -65,20 +62,20 @@ public class BusinessRepository
             // 5. Save Beneficiary (if any)
             if (!string.IsNullOrEmpty(request.Beneficiary.BeneficiaryName))
             {
-                var beneficiary = _mapper.Map<Beneficiary>(request.Beneficiary);
+                var beneficiary = DtoMapper.ToBeneficiary(request.Beneficiary);
                 beneficiary.CustomerID = customerId;
                 beneficiary.EntityType = EntityType.Business;
                 _db.Beneficiaries.Add(beneficiary);
             }
 
             // 6. Save Acknowledgement (Signature)
-            var ack = _mapper.Map<ClientAcknowledgement>(request.Acknowledgement);
+            var ack = DtoMapper.ToClientAcknowledgement(request.Acknowledgement);
             ack.CustomerID = customerId;
             ack.EntityType = EntityType.Business;
             _db.ClientAcknowledgements.Add(ack);
 
             // 7. Save Bank Review
-            var review = _mapper.Map<BankReview>(request.BankReview);
+            var review = DtoMapper.ToBankReview(request.BankReview);
             review.CustomerID = customerId;
             review.EntityType = EntityType.Business;
             _db.BankReviews.Add(review);

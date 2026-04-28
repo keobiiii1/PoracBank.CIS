@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using CIS.API.Data;
 using CIS.Assets.DTO;
 using CIS.Assets.Enum;
@@ -10,16 +9,13 @@ namespace CIS.API.Repositories;
 
 public class IndividualRepository
 {
-    private readonly IMapper _mapper;
     private readonly IDbContextFactory<CISDbContext> _dbContextFactory;
     private readonly ITransactionPolicy _transactionPolicy;
 
     public IndividualRepository(
-        IMapper mapper,
         IDbContextFactory<CISDbContext> dbContextFactory,
         ITransactionPolicy transactionPolicy)
     {
-        _mapper = mapper;
         _dbContextFactory = dbContextFactory;
         _transactionPolicy = transactionPolicy;
     }
@@ -52,14 +48,14 @@ public class IndividualRepository
             request.Employment.CustomerID = customerId;
 
             // 3. Save Core Info (IndividualInfo)
-            var individualInfo = _mapper.Map<IndividualInfo>(request.Individual);
+            var individualInfo = DtoMapper.ToIndividualInfo(request.Individual);
             _db.IndividualInfos.Add(individualInfo);
 
             // 4. Save Identification & Employment
             _db.IndividualIdentifications.Add(MapIdentification(request.Identification, customerId));
-            _db.IndividualEmployments.Add(_mapper.Map<IndividualEmployment>(request.Employment));
+            _db.IndividualEmployments.Add(DtoMapper.ToIndividualEmployment(request.Employment));
 
-            // 5. Save Family (Manual mapping ensures data is copied even if AutoMapper fails)
+            // 5. Save Family
             _db.IndividualFamilies.Add(new IndividualFamily
             {
                 CustomerID = customerId,
@@ -87,7 +83,7 @@ public class IndividualRepository
 
             // 7. Save Address & Contact
             // ContactPerson, OfficePhoneNo, EmailAddress from AccountContact (step 8) merged here
-            var address = _mapper.Map<Address>(request.Address);
+            var address = DtoMapper.ToAddress(request.Address);
             address.EntityID = customerId;
             address.EntityType = EntityType.Individual;
             _db.Addresses.Add(address);
@@ -117,7 +113,7 @@ public class IndividualRepository
                 ProductsAvailedOther = request.AccountContact.ProductsAvailedOther
             });
 
-            // 9. Save Business Interests List (Manual mapping prevents AutoMapper Exceptions)
+            // 9. Save Business Interests List
             if (request.Individual.BusinessInterests != null)
             {
                 foreach (var biz in request.Individual.BusinessInterests)
@@ -169,7 +165,7 @@ public class IndividualRepository
             // 11. Save Business Info (Step 7 — BusinessInformation component)
             if (!string.IsNullOrEmpty(request.Business.NameOfBusiness))
             {
-                var bizInfo = _mapper.Map<BusinessInfo>(request.Business);
+                var bizInfo = DtoMapper.ToBusinessInfo(request.Business);
                 bizInfo.CustomerID = customerId;
                 _db.BusinessInfos.Add(bizInfo);
             }
@@ -177,20 +173,20 @@ public class IndividualRepository
             // 12. Save Beneficiary (if any)
             if (!string.IsNullOrEmpty(request.Beneficiary.BeneficiaryName))
             {
-                var beneficiary = _mapper.Map<Beneficiary>(request.Beneficiary);
+                var beneficiary = DtoMapper.ToBeneficiary(request.Beneficiary);
                 beneficiary.CustomerID = customerId;
                 beneficiary.EntityType = EntityType.Individual;
                 _db.Beneficiaries.Add(beneficiary);
             }
 
             // 13. Save Acknowledgement (Signature)
-            var ack = _mapper.Map<ClientAcknowledgement>(request.Acknowledgement);
+            var ack = DtoMapper.ToClientAcknowledgement(request.Acknowledgement);
             ack.CustomerID = customerId;
             ack.EntityType = EntityType.Individual;
             _db.ClientAcknowledgements.Add(ack);
 
             // 14. Save Bank Review
-            var bankReview = _mapper.Map<BankReview>(request.BankReview);
+            var bankReview = DtoMapper.ToBankReview(request.BankReview);
             bankReview.CustomerID = customerId;
             bankReview.EntityType = EntityType.Individual;
             _db.BankReviews.Add(bankReview);
@@ -207,7 +203,7 @@ public class IndividualRepository
         }
     }
 
-    public async Task<IndividualRegistrationRequest> GetFullRegistrationDetailsAsync(long customerId)
+    public async Task<IndividualRegistrationRequest?> GetFullRegistrationDetailsAsync(long customerId)
     {
         using var _db = _dbContextFactory.CreateDbContext();
 
@@ -221,11 +217,11 @@ public class IndividualRepository
         // 2. Table: IndividualInfos (Core Personal Data)
         var infoModel = await _db.IndividualInfos.AsNoTracking()
             .FirstOrDefaultAsync(e => e.CustomerID == customerId);
-        response.Individual = _mapper.Map<IndividualInfoDTO.PageModel>(infoModel);
+        response.Individual = DtoMapper.ToIndividualInfoPageModel(infoModel);
 
         if (response.Individual != null && infoModel != null)
         {
-            // IsGov in DB → IsGovOfficial in DTO (names differ — AutoMapper won't auto-map)
+            // IsGov in DB → IsGovOfficial in DTO (names differ)
             response.Individual.IsGovOfficial = infoModel.IsGov;
             // Sync Step 1 & Meta Data from Customer Table
             response.Individual.CustomerCategories = customer.CustomerCategories;
@@ -265,22 +261,22 @@ public class IndividualRepository
         // 5. Table: Addresses
         var addr = await _db.Addresses.AsNoTracking()
             .FirstOrDefaultAsync(e => e.EntityID == customerId && e.EntityType == EntityType.Individual);
-        response.Address = _mapper.Map<AddressDTO.PageModel>(addr);
+        response.Address = DtoMapper.ToAddressPageModel(addr);
 
         // 6. Table: IndividualIdentifications
         var ident = await _db.IndividualIdentifications.AsNoTracking()
             .FirstOrDefaultAsync(e => e.CustomerID == customerId);
-        response.Identification = _mapper.Map<IndividualIdentificationDTO.PageModel>(ident);
+        response.Identification = DtoMapper.ToIndividualIdentificationPageModel(ident);
 
         // 7. Table: IndividualEmployments
         var employ = await _db.IndividualEmployments.AsNoTracking()
             .FirstOrDefaultAsync(e => e.CustomerID == customerId);
-        response.Employment = _mapper.Map<IndividualEmploymentDTO.PageModel>(employ);
+        response.Employment = DtoMapper.ToIndividualEmploymentPageModel(employ);
 
         // 8. Table: IndividualFamilies
         var family = await _db.IndividualFamilies.AsNoTracking()
             .FirstOrDefaultAsync(e => e.CustomerID == customerId);
-        response.Family = _mapper.Map<IndividualFamilyDTO.PageModel>(family);
+        response.Family = DtoMapper.ToIndividualFamilyPageModel(family);
 
         // Sync Family fields into Individual so Review_Submit can read them from Personal
         if (family != null && response.Individual != null)
@@ -296,12 +292,12 @@ public class IndividualRepository
         // 9. Table: IndividualForeigners (Optional)
         var foreigner = await _db.IndividualForeigners.AsNoTracking()
             .FirstOrDefaultAsync(e => e.CustomerID == customerId);
-        response.Foreigner = _mapper.Map<IndividualForeignerDTO.PageModel>(foreigner);
+        response.Foreigner = DtoMapper.ToIndividualForeignerPageModel(foreigner);
 
         // 10. Table: Contacts & AccountPurposes (Combined logic)
         var contact = await _db.Contacts.AsNoTracking()
             .FirstOrDefaultAsync(e => e.EntityID == customerId && e.EntityType == EntityType.Individual);
-        response.Contact = _mapper.Map<ContactDTO.PageModel>(contact);
+        response.Contact = DtoMapper.ToContactPageModel(contact);
 
         // Sync Contact fields into Individual so Review_Submit can read them from Personal
         if (contact != null && response.Individual != null)
@@ -315,7 +311,7 @@ public class IndividualRepository
             .FirstOrDefaultAsync(e => e.EntityID == customerId && e.EntityType == EntityType.Individual);
         if (purpose != null)
         {
-            response.AccountPurpose = _mapper.Map<AccountPurposeDTO.PageModel>(purpose);
+            response.AccountPurpose = DtoMapper.ToAccountPurposePageModel(purpose);
 
             // AccountContact mirrors the individual's account purpose data for the print form
             response.AccountContact = new BusinessInfoDTO.PageModel
@@ -334,19 +330,19 @@ public class IndividualRepository
         var biz = await _db.BusinessInfos.AsNoTracking()
             .FirstOrDefaultAsync(e => e.CustomerID == customerId);
         if (biz != null)
-            response.Business = _mapper.Map<BusinessInfoDTO.PageModel>(biz);
+            response.Business = DtoMapper.ToBusinessInfoPageModel(biz);
 
         // 12. Table: Beneficiaries (optional)
         var beneficiary = await _db.Beneficiaries.AsNoTracking()
             .FirstOrDefaultAsync(e => e.CustomerID == customerId);
         if (beneficiary != null)
-            response.Beneficiary = _mapper.Map<BeneficiaryDTO.PageModel>(beneficiary);
+            response.Beneficiary = DtoMapper.ToBeneficiaryPageModel(beneficiary);
 
         // 13. Table: ClientAcknowledgements
         var ack = await _db.ClientAcknowledgements.AsNoTracking()
             .FirstOrDefaultAsync(e => e.CustomerID == customerId);
         if (ack != null)
-            response.Acknowledgement = _mapper.Map<ClientAcknowledgementDTO.PageModel>(ack);
+            response.Acknowledgement = DtoMapper.ToClientAcknowledgementPageModel(ack);
 
         // 14. Table: BankReview
         var bankReview = await _db.BankReviews.AsNoTracking()
@@ -413,8 +409,7 @@ public class IndividualRepository
     }
 
     // ── Manual mapping for IndividualIdentification ────────────────
-    // AutoMapper ReverseMap() cannot invert custom MapFrom expressions,
-    // so we parse each DataUrl into bytes + contentType here.
+    // Parse each DataUrl into bytes + contentType here.
     private static IndividualIdentification MapIdentification(
         IndividualIdentificationDTO.PageModel src, long customerId)
     {

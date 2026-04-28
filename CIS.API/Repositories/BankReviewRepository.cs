@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using CIS.API.Data;
 using CIS.Assets.Models;
 using CIS.Assets.DTO;
@@ -8,13 +7,11 @@ namespace CIS.API.Repositories;
 
 public class BankReviewRepository
 {
-    private readonly IMapper _mapper;
     private readonly IDbContextFactory<CISDbContext> _dbContextFactory;
     private readonly ITransactionPolicy _transactionPolicy;
 
-    public BankReviewRepository(IMapper mapper, IDbContextFactory<CISDbContext> dbContextFactory, ITransactionPolicy transactionPolicy)
+    public BankReviewRepository(IDbContextFactory<CISDbContext> dbContextFactory, ITransactionPolicy transactionPolicy)
     {
-        _mapper = mapper;
         _dbContextFactory = dbContextFactory;
         _transactionPolicy = transactionPolicy;
     }
@@ -29,12 +26,12 @@ public class BankReviewRepository
 
             if (old == null)
             {
-                var model = _mapper.Map<BankReview>(request);
+                var model = DtoMapper.ToBankReview(request);
                 _db.BankReviews.Add(model);
             }
             else
             {
-                _mapper.Map(request, old);
+                DtoMapper.CopyBankReview(request, old);
 
                 _db.Entry(old).Property(x => x.BankReviewID).IsModified = false;
 

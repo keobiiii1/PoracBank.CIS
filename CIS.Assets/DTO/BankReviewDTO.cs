@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using CIS.Assets.Enum;
 using CIS.Assets.Models;
 
@@ -32,21 +31,5 @@ public class BankReviewDTO
         public string? VerifiedBy { get; set; }
         public string? ApprovedBy { get; set; }
         public string? Remarks { get; set; }
-    }
-
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<PageModel, BankReview>()
-                .ForMember(dest => dest.BankReviewID, opt => opt.Ignore())
-                .ForMember(dest => dest.CheckedAgainst, opt => opt.MapFrom(src => string.Join(",", src.ScreeningList)))
-                .ForMember(dest => dest.NatureOfWorkBusiness, opt => opt.MapFrom(src => string.Join(",", src.WorkList)))
-                .ForMember(dest => dest.DocumentsPresented, opt => opt.MapFrom(src => string.Join(",", src.DocsList)))
-                .ForMember(dest => dest.AdditionalDocuments, opt => opt.MapFrom(src => string.Join(",", src.AdditionalDocsList)))
-                .ForMember(dest => dest.ReviewerSignature, opt => opt.MapFrom(src => src.SignatureAuthenticated));
-
-            CreateMap<BankReview, PageModel>();
-        }
     }
 }

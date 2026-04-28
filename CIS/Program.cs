@@ -19,8 +19,6 @@ builder.Services.AddScoped(sp => new HttpClient
     BaseAddress = new Uri(apiBaseUrl)
 });
 
-builder.Services.AddAutoMapper(typeof(Program).Assembly, typeof(CIS.Assets.DTO.CustomerDTO).Assembly);
-
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<IndividualService>();
 builder.Services.AddScoped<ProfileService>();

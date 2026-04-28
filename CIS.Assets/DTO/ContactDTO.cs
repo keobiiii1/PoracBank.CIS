@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using System.ComponentModel.DataAnnotations;
 using CIS.Assets.Enum;
 using CIS.Assets.Models;
@@ -32,14 +31,5 @@ public class ContactDTO
 
         [MaxLength(200)]
         public string? ContactPerson { get; set; }
-    }
-
-    public class MappingProfile : Profile
-    {
-        public MappingProfile()
-        {
-            CreateMap<Contact, Browse>().ReverseMap();
-            CreateMap<Contact, PageModel>().ReverseMap();
-        }
     }
 }
